@@ -1,0 +1,10 @@
+#accordion2.accordion
+  {{ _(children).each(function(child){ }}
+  .accordion-group
+    .accordion-heading
+      %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseOne"}
+        {{= child.heading}}
+    #collapseOne.accordion-body.collapse.in
+      .accordion-inner
+        {{= child.body}}
+  {{ }); }}

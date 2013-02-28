@@ -1,0 +1,10 @@
+.modal.hide.fade
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+		%h3 {{= yield :heading}}
+	.modal-body
+		{{= yield :body}}
+	.modal-footer
+		{{ _(buttons).each(function(btn){ }}
+		%a{class: "btn", href: "#"}{{= btn.text}}
+		{{ });}}

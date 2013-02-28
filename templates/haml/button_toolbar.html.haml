@@ -1,0 +1,7 @@
+.btn-toolbar
+	{{ _(button-groups).each(function(btn-group){  }}
+	.btn-group
+		{{ _(buttons).each(function(btn){ }}
+		%button.btn {{= btn.text}}	
+		{{ });}}
+	{{ });}}

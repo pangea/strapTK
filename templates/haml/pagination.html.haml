@@ -1,0 +1,10 @@
+.pagination
+	%ul
+		%li
+			%a{:href => "#"}«
+		{{ _(links).each(function(link){  }}
+		%li
+			%a{:href => "#"} {{= yield}}	
+		{{ });}}	
+		%li
+			%a{:href => "#"}»

@@ -1,0 +1,12 @@
+<div class='navbar'>
+  <div class='navbar-inner'>
+    <a class='brand' href='#'>{{= yield }}</a>
+    <ul class='nav'>
+      {{ _(links).each(function(link){  }}
+      <li>
+        <a href='{{= link.href }}'>{{= link.text }}</a>
+      </li>
+      {{ });}}
+    </ul>
+  </div>
+</div>

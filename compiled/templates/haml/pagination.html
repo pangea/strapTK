@@ -1,0 +1,15 @@
+<div class='pagination'>
+  <ul>
+    <li>
+      <a href='#'>«</a>
+    </li>
+    {{ _(links).each(function(link){  }}
+    <li>
+      <a href='#'>{{= yield}}</a>
+    </li>
+    {{ });}}
+    <li>
+      <a href='#'>»</a>
+    </li>
+  </ul>
+</div>

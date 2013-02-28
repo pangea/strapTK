@@ -1,0 +1,15 @@
+#myCarousel.carousel.slide
+  %ol.carousel-indicators
+    {{ _(slides).each(function(slide){ }}
+    %li{"data-slide-to" => "", "data-target" => "#myCarousel"}
+    {{= slide}}
+    {{ }); }}
+  / Carousel items
+  .carousel-inner
+    {{ _(items).each(function(item){ }}
+    .item
+    {{= item}}
+    {{ }); }}  
+  / Carousel nav
+  %a.carousel-control.left{"data-slide" => "prev", :href => "#myCarousel"} &lsaquo;
+  %a.carousel-control.right{"data-slide" => "next", :href => "#myCarousel"} &rsaquo;

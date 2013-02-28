@@ -1,0 +1,16 @@
+<div class='accordion' id='accordion2'>
+  {{ _(children).each(function(child){ }}
+  <div class='accordion-group'>
+    <div class='accordion-heading'>
+      <a class='accordion-toggle' data-parent='#accordion2' data-toggle='collapse' href='#collapseOne'>
+        {{= child.heading}}
+      </a>
+    </div>
+    <div class='accordion-body collapse in' id='collapseOne'>
+      <div class='accordion-inner'>
+        {{= child.body}}
+      </div>
+    </div>
+  </div>
+  {{ }); }}
+</div>

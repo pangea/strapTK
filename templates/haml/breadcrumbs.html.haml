@@ -1,0 +1,6 @@
+%ul.breadcrumb
+	{{ _(links).each(function(link){  }}
+	%li
+		%a{:href => "#"} {{= link.text }}
+		%span.divider /
+	{{ });}}	
