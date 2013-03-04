@@ -273,6 +273,23 @@ var AbstractBadge = Panel.extend({
                           "{{= yield }}"+
                         "</span>")
 });
+var Link = Panel.extend({
+  initialize : function(args) {
+    Link.__super__.initialize.call(this, args);
+    var hasHREF = false;
+    _.each(this.attributes, function(attr) {
+      if(attr.match(/^href/)) {
+        hasHREF = true;
+        return false;
+      }
+    });
+    if(!hasHREF) {
+      this.attributes.push("href='#'");
+    }
+  },
+
+  template : _.template("<a id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</a>")
+});
 var Alert = Panel.extend({
   types: ["error", "success", "info"],
 
@@ -421,23 +438,6 @@ var Label = AbstractBadge.extend({
     this.base = "label";
     Label.__super__.initialize.call(this, args);
   }
-});
-var Link = Panel.extend({
-  initialize : function(args) {
-    Link.__super__.initialize.call(this, args);
-    var hasHREF = false;
-    _.each(this.attributes, function(attr) {
-      if(attr.match(/^href/)) {
-        hasHREF = true;
-        return false;
-      }
-    });
-    if(!hasHREF) {
-      this.attributes.push("href='#'");
-    }
-  },
-
-  template : _.template("<a id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</a>")
 });
 var Modal = Panel.extend({
 	initialize : function(args) {
@@ -625,8 +625,66 @@ Raw.prototype.render = function() {
   return this.text;
 }
 ;
+var Accordion = Panel.extend({
+	//this one is going to take some thought....
+	template : _.template(
+												"<div class='accordion' id='{{= rootID }}' {{= rootAttrs }}>"+
+													"{{ _(children).each(function(child){ }}"+
+													"<div class='accordion-group'>"+
+														"<div class='accordion-heading'>"+
+															"<a class='accordion-toggle' data-parent='{{= rootID }}' data-toggle='collapse' href='#collapseOne'>"+
+																"{{= child.heading}}"+
+															"</a>"+
+														"</div>"+
+														"<div class='accordion-body collapse in' id='collapseOne'>"+
+															"<div class='accordion-inner'>"+
+																"{{= child.body}}"+
+															"</div>"+
+														"</div>"+
+													"</div>"+
+													"{{ }); }}"+
+												"</div>"
+												)
+
+});
+var Carousel = Component.extend({
+	//Gunna have to come back to this one
+	template : _.template(
+												"<div class='carousel slide' id='{{= rootID }}' {{= rootAttrs }}>"+
+													"<ol class='carousel-indicators'>"+
+														"{{ _(slides).each(function(slide, i){ }}"+
+														"<li data-slide-to='{{= i }}' data-target='#{{= rootID }}'></li>"+
+														"{{= slide}}"+
+														"{{ }); }}"+
+													"</ol>"+
+													"<div class='carousel-inner'>"+
+														"{{ _(items).each(function(item){ }}"+
+														"<div class='item'></div>"+
+														"{{= item}}"+
+														"{{ }); }}"+
+													"</div>"+
+													"<a class='carousel-control left' data-slide='prev' href='#{{= rootID }}'>&lsaquo;</a>"+
+													"<a class='carousel-control right' data-slide='next' href='#{{= rootID }}'>&rsaquo;</a>"+
+												"</div>"
+												)
+
+});
+var Thumbnail = Component.extend({
+
+	template : _.template(
+												"<ul class='thumbnails'>"+
+													"{{ _(children).each(function(child){ }}"+
+													"<li class='span3'>"+
+														"<img src='{{= child }}' />"+
+													"</li>"+
+													"{{ }); }}"+
+												"</ul>"
+												)
+
+});
 /* Manifest file for compiling assets with Sprockets
  *
+
 
 
 

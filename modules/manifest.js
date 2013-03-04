@@ -5,5 +5,6 @@
  *= require Viewport
  *= require Panel
  *= require Abstract_Badge
+ *= require Link
  *= require_tree .
  */
