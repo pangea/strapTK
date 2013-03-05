@@ -12,5 +12,8 @@ Strap was designed for use by JavaScript developers that are sick of writing HTM
 * [The Lo-Dash team](http://lodash.com/) for their work on a nice API for manipulating JavaScript objects in a way that makes sense.
 * [The Bootstrap Guys](http://twitter.github.com/bootstrap/index.html) for building an awesome framework to build on.
 * [The Backbone team](http://backbonejs.org/) for being way smarter than I am and writing a pretty damn perfect <code>extend</code> function
+* [Me](https://github.com/chall8908) for getting shit done.
+
+Speaking of attributions to myself, if you're using Strap'd, let me know!  I'd love to hear from you.  While you're letting me know, you should let everyone ELSE know too.  A little blurb somewhere out of the way is all I ask.  If you're feeling especially generous, a link back here would be awesome!
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Strap'd ToolKit</span> by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Chris Hall</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
