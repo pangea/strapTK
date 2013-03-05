@@ -1,4 +1,4 @@
-var Nav = Panel.extend({
+var Nav = List.extend({
   initialize: function(args) {
     Nav.__super__.initialize.call(this, args);
 
@@ -13,14 +13,20 @@ var Nav = Panel.extend({
     Typify(this);
   },
 
-  template: _.template( "<ul id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-                          "{{= yield }}"+
-                        "</ul>"),
+  renderChildren : function(prefix, suffix) {
+    prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+
+    var markup = "";
+    _.each(this.children, function(child) {
+      markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+    });
+    return markup;
+  },
 
   render : function() {
     var markup = Nav.__super__.render.call(this);
     if(this.divided) {
-      markup = markup.split("</li><li>").join("</li><li class='divider-vertical'></li><li>");
+      markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
     }
     return markup
   },

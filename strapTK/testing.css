@@ -9,10 +9,19 @@
 
 #header-nav .navbar-inner {
   border-radius: 0px;
-  padding: 0px 510px;
+}
+
+#navbar-format {
+  width: 900px;
+  margin: 0 auto;
 }
 
 #main {
   width: 900px;
   margin: 0 auto;
+}
+
+#todo-list {
+  list-style: none;
+  margin-left: 0px;
 }

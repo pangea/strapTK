@@ -10,7 +10,7 @@ Strap was designed for use by JavaScript developers that are sick of writing HTM
 * [Chris Rankin](https://github.com/rankin) for the original idea and kicking my ass into actually doing it.
 * [The jQuery team](http://jquery.com/) for making, arguably, the best DOM manipulation library ever.
 * [The Lo-Dash team](http://lodash.com/) for their work on a nice API for manipulating JavaScript objects in a way that makes sense.
-* [The Bootstrap Guys](http://twitter.github.com/bootstrap/index.html) for building an awesome framework to build on.
+* [The Bootstrap team](http://twitter.github.com/bootstrap/index.html) for building an awesome framework to build on.
 * [The Backbone team](http://backbonejs.org/) for being way smarter than I am and writing a pretty damn perfect <code>extend</code> function
 * [The FontAwesome team](https://github.com/FortAwesome/Font-Awesome) for making a damn cool icon pack that just works.
 * [Me](https://github.com/chall8908) for getting shit done.

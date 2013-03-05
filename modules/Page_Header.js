@@ -4,13 +4,16 @@ var PageHeader = Panel.extend({
     if(!this.hasOwnProperty("header")) {
       this.header = "";
     }
+    if(!this.hasOwnProperty("level")) {
+      this.level = 1;
+    }
   },
 
 	template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-													"<h1>"+
+													"<h{{= level }}>"+
 														"{{= header}} "+
 														"<small>{{= yield}}</small>"+
-													"</h1>"+
+													"</h{{= level }}>"+
 												"</div>"),
 
   render : function() {
@@ -18,6 +21,7 @@ var PageHeader = Panel.extend({
     return this.template({
       "yield": markup,
       "header": this.header,
+      "level": this.level,
       "rootID": this.id,
       "rootClasses": this.classes.join(" "),
       "rootAttrs": this.attributes.join(" ")

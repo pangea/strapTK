@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="../dependencies/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../dependencies/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" type="text/css" href="../dependencies/font-awesome/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="testing.css">
+    <script type="text/javascript" src="../dependencies/lodash.min.js"></script>
+    <script src='http://code.jquery.com/jquery-1.9.0.min.js'></script>
+    <script type="text/javascript" src="../dependencies/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../strapTK.js"></script>
+    <script type="text/javascript">
+var port = new Viewport(),
+    header = new Panel({
+      id: "header",
+      children: [
+        new HeroUnit({
+          id: "header",
+          title: "About Strap'd",
+          body: "The people and products that made Strap'd TK possible.",
+          children: [
+            new NavBar({
+              id: "header-nav",
+              children: [
+                new Panel({
+                  id: "navbar-format",
+                  children: [
+                    new Link({
+                      body: "Home",
+                      classes: ["brand"],
+                      attributes: ["href='index.html'"]
+                    }),
+                    new Nav({
+                      divided: true,
+                      children: [
+                        new Link({
+                          body: "Get Strap'd",
+                          attributes: ["href='../strapTK.min.js'"]
+                        }),
+                        new Link({
+                          body: "API Docs",
+                          attributes: ["href='#'"]
+                        }),
+                        new Link({
+                          body: "About",
+                          active: true,
+                          attributes: ["href='about.html'"]
+                        })
+                      ]
+                    })
+                  ]
+                })
+              ]
+            })
+          ]
+        })
+      ]
+    }),
+    wrapper = new Panel({
+      id: "main"
+    }),
+    content = new Panel({
+      id: "content",
+      classes: ["well"],
+      children: [
+        new PageHeader({
+          header: "Bryan Zettler",
+          level: 3,
+          body: "HTML/HAML templates"
+        }),
+        new Nav({
+          type: "pills",
+          children: [
+            new Link({
+              body: "GitHub",
+              attributes: ["href='https://github.com/BryIsAZombie'"]
+            })
+          ]
+        }),
+        new P({
+          body: "Bryan was brought on very early on (read: day 1) to help get all the templates written and generally be knowledgable about Bootstrap and FontAwesome.  He help with a lot of the initial set up and, without him, this project probably wouldn't have gotten off the ground nearly as fast as it did."
+        }),
+        new HR(),
+        new PageHeader({
+          header: "Chris Rankin",
+          level: 3,
+          body: "Project Management and general Ass Kickery"
+        }),
+        new Nav({
+          type: "pills",
+          children: [
+            new Link({
+              body: "GitHub",
+              attributes: ["href='https://github.com/rankin'"]
+            })
+          ]
+        }),
+        new P({
+          body: "Strap'd is, ultimately, the brain-child of this man.  It was Chris' idea to build this toolkit originally and I was designated as the best person we had to make it.  He helped lay out the original design and kicked my ass into getting it done ASAP.  He helped me talk through problems and design solutions and, without him, Strap'd wouldn't exist."
+        }),
+        new HR(),
+        new PageHeader({
+          header: "The jQuery Team",
+          level: 3,
+          body: "Developing a sweet DOM manipulation library"
+        }),
+        new Nav({
+          divided: true,
+          type: "pills",
+          children: [
+            new Link({
+              body: "Website",
+              attributes: ["href='http://jquery.com/'"]
+            }),
+            new Link({
+              body: "GitHub",
+              attributes: ["href='http://github.com/jquery/'"]
+            })
+          ]
+        }),
+        new P({
+          body: "If you've never heard of jQuery, I'd love to know what rock you live under.  Responsible for what is, arguably, the best and most widely known DOM manipulation library in existance, they've been making my life, and lives of countless other developers, easier since I started actively developing for the web."
+        }),
+        new HR(),
+        new PageHeader({
+          header: "The Lo-Dash Team",
+          level: 3,
+          body: "Developing a nice utility library for working with Javascript Objects"
+        }),
+        new Nav({
+          divided: true,
+          type: "pills",
+          children: [
+            new Link({
+              body: "Website",
+              attributes: ["href='http://lodash.com/'"]
+            }),
+            new Link({
+              body: "GitHub",
+              attributes: ["href='https://github.com/bestiejs/'"]
+            })
+          ]
+        }),
+        new P({
+          body: "I found the Lo-Dash library when I first started working with Backbone.  I never got far with Backbone, but Lo-Dash made quite an impression on me.  Aside from my usual JS work, I deal with a lot of Ruby code and Lo-Dash felt very Ruby-ish to me with its chaining syntax.  I've always liked code that reads like what it does and Lo-Dash helps me do that."
+        }),
+        new HR(),
+        new PageHeader({
+          header: "The Bootstrap Team",
+          level: 3,
+          body: "Developing a responsive design framework that looks damn sexy"
+        }),
+        new Nav({
+          divided: true,
+          type: "pills"
+        })
+      ]
+    });
+
+wrapper.add(content);
+port.add(header);
+port.add(wrapper);
+$(function() {
+  port.render();
+})
+    </script>
+  </head>
+  <body></body>
+</html>

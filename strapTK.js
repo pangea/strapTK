@@ -1,3 +1,8 @@
+/*
+ * Strap'd ToolKit v 0.1.0 Copyright 2013 to Chris Hall
+ * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
+ */
+;
 _.templateSettings = {
     'evaluate': /\{\{([\s\S]+?)\}\}/g,      // {{ [code] }}
     'interpolate': /\{\{\=([\s\S]+?)\}\}/g  // {{= [code] }}
@@ -290,6 +295,22 @@ var Link = Panel.extend({
 
   template : _.template("<a id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</a>")
 });
+var List = Panel.extend({
+  initialize : function(args) {
+    List.__super__.initialize.call(this, args);
+
+    if(this.childPrefix === "") {
+      this.childPrefix = "<li>";
+    }
+    if(this.childSuffix === "") {
+      this.childSuffix = "</li>";
+    }
+  },
+
+  template: _.template( "<ul id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
+                          "{{= yield }}"+
+                        "</ul>")
+});
 var Alert = Panel.extend({
   types: ["error", "success", "info"],
 
@@ -432,6 +453,12 @@ var HeroUnit = Panel.extend({
     });
   }
 });
+function HorizontalRule(args) {}
+HorizontalRule.prototype.render = function() {
+  return "<hr/>";
+}
+
+var HR = HorizontalRule;
 var Icon = Panel.extend({
   initialize : function(args) {
     Icon.__super__.initialize.call(this, args);
@@ -443,7 +470,7 @@ var Icon = Panel.extend({
     Typify(this);
   },
 
-  template : _.template("<i id='{{= rootID }} class='{{= rootClasses }} {{= rootAttrs }}></i>")
+  template : _.template("<i id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}></i> {{= yield }}")
 });
 
 var ICONLIST = [
@@ -541,7 +568,7 @@ var Modal = Panel.extend({
 
 //aliases
 Modal.prototype.addAction = Modal.prototype.pushAction;
-var Nav = Panel.extend({
+var Nav = List.extend({
   initialize: function(args) {
     Nav.__super__.initialize.call(this, args);
 
@@ -556,14 +583,20 @@ var Nav = Panel.extend({
     Typify(this);
   },
 
-  template: _.template( "<ul id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-                          "{{= yield }}"+
-                        "</ul>"),
+  renderChildren : function(prefix, suffix) {
+    prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+
+    var markup = "";
+    _.each(this.children, function(child) {
+      markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+    });
+    return markup;
+  },
 
   render : function() {
     var markup = Nav.__super__.render.call(this);
     if(this.divided) {
-      markup = markup.split("</li><li>").join("</li><li class='divider-vertical'></li><li>");
+      markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
     }
     return markup
   },
@@ -594,13 +627,16 @@ var PageHeader = Panel.extend({
     if(!this.hasOwnProperty("header")) {
       this.header = "";
     }
+    if(!this.hasOwnProperty("level")) {
+      this.level = 1;
+    }
   },
 
 	template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-													"<h1>"+
+													"<h{{= level }}>"+
 														"{{= header}} "+
 														"<small>{{= yield}}</small>"+
-													"</h1>"+
+													"</h{{= level }}>"+
 												"</div>"),
 
   render : function() {
@@ -608,6 +644,7 @@ var PageHeader = Panel.extend({
     return this.template({
       "yield": markup,
       "header": this.header,
+      "level": this.level,
       "rootID": this.id,
       "rootClasses": this.classes.join(" "),
       "rootAttrs": this.attributes.join(" ")
@@ -641,6 +678,11 @@ var Pagination = Panel.extend({
 	}
 
 });
+var Paragraph = Panel.extend({
+  template : _.template("<p id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</p>")
+});
+
+var P = Paragraph;
 var ProgressBar = Panel.extend({
   types: ["info", "success", "warning", "danger"],
   initialize: function(args) {
@@ -742,6 +784,8 @@ var Thumbnail = Component.extend({
 });
 /* Manifest file for compiling assets with Sprockets
  *
+
+
 
 
 

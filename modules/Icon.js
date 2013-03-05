@@ -9,7 +9,7 @@ var Icon = Panel.extend({
     Typify(this);
   },
 
-  template : _.template("<i id='{{= rootID }} class='{{= rootClasses }} {{= rootAttrs }}></i>")
+  template : _.template("<i id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}></i> {{= yield }}")
 });
 
 var ICONLIST = [
