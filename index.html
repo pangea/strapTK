@@ -2,6 +2,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="dependencies/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="dependencies/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" type="text/css" href="dependencies/font-awesome/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="testing.css">
     <script type="text/javascript" src="dependencies/lodash.min.js"></script>
     <script src='http://code.jquery.com/jquery-1.9.0.min.js'></script>
@@ -14,12 +15,37 @@
           header = new Panel({
             id: "header",
             children: [
-                        new PageHeader({
-                          header: "Widget Toolkit",
-                          body: "An extensible framework for building HTML markup using Bootstrap, Font-Awesome, Lo-Dash, and jQuery.",
-                          id: "header"
-                        })
-                      ]
+              new HeroUnit({
+                id: "header",
+                title: "Strap'd ToolKit",
+                body: "An extensible framework for building HTML markup using Bootstrap, Font-Awesome, Lo-Dash, and jQuery.",
+                children: [
+                  new NavBar({
+                    id: "header-nav",
+                    children: [
+                      new Link({
+                        body: "Home",
+                        classes: ["brand"],
+                        attributes: ["href='/'"]
+                      }),
+                      new Nav({
+                        divided: true,
+                        children: [
+                          new Link({
+                            body: "Get Strap'd"/*,
+                            attributes: ["href='strapTK.min.js'"]*/
+                          }),
+                          new Link({
+                            body: "API Docs",
+                            attributes: ["href='#'"]
+                          })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              })
+            ]
           }),
           wrapper = new Panel({
             id: "main"
@@ -27,7 +53,7 @@
           content = new Panel({
             id: "content",
             children: [
-                        new Label({body: "Text", type: "inverse"}),
+                        /*new Label({body: "Text", type: "inverse"}),
                         new Raw(" This is some text"),
                         new Raw("<hr/>"),
                         new Label({body: "Breadcumbs", type: "inverse"}),
@@ -41,7 +67,7 @@
                         }),
                         new Raw("<hr/>"),
                         new Label({body: "Alert", type: "inverse"}),
-                        new Alert({body: "<strong>YO!</strong>  This is an alert!"})
+                        new Alert({body: "<strong>YO!</strong>  This is an alert!"})*/
                       ]
           });
 

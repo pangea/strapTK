@@ -12,6 +12,7 @@ Strap was designed for use by JavaScript developers that are sick of writing HTM
 * [The Lo-Dash team](http://lodash.com/) for their work on a nice API for manipulating JavaScript objects in a way that makes sense.
 * [The Bootstrap Guys](http://twitter.github.com/bootstrap/index.html) for building an awesome framework to build on.
 * [The Backbone team](http://backbonejs.org/) for being way smarter than I am and writing a pretty damn perfect <code>extend</code> function
+* [The FontAwesome team](https://github.com/FortAwesome/Font-Awesome) for making a damn cool icon pack that just works.
 * [Me](https://github.com/chall8908) for getting shit done.
 
 Speaking of attributions to myself, if you're using Strap'd, let me know!  I'd love to hear from you.  While you're letting me know, you should let everyone ELSE know too.  A little blurb somewhere out of the way is all I ask.  If you're feeling especially generous, a link back here would be awesome!

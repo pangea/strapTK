@@ -20,7 +20,7 @@ function Typify(component) {
     }
     if(type) {
       if(!_.include(this.types, type)) {
-        throw new RangeError("Invalid type");
+        throw new RangeError("Invalid type - "+type);
       }
       this.type = type;
       this.classes.push(this.base+"-"+type);

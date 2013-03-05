@@ -1,6 +1,6 @@
-var HeroUnit = Component.extend({
+var HeroUnit = Panel.extend({
   initialize : function(args) {
-    this.__super__.initialize.call(this, args);
+    HeroUnit.__super__.initialize.call(this, args);
     if(!this.hasOwnProperty("title")) {
       this.title = "";
     }

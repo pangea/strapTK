@@ -20,7 +20,7 @@ function Typify(component) {
     }
     if(type) {
       if(!_.include(this.types, type)) {
-        throw new RangeError("Invalid type");
+        throw new RangeError("Invalid type - "+type);
       }
       this.type = type;
       this.classes.push(this.base+"-"+type);
@@ -358,8 +358,6 @@ var Breadcrumbs = Panel.extend({
 	}
 });
 var Button = Link.extend({
-  types : ["primary", "info", "success", "warning", "danger", "inverse", "link"],
-
   initialize : function(args) {
     Button.__super__.initialize.call(this, args);
     var hasType = false;
@@ -370,10 +368,11 @@ var Button = Link.extend({
       }
     });
     if(!hasType) {
-      this.attributes.push("type='button");
+      this.attributes.push("type='button'");
     }
 
     this.base = "btn";
+    this.types = ["primary", "info", "success", "warning", "danger", "inverse", "link"];
 
     Typify(this);
   }
@@ -410,9 +409,9 @@ var Dropdown = Panel.extend({
 													"{{= yield }}"+
 												"</ul>")
 });
-var HeroUnit = Component.extend({
+var HeroUnit = Panel.extend({
   initialize : function(args) {
-    this.__super__.initialize.call(this, args);
+    HeroUnit.__super__.initialize.call(this, args);
     if(!this.hasOwnProperty("title")) {
       this.title = "";
     }
@@ -433,6 +432,47 @@ var HeroUnit = Component.extend({
     });
   }
 });
+var Icon = Panel.extend({
+  initialize : function(args) {
+    Icon.__super__.initialize.call(this, args);
+
+    // hopefully, this will keep memory down since I'm passing around a reference object
+    this.types = ICONLIST;
+    this.base = "icon";
+
+    Typify(this);
+  },
+
+  template : _.template("<i id='{{= rootID }} class='{{= rootClasses }} {{= rootAttrs }}></i>")
+});
+
+var ICONLIST = [
+    "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md", "stethoscope",
+    "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right", "angle-up", "angle-down",
+    "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop", "laptop", "tablet", "mobile-phone",
+    "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk", "ban-circle", "bar-chart", "barcode",
+    "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn", "calendar", "camera", "camera-retro",
+    "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload", "coffee", "cog", "cogs", "comment", "comment-alt",
+    "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt", "edit", "envelope", "envelope-alt", "exchange",
+    "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet", "film", "filter", "fire", "flag", "folder-close",
+    "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group", "hdd", "headphones", "heart", "heart-empty", "home",
+    "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock", "magic", "magnet", "map-marker", "minus", "minus-sign",
+    "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil", "picture", "plane", "plus", "plus-sign", "print", "pushpin",
+    "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove", "remove-circle", "remove-sign", "reorder", "reply",
+    "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search", "share", "share-alt", "shopping-cart", "signal", "signin",
+    "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty", "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down",
+    "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload", "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up",
+    "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt", "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width",
+    "align-left", "align-center", "align-right", "align-justify", "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link",
+    "paper-clip", "columns", "table", "th-large", "th", "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up",
+    "angle-down", "arrow-down", "arrow-left", "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left",
+    "chevron-right", "chevron-up", "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right",
+    "double-angle-up", "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
+    "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small", "phone",
+    "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign", "pinterest",
+    "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit", "plus-sign-alt", "stethoscope",
+    "user-md"
+  ];
 var Label = AbstractBadge.extend({
   initialize : function(args) {
     this.base = "label";
@@ -502,23 +542,41 @@ var Modal = Panel.extend({
 //aliases
 Modal.prototype.addAction = Modal.prototype.pushAction;
 var Nav = Panel.extend({
-  types : ["tabs", "pills", "list"],
-
   initialize: function(args) {
     Nav.__super__.initialize.call(this, args);
-    if(this.childPrefix === "") {
-      this.childPrefix = "<li>";
+
+    if(!this.hasOwnProperty("divided")) {
+      this.divided = false;
     }
-    if(this.childSuffix === "") {
-      this.childSuffix = "</li>";
-    }
+
+    this.childPrefix = "<li>";
+    this.childSuffix = "</li>";
+    this.types = ["tabs", "pills", "list"];
     this.base = "nav";
     Typify(this);
   },
 
   template: _.template( "<ul id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
                           "{{= yield }}"+
-                        "</ul>")
+                        "</ul>"),
+
+  render : function() {
+    var markup = Nav.__super__.render.call(this);
+    if(this.divided) {
+      markup = markup.split("</li><li>").join("</li><li class='divider-vertical'></li><li>");
+    }
+    return markup
+  },
+
+  divide : function(divided) {
+    if(divided) {
+      this.divided = true;
+    } else if(divided === false) {
+      this.divided = false;
+    }
+
+    return this.divided;
+  }
 });
 var NavBar = Panel.extend({
 	initialize : function(args) {
