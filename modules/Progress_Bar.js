@@ -1,14 +1,12 @@
 var ProgressBar = Panel.extend({
-  types: ["info", "success", "warning", "danger"],
   initialize: function(args) {
     ProgressBar.__super__.initialize.call(this, args);
-    if(!this.hasOwnProperty("width")) {
-      this.width = 100;
-    }
+    this.setDefaultValue(100, "width");
 
     this.setWidth(this.width);
 
     this.base = "bar";
+    this.types = ["info", "success", "warning", "danger"];
     Typify(this);
   },
 

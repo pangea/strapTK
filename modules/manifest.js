@@ -8,5 +8,5 @@
  *= require Abstract_Badge
  *= require Link
  *= require List
- *= require_tree .
+ *= require_directory .
  */

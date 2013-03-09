@@ -3,10 +3,10 @@
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
 ;
-_.templateSettings = {
+/*_.templateSettings = {
     'evaluate': /\{\{([\s\S]+?)\}\}/g,      // {{ [code] }}
     'interpolate': /\{\{\=([\s\S]+?)\}\}/g  // {{= [code] }}
-  };
+  };*/
 
 /**
  * Decorates the given component with the necessary variables and methods to handle being typed
@@ -17,7 +17,9 @@ _.templateSettings = {
  *
  * @param component [Component] the component to be decorated
  */
+
 function Typify(component) {
+
   component.setType = function(type) {
     if(this.type) {
       this.classes = _.without(this.classes, this.base+"-"+this.type);
@@ -32,15 +34,8 @@ function Typify(component) {
     }
   };
 
-  if(!component.hasOwnProperty("types")) {
-    component.types = [];
-  }
-
-  _.each(["base", "type"], function(attr) {
-    if(!this.hasOwnProperty(attr)) {
-      this[attr] = "";
-    }
-  }, component);
+  component.setDefaultValue([], "types");
+  component.setDefaultValue("", "base", "type");
 
   if(component.base) {
     component.classes.unshift(component.base);
@@ -109,252 +104,227 @@ Base.extend = function(protoProps, staticProps) {
 
 var Component = Base.extend({
 
-  initialize : function(args) {
-    if(!this.hasOwnProperty("children")) {
-      this.children = [];
-    }
-    _.each(["childPrefix", "childSuffix"], function(attr) {
-      if(!this.hasOwnProperty(attr)) {
-        this[attr] = "";
-      }
-    }, this);
-  },
+      initialize : function(args) {
+        this.setDefaultValue([], "children");
+        this.setDefaultValue("", "childPrefix", "childSuffix");
+      },
 
-  //Default template function
-  //Subcomponents should override this method to provide proper markup
-  template : function(args) {
-    return args.yield;
-  },
+      setDefaultValue: function(value) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        _.each(args, function(attr) {
+          if(!this.hasOwnProperty(attr)) {
+            this[attr] = value.valueOf();
+          }
+        }, this);
+      },
 
-  //Append a child
-  push : function(component) {
-    this.children.push(component);
-    return this;
-  },
+      //Default template function
+      //Subcomponents should override this method to provide proper markup
+      template : function(args) {
+        return args.yield;
+      },
 
-  //Remove the last child
-  pop : function() {
-    return this.children.pop();
-  },
+      //Append a child
+      push : function(component) {
+        this.children.push(component);
+        return this;
+      },
 
-  //Prepend a child
-  unshift : function(component) {
-    this.children.unshift(component);
-    return this;
-  },
+      //Remove the last child
+      pop : function() {
+        return this.children.pop();
+      },
 
-  //Remove the first child
-  shift : function() {
-    return this.children.shift();
-  },
+      //Prepend a child
+      unshift : function(component) {
+        this.children.unshift(component);
+        return this;
+      },
 
-  //Add a child at the specified index (or the last index)
-  insert : function(component, index) {
-    if(index) {
-      this.children.splice(index, 0, component);
-    } else {
-      this.children.push(component);
-    }
+      //Remove the first child
+      shift : function() {
+        return this.children.shift();
+      },
 
-    return this;
-  },
+      //Add a child at the specified index (or the last index)
+      insert : function(component, index) {
+        if(index) {
+          this.children.splice(index, 0, component);
+        } else {
+          this.children.push(component);
+        }
 
-  //Removes the child at index
-  remove : function(index) {
-    if(index) {
-      this.children.splice(index, 1);
-    } else {
-      this.pop();
-    }
-  },
+        return this;
+      },
 
-  addClass : function(newClass) {
-    if(!_.include(this.classes, newClass)) {
-      this.classes.push(newClass);
-    }
-  },
+      //Removes the child at index
+      remove : function(index) {
+        if(index) {
+          this.children.splice(index, 1);
+        } else {
+          this.pop();
+        }
+      },
 
-  removeClass : function(oldClass) {
-    this.classes = _.without(this.classes, oldClass);
-  },
+      addClass : function(newClass) {
+        if(!_.include(this.classes, newClass)) {
+          this.classes.push(newClass);
+        }
+      },
 
-  toggleClass : function(theClass) {
-    if(_.include(this.classes, theClass)) {
-      this.removeClass(theClass);
-    } else {
-      this.addClass(theClass);
-    }
-  },
+      removeClass : function(oldClass) {
+        this.classes = _.without(this.classes, oldClass);
+      },
 
-  renderChildren : function(prefix, suffix) {
-    prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+      toggleClass : function(theClass) {
+        if(_.include(this.classes, theClass)) {
+          this.removeClass(theClass);
+        } else {
+          this.addClass(theClass);
+        }
+      },
 
-    var markup = "";
-    _.each(this.children, function(child) {
-      markup += prefix + child.render() + suffix;
+      renderChildren : function(prefix, suffix) {
+        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+
+        var markup = "";
+        _.each(this.children, function(child) {
+          markup += prefix + child.render() + suffix;
+        });
+        return markup;
+      },
+
+      //Compiles the markup for this component
+      render : function() {
+
+        return this.template({"yield": this.renderChildren()});
+      },
     });
-    return markup;
-  },
-
-  //Compiles the markup for this component
-  render : function() {
-
-    return this.template({"yield": this.renderChildren()});
-  },
-});
 
 //aliases
 Component.prototype.add = Component.prototype.push;
 var Viewport = Component.extend({
-  initialize : function(args) {
-    Viewport.__super__.initialize.call(this, args);
-    if(!this.hasOwnProperty("root")) {
-      this.root = "body";
-    }
-  },
-
-  render : function() {
-    $(this.root).empty().append(this.renderChildren());
-  }
-});
-var Panel = Component.extend({
-  initialize : function(args) {
-    Panel.__super__.initialize.call(this, args);
-    //classes and attributes (i of 0 & 1) are arrays
-    _.each(["classes", "attributes", "id", "body"], function(attr, i) {
-      if(!this.hasOwnProperty(attr)) {
-        this[attr] = (i < 2 ? [] : "");
+      initialize: function(args) {
+        Viewport.__super__.initialize.call(this, args);
+        this.setDefaultValue("body", "root");
+      },
+      render : function() {
+        return $(this.root).empty().append(this.renderChildren());
       }
-    }, this);
-  },
-
-  template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</div>"),
-
-  render : function() {
-    var markup = this.body + this.renderChildren();
-
-    return this.template({
-      "yield": markup,
-      "rootAttrs" : this.attributes.join(" "),
-      "rootClasses": this.classes.join(" "),
-      "rootID": this.id
     });
-  },
+var Panel = Component.extend({
+      constructor: function(attributes, options) {
+        if(typeof(attributes) == "string") {
+          attributes = {body: attributes};
+        }
+        Panel.__super__.constructor.call(this, attributes, options);
+      },
 
-  wellify : function() {
-    if(!_.include(this.classes, "well")) {
-      this.classes.push("well");
-    }
-  },
+      initialize: function(args) {
+        Panel.__super__.initialize.call(this, args);
 
-  dewellify : function() {
-    this.classes = _.without(this.classes, "well");
-  },
+        this.setDefaultValue([], "classes", "attributes");
+        this.setDefaultValue("", "id", "body");
+      },
 
-  welled : function(isWelled) {
-    if(!isWelled && isWelled !== false) {
-      return _.include(this.classes, "well");
-    }
+      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
 
-    isWelled ? this.wellify() : this.dewellify();
-  },
-  /**
-   * Sets the closability of this alert.
-   * Calling setClosable without specifying the closability sets closable to true
-   *
-   * @param closable [Boolean|null] Sets the closability of the alert.
-   */
-  setClosable : function(closable) {
-    this.closable = typeof(closable) === "boolean" ? closable : true;
-  }
-});
+      render : function() {
+        var markup = this.body + this.renderChildren();
+
+        return this.template({
+          "yield": markup,
+          "rootID": this.id,
+          "rootClasses": this.classes.join(" "),
+          "rootAttrs" : this.attributes.join(" ")
+        });
+      }
+    }),
+    Div = Panel;
 var AbstractBadge = Panel.extend({
-  initialize : function(args) {
-    AbstractBadge.__super__.initialize.call(this, args);
-    this.types = ["success", "warning", "important", "info", "inverse"];
-    Typify(this);
-  },
-  template : _.template("<span id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-                          "{{= yield }}"+
-                        "</span>")
-});
+      initialize : function(args) {
+        AbstractBadge.__super__.initialize.call(this, args);
+        this.types = ["success", "warning", "important", "info", "inverse"];
+        Typify(this);
+      },
+      template : _.template("<span id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+                              "<%= yield %>"+
+                            "</span>")
+    });
 var Link = Panel.extend({
   initialize : function(args) {
     Link.__super__.initialize.call(this, args);
-    var hasHREF = false;
-    _.each(this.attributes, function(attr) {
-      if(attr.match(/^href/)) {
-        hasHREF = true;
-        return false;
-      }
-    });
-    if(!hasHREF) {
-      this.attributes.push("href='#'");
-    }
+    console.log(this);
+    this.setDefaultValue("", "href");
+    this.attributes.unshift("href='"+this.href+"'");
   },
 
-  template : _.template("<a id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</a>")
+  template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
 });
 var List = Panel.extend({
-  initialize : function(args) {
-    List.__super__.initialize.call(this, args);
+      initialize: function(args) {
+        List.__super__.initialize.call(this, args);
 
-    if(this.childPrefix === "") {
-      this.childPrefix = "<li>";
-    }
-    if(this.childSuffix === "") {
-      this.childSuffix = "</li>";
-    }
-  },
+        this.childPrefix || (this.childPrefix = "<li>");
+        this.childSuffix || (this.childSuffix = "</li>");
+      },
 
-  template: _.template( "<ul id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-                          "{{= yield }}"+
-                        "</ul>")
-});
-var Alert = Panel.extend({
-  types: ["error", "success", "info"],
-
-  initialize : function(args) {
-    Alert.__super__.initialize.call(this, args);
-    this.base = "alert";
-    Typify(this);
-  },
-
-	template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>" +
-													"{{ if(closable) { }}" +
-                            "<button class='close' data-dismiss='alert' type='button'>&times;</button>" +
-                          "{{ } }}" +
-													"<strong>{{= title}}</strong>" +
-													"{{= yield}}" +
-												"</div>"),
-
-  render : function() {
-    var markup = this.body + this.renderChildren();
-    return this.template({
-      "yield": markup,
-      "title": this.title,
-      "closable": this.closable,
-      "rootID": this.id,
-      "rootClasses": this.classes.join(" "),
-      "rootAttrs": this.attributes.join(" ")
+      template: _.template( "<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+                              "<%= yield %>"+
+                            "</ul>")
     });
-  },
+var Alert = Panel.extend({
+      initialize : function(args) {
+        Alert.__super__.initialize.call(this, args);
+        this.base = "alert";
+        this.types =["error", "success", "info"]
+        Typify(this);
+      },
 
-  isBlock : function(blocked) {
-    var isBlocked = _.include(this.classes, "alert-block");
-    if(blocked) {
-      if(!isBlocked) {
-        this.classes.push("alert-block");
+    	template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
+    													"<% if(closable) { %>" +
+                                "<button class='close' data-dismiss='alert' type='button'>&times;</button>" +
+                              "<% } %>" +
+    													"<strong><%= title %></strong>" +
+    													"<%= yield %>" +
+    												"</div>"),
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "title": this.title,
+          "closable": this.closable,
+          "rootID": this.id,
+          "rootClasses": this.classes.join(" "),
+          "rootAttrs": this.attributes.join(" ")
+        });
+      },
+
+      isBlock : function(blocked) {
+        var isBlocked = _.include(this.classes, "alert-block");
+        if(blocked) {
+          if(!isBlocked) {
+            this.classes.push("alert-block");
+          }
+        } else if(blocked === false) {
+          if(isBlocked) {
+            this.classes = _.without(this.classes, "alert-block");
+          }
+        } else {
+          return isBlocked;
+        }
+      },
+      /**
+       * Sets the closability of this alert.
+       * Calling setClosable without specifying the closability sets closable to true
+       *
+       * @param closable [Boolean|null] Sets the closability of the alert.
+       */
+      setClosable : function(closable) {
+        this.closable = typeof(closable) === "boolean" ? closable : true;
       }
-    } else if(blocked === false) {
-      if(isBlocked) {
-        this.classes = _.without(this.classes, "alert-block");
-      }
-    } else {
-      return isBlocked;
-    }
-  }
-});
+    });
 var Badge = AbstractBadge.extend({
   initialize : function(args) {
     this.base = "badge";
@@ -369,8 +339,8 @@ var Breadcrumbs = Panel.extend({
 		this.classes.unshift("breadcrumb");
 	},
 
-	template : _.template("<ul id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-													"{{= yield }}"+
+	template : _.template("<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+													"<%= yield %>"+
 												"</ul>"),
 	render : function() {
 		var markup = Breadcrumbs.__super__.render.call(this).split("<span class='divider'>/</span>"),
@@ -379,25 +349,17 @@ var Breadcrumbs = Panel.extend({
 	}
 });
 var Button = Link.extend({
-  initialize : function(args) {
-    Button.__super__.initialize.call(this, args);
-    var hasType = false;
-    _.each(this.attributes, function(attr) {
-      if(attr.match(/^type/)) {
-        hasType = true;
-        return false;
+      initialize : function(args) {
+        Button.__super__.initialize.call(this, args);
+
+        this.attributes.unshift("type='button'");
+
+        this.base = "btn";
+        this.types = ["primary", "info", "success", "warning", "danger", "inverse", "link"];
+
+        Typify(this);
       }
     });
-    if(!hasType) {
-      this.attributes.push("type='button'");
-    }
-
-    this.base = "btn";
-    this.types = ["primary", "info", "success", "warning", "danger", "inverse", "link"];
-
-    Typify(this);
-  }
-});
 var ButtonGroup = Panel.extend({
   initialize: function(args) {
     this.__super__.initialize.call(this, args);
@@ -419,87 +381,95 @@ var CloseButton = Link.extend({
     }
   }
 });
-var Dropdown = Panel.extend({
-	initialize : function(args) {
-		this.__super__.initialize.call(this, args);
-		this.childPrefix || (this.childPrefix = "<li><a>");
-		this.childSuffix || (this.childSuffix = "</a></li>");
-	},
+var Dropdown = List.extend({
+      initialize : function(args) {
+        Dropdown.__super__.initialize.call(this, args);
 
-	template : _.template("<ul id='{{= rootID }}' class='dropdown-menu {{= rootClasses }}' {{= rootAttrs }}>"+
-													"{{= yield }}"+
-												"</ul>")
-});
-var HeroUnit = Panel.extend({
-  initialize : function(args) {
-    HeroUnit.__super__.initialize.call(this, args);
-    if(!this.hasOwnProperty("title")) {
-      this.title = "";
-    }
-    this.classes.unshift("hero-unit");
-  },
-  template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-                          "<h1>{{= title}}</h1>"+
-                          "{{= yield}}"+
-                        "</div>"),
-  render : function() {
-    var markup = this.body + this.renderChildren();
-    return this.template({
-      "yield": markup,
-      "title": this.title,
-      "rootID": this.id,
-      "rootClasses": this.classes.join(" "),
-      "rootAttrs": this.attributes.join(" ")
+        this.childPrefix = "<li>";
+        this.childSuffix = "</li>";
+
+        this.classes.unshift("dropdown-menu");
+      }
     });
-  }
-});
-function HorizontalRule(args) {}
+var HeroUnit = Panel.extend({
+      initialize : function(args) {
+        HeroUnit.__super__.initialize.call(this, args);
+
+        if(!this.hasOwnProperty("title")) {
+          this.title = "";
+        }
+
+        this.classes.unshift("hero-unit");
+      },
+      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+                              "<h1><%= title %></h1>"+
+                              "<%= yield %>"+
+                            "</div>"),
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "title": this.title,
+          "rootID": this.id,
+          "rootClasses": this.classes.join(" "),
+          "rootAttrs": this.attributes.join(" ")
+        });
+      }
+    });
+function HorizontalRule() {}
 HorizontalRule.prototype.render = function() {
   return "<hr/>";
 }
 
 var HR = HorizontalRule;
 var Icon = Panel.extend({
-  initialize : function(args) {
-    Icon.__super__.initialize.call(this, args);
+      initialize : function(args) {
+        Icon.__super__.initialize.call(this, args);
 
-    // hopefully, this will keep memory down since I'm passing around a reference object
-    this.types = ICONLIST;
-    this.base = "icon";
+        this.base = "icon";
+        this.types = ICONLIST; // hopefully, this will keep memory down since I'm passing around a reference object
 
-    Typify(this);
-  },
+        Typify(this);
+      },
 
-  template : _.template("<i id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}></i> {{= yield }}")
-});
+      template : _.template("<i id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>></i> <%= yield %>")
+    });
 
 var ICONLIST = [
-    "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md", "stethoscope",
-    "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right", "angle-up", "angle-down",
-    "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop", "laptop", "tablet", "mobile-phone",
-    "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk", "ban-circle", "bar-chart", "barcode",
-    "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn", "calendar", "camera", "camera-retro",
-    "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload", "coffee", "cog", "cogs", "comment", "comment-alt",
-    "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt", "edit", "envelope", "envelope-alt", "exchange",
-    "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet", "film", "filter", "fire", "flag", "folder-close",
-    "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group", "hdd", "headphones", "heart", "heart-empty", "home",
-    "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock", "magic", "magnet", "map-marker", "minus", "minus-sign",
-    "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil", "picture", "plane", "plus", "plus-sign", "print", "pushpin",
-    "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove", "remove-circle", "remove-sign", "reorder", "reply",
-    "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search", "share", "share-alt", "shopping-cart", "signal", "signin",
-    "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty", "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down",
-    "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload", "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up",
-    "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt", "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width",
-    "align-left", "align-center", "align-right", "align-justify", "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link",
-    "paper-clip", "columns", "table", "th-large", "th", "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up",
-    "angle-down", "arrow-down", "arrow-left", "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left",
-    "chevron-right", "chevron-up", "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right",
-    "double-angle-up", "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
-    "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small", "phone",
-    "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign", "pinterest",
-    "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit", "plus-sign-alt", "stethoscope",
-    "user-md"
-  ];
+      "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md", "stethoscope",
+      "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right", "angle-up", "angle-down",
+      "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop", "laptop", "tablet", "mobile-phone",
+      "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk", "ban-circle", "bar-chart", "barcode",
+      "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn", "calendar", "camera", "camera-retro",
+      "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload", "coffee", "cog", "cogs", "comment", "comment-alt",
+      "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt", "edit", "envelope", "envelope-alt", "exchange",
+      "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet", "film", "filter", "fire", "flag", "folder-close",
+      "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group", "hdd", "headphones", "heart", "heart-empty", "home",
+      "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock", "magic", "magnet", "map-marker", "minus", "minus-sign",
+      "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil", "picture", "plane", "plus", "plus-sign", "print", "pushpin",
+      "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove", "remove-circle", "remove-sign", "reorder", "reply",
+      "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search", "share", "share-alt", "shopping-cart", "signal", "signin",
+      "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty", "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down",
+      "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload", "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up",
+      "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt", "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width",
+      "align-left", "align-center", "align-right", "align-justify", "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link",
+      "paper-clip", "columns", "table", "th-large", "th", "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up",
+      "angle-down", "arrow-down", "arrow-left", "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left",
+      "chevron-right", "chevron-up", "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right",
+      "double-angle-up", "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
+      "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small", "phone",
+      "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign", "pinterest",
+      "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit", "plus-sign-alt", "stethoscope",
+      "user-md"
+    ];
+var Image = Panel.extend({
+  initialize: function(args) {
+    Image.__super__.initialize.call(this, args);
+
+    this.setDefaultValue("", "src");
+  }
+})
+;
 var Label = AbstractBadge.extend({
   initialize : function(args) {
     this.base = "label";
@@ -507,193 +477,201 @@ var Label = AbstractBadge.extend({
   }
 });
 var Modal = Panel.extend({
-	initialize : function(args) {
-		Modal.__super__.initialize.call(this, args);
-		if(!this.hasOwnProperty("actions")) {
-			this.actions = [];
-		}
-		if(!this.hasOwnProperty("header")) {
-			this.header = "";
-		}
-	},
+      initialize : function(args) {
+        Modal.__super__.initialize.call(this, args);
 
-	template : _.template("<div id='{{= rootID }}' class='modal hide fade {{= rootClasses }}'>"+
-													"<div class='modal-header'>"+
-														"{{ if(closable) { }}" +
-															"<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
-														"{{ } }}" +
-														"<h3>{{= header }}</h3>"+
-													"</div>"+
-													"<div class='modal-body'>"+
-														"{{= yield}}"+
-													"</div>"+
-													"<div class='modal-footer'>"+
-														"{{= actions }}"+
-													"</div>"+
-												"</div>"),
+        if(!this.hasOwnProperty("actions")) {
+          this.actions = [];
+        }
 
-	pushAction : function(action) {
-		this.actions.push(action);
-		return this;
-	},
-	popAction : function() {
-		return this.actions.pop();
-	},
-	shiftAction : function(action) {
-		return this.actions.shift();
-	},
-	unshiftAction : function(action) {
-		this.actions.unshift(action);
-		return this;
-	},
-	render : function() {
-		var markup = this.body,
-				actionMarkup = "";
-		_.each(this.children, function(child) {
-			markup += child.render();
-		});
-		_.each(this.actions, function(action) {
-			actionMarkup += action.render();
-		});
+        if(!this.hasOwnProperty("header")) {
+          this.header = "";
+        }
 
-		return this.template({
-			"yield": markup,
-			"header":this.header,
-			"actions": actionMarkup,
-			"rootID": this.id,
-			"rootClasses": this.classes.join(" ")
-		});
-	}
-});
+        this.classes.push("modal");
+      },
+
+      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+                              "<div class='modal-header'>"+
+                                "<% if(closable) { %>" +
+                                  "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
+                                "<% } %>" +
+                                "<h3><%= header %></h3>"+
+                              "</div>"+
+                              "<div class='modal-body'><%= yield%></div>"+
+                              "<div class='modal-footer'><%= actions %></div>"+
+                            "</div>"),
+
+      pushAction : function(action) {
+        this.actions.push(action);
+        return this;
+      },
+      popAction : function() {
+        return this.actions.pop();
+      },
+      shiftAction : function(action) {
+        return this.actions.shift();
+      },
+      unshiftAction : function(action) {
+        this.actions.unshift(action);
+        return this;
+      },
+      render : function() {
+        var markup = this.body,
+            actionMarkup = "";
+        _.each(this.children, function(child) {
+          markup += child.render();
+        });
+        _.each(this.actions, function(action) {
+          actionMarkup += action.render();
+        });
+
+        return this.template({
+          "yield": markup,
+          "header":this.header,
+          "actions": actionMarkup,
+          "rootID": this.id,
+          "rootClasses": this.classes.join(" "),
+          "rootAttrs": this.attributes.join(" ")
+        });
+      }
+    });
 
 //aliases
 Modal.prototype.addAction = Modal.prototype.pushAction;
 var Nav = List.extend({
-  initialize: function(args) {
-    Nav.__super__.initialize.call(this, args);
+      initialize: function(args) {
+        this.childPrefix = "<li>";
+        this.childSuffix = "</li>";
 
-    if(!this.hasOwnProperty("divided")) {
-      this.divided = false;
-    }
+        Nav.__super__.initialize.call(this, args);
 
-    this.childPrefix = "<li>";
-    this.childSuffix = "</li>";
-    this.types = ["tabs", "pills", "list"];
-    this.base = "nav";
-    Typify(this);
-  },
+        this.setDefaultValue(false, "divided");
 
-  renderChildren : function(prefix, suffix) {
-    prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+        this.base = "nav";
+        this.types = ["tabs", "pills", "list"];
+        Typify(this);
+      },
 
-    var markup = "";
-    _.each(this.children, function(child) {
-      markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+      renderChildren : function(prefix, suffix) {
+        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+
+        var markup = "";
+        _.each(this.children, function(child) {
+          markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+        });
+        return markup;
+      },
+
+      render : function() {
+        var markup = Nav.__super__.render.call(this);
+        if(this.divided) {
+          markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
+        }
+        return markup
+      },
+
+      divide : function(divided) {
+        if(divided) {
+          this.divided = true;
+        } else if(divided === false) {
+          this.divided = false;
+        }
+
+        return this.divided;
+      }
     });
-    return markup;
-  },
-
-  render : function() {
-    var markup = Nav.__super__.render.call(this);
-    if(this.divided) {
-      markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
-    }
-    return markup
-  },
-
-  divide : function(divided) {
-    if(divided) {
-      this.divided = true;
-    } else if(divided === false) {
-      this.divided = false;
-    }
-
-    return this.divided;
-  }
-});
 var NavBar = Panel.extend({
-	initialize : function(args) {
-		NavBar.__super__.initialize.call(this, args);
-		this.classes.unshift("navbar");
-	},
+      initialize : function(args) {
+        NavBar.__super__.initialize.call(this, args);
+        this.classes.unshift("navbar");
+      },
 
-  renderChildren : function() {
-    return "<div class='navbar-inner'>" + NavBar.__super__.renderChildren.call(this) + "</div>";
-  }
-});
-var PageHeader = Panel.extend({
-  initialize : function(args) {
-    PageHeader.__super__.initialize.call(this, args);
-    if(!this.hasOwnProperty("header")) {
-      this.header = "";
-    }
-    if(!this.hasOwnProperty("level")) {
-      this.level = 1;
-    }
-  },
-
-	template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>"+
-													"<h{{= level }}>"+
-														"{{= header}} "+
-														"<small>{{= yield}}</small>"+
-													"</h{{= level }}>"+
-												"</div>"),
-
-  render : function() {
-    var markup = this.body + this.renderChildren();
-    return this.template({
-      "yield": markup,
-      "header": this.header,
-      "level": this.level,
-      "rootID": this.id,
-      "rootClasses": this.classes.join(" "),
-      "rootAttrs": this.attributes.join(" ")
+      renderChildren : function() {
+        return "<div class='navbar-inner'>" + NavBar.__super__.renderChildren.call(this) + "</div>";
+      }
     });
-  }
-});
+var PageHeader = Panel.extend({
+      initialize: function(args) {
+        PageHeader.__super__.initialize.call(this, args);
+        this.setDefaultValue("", "header");
+        this.setDefaultValue(1, "level");
+      },
+      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+    													"<h<%= level %>>"+
+    														"<%= header%> "+
+    														"<small><%= yield%></small>"+
+    													"</h<%= level %>>"+
+    												"</div>"),
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "header": this.header,
+          "level": this.level,
+          "rootID": this.id,
+          "rootClasses": this.classes.join(" "),
+          "rootAttrs": this.attributes.join(" ")
+        });
+      }
+    });
 var Pagination = Panel.extend({
-	initialize: function(args) {
-		Pagination.__super__.initialize.call(this, args);
-		if(!this.hasOwnProperty("pages")) {
-			this.pages = 0
-		}
-		if(this.childPrefix === "") {
-			this.childPrefix = "<li>";
-		}
-		if(this.childSuffix === "") {
-			this.childSuffix = "</li>";
-		}
-		this.classes.unshift("pagination");
-		if(this.children.length === 0) {
-			this.add(new Link({body: "&laquo;", classes: ["prev"]}));
-			_(this.pages).times(function(i) {
-				this.add(new Link({body: (i+1)}));
-			}, this);
-			this.add(new Link({body: "&raquo;", classes: ["next"]}));
-		}
-	},
+      initialize: function(args) {
+        if(this.children && this.pages) {
+          throw new SyntaxError("Paginators cannot accept both children and pages");
+        }
+        Pagination.__super__.initialize.call(this, args);
 
-	renderChildren: function() {
-		return "<ul>" + Pagination.__super__.renderChildren.call(this) + "</ul>";
-	}
+        this.setDefaultValue(0, "pages");
+        this.childPrefix = "<li>";
+        this.childSuffix = "</li>";
 
-});
+        this.classes.unshift("pagination");
+
+        if(this.children.length === 0) {
+          this.buildPages();
+        }
+      },
+
+      renderChildren: function() {
+        return "<ul>" + Pagination.__super__.renderChildren.call(this) + "</ul>";
+      },
+
+      setPages: function(pages) {
+        this.pages = pages;
+        this.buildPages();
+      },
+
+      buildPages: function() {
+        this.children = [];
+        if(this.pages < 1) {
+          throw new SyntaxError("You must supply a number of pages greater than 0");
+        } else if(this.pages > 1) {
+          this.add(new Link({body: "&laquo;", classes: ["prev"]}));
+          _.times(this.pages, function(i) {
+            this.add(new Link((i+1).toString()));
+          }, this);
+          this.add(new Link({body: "&raquo;", classes: ["next"]}));
+        } else {
+          console.warn("Paginator instanciated with only 1 page."); //paginators with only 1 page don't display
+        }
+      }
+
+    });
 var Paragraph = Panel.extend({
-  template : _.template("<p id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</p>")
-});
-
-var P = Paragraph;
+      template : _.template("<p id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></p>")
+    }),
+    P = Paragraph;
 var ProgressBar = Panel.extend({
-  types: ["info", "success", "warning", "danger"],
   initialize: function(args) {
     ProgressBar.__super__.initialize.call(this, args);
-    if(!this.hasOwnProperty("width")) {
-      this.width = 100;
-    }
+    this.setDefaultValue(100, "width");
 
     this.setWidth(this.width);
 
     this.base = "bar";
+    this.types = ["info", "success", "warning", "danger"];
     Typify(this);
   },
 
@@ -718,82 +696,79 @@ var ProgressBar = Panel.extend({
   }
 });
 function Raw(body) {
-  this.text = body;
+  this.text = (body || "");
 }
 
 Raw.prototype.render = function() {
   return this.text;
 }
 ;
-var ViewportSwitcher = Viewport.extend({
-  initialize: function(args) {
-    ViewportSwitcher.__super__.initialize.call(this, args);
-  },
-  add: function(port) {
-    if(!port instanceof Viewport) {
-      throw SyntaxError("Only Viewports can be added to ViewportSwitchers");
-    }
+var Table = Panel.extend({
+      initialize: function(args) {
+        Table.__super__.initialize.call(this, args);
+        this.classes.unshift("table");
+        _.each(this.children, this.throwUnlessRow);
+      },
+      push: function(row) {
+        this.throwUnlessRow(row);
+        Table.__super__.push.call(this, row);
+      },
+      unshift: function(row) {
+        this.throwUnlessRow(row);
+        Table.__super__.unshift.call(this, row);
+      },
+      insert: function(row, index) {
+        this.throwUnlessRow(row);
+        Table.__super__.insert.call(this, row, index);
+      },
+      throwUnlessRow: function(row) {
+        if(row instanceof Row) { return; }
 
-    var id = _.uniqueID(this.root);
-  }
-});
-var Accordion = Panel.extend({
-	//this one is going to take some thought....
-	template : _.template(
-												"<div class='accordion' id='{{= rootID }}' {{= rootAttrs }}>"+
-													"{{ _(children).each(function(child){ }}"+
-													"<div class='accordion-group'>"+
-														"<div class='accordion-heading'>"+
-															"<a class='accordion-toggle' data-parent='{{= rootID }}' data-toggle='collapse' href='#collapseOne'>"+
-																"{{= child.heading}}"+
-															"</a>"+
-														"</div>"+
-														"<div class='accordion-body collapse in' id='collapseOne'>"+
-															"<div class='accordion-inner'>"+
-																"{{= child.body}}"+
-															"</div>"+
-														"</div>"+
-													"</div>"+
-													"{{ }); }}"+
-												"</div>"
-												)
+        throw new SyntaxError("Tables can only have Rows as children");
+      }
+    }),
+    Row = Panel.extend({
+      maxChildren: 12,
+      initialize: function(args) {
+        Row.__super__.initialize.call(this, args);
 
-});
-var Carousel = Component.extend({
-	//Gunna have to come back to this one
-	template : _.template(
-												"<div class='carousel slide' id='{{= rootID }}' {{= rootAttrs }}>"+
-													"<ol class='carousel-indicators'>"+
-														"{{ _(slides).each(function(slide, i){ }}"+
-														"<li data-slide-to='{{= i }}' data-target='#{{= rootID }}'></li>"+
-														"{{= slide}}"+
-														"{{ }); }}"+
-													"</ol>"+
-													"<div class='carousel-inner'>"+
-														"{{ _(items).each(function(item){ }}"+
-														"<div class='item'></div>"+
-														"{{= item}}"+
-														"{{ }); }}"+
-													"</div>"+
-													"<a class='carousel-control left' data-slide='prev' href='#{{= rootID }}'>&lsaquo;</a>"+
-													"<a class='carousel-control right' data-slide='next' href='#{{= rootID }}'>&rsaquo;</a>"+
-												"</div>"
-												)
+        this.ensureChildLimit();
+        this.classes.unshift("table-row", "row-fluid");
+      },
+      push: function(component) {
+        this.ensureChildLimit();
+        Row.__super__.push.call(this, component);
+      },
+      unshift: function(component) {
+        this.ensureChildLimit();
+        Row.__super__.unshift.call(this, component);
+      },
+      insert: function(component, index) {
+        this.ensureChildLimit();
+        Row.__super__.insert.call(this, component, index);
+      },
+      renderChildren: function() {
+        var rowWidth = this.maxChildren,
+            fluidChildren = this.children.length;
 
-});
-var Thumbnail = Component.extend({
+        _.each(this.children, function(child) {
+          rowWidth -= (child.span || 0);
+          fluidChildren -= (child.span ? 1 : 0);
+        });
 
-	template : _.template(
-												"<ul class='thumbnails'>"+
-													"{{ _(children).each(function(child){ }}"+
-													"<li class='span3'>"+
-														"<img src='{{= child }}' />"+
-													"</li>"+
-													"{{ }); }}"+
-												"</ul>"
-												)
-
-});
+        var span = Math.floor(rowWidth/fluidChildren),
+            markup = "";
+        _.each(this.children, function(child) {
+          markup += "<div class='span"+(child.span || span)+"'>" + child.render() + "</div>";
+        });
+        return markup;
+      },
+      ensureChildLimit: function() {
+        if(this.children.length >= this.maxChildren) {
+          throw SyntaxError("This row can only have "+this.maxChildren+" children");
+        }
+      }
+    });
 /* Manifest file for compiling assets with Sprockets
  *
 

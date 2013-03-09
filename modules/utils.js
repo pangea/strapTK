@@ -1,7 +1,7 @@
-_.templateSettings = {
+/*_.templateSettings = {
     'evaluate': /\{\{([\s\S]+?)\}\}/g,      // {{ [code] }}
     'interpolate': /\{\{\=([\s\S]+?)\}\}/g  // {{= [code] }}
-  };
+  };*/
 
 /**
  * Decorates the given component with the necessary variables and methods to handle being typed
@@ -13,6 +13,7 @@ _.templateSettings = {
  * @param component [Component] the component to be decorated
  */
 function Typify(component) {
+
   component.setType = function(type) {
     if(this.type) {
       this.classes = _.without(this.classes, this.base+"-"+this.type);
@@ -27,15 +28,8 @@ function Typify(component) {
     }
   };
 
-  if(!component.hasOwnProperty("types")) {
-    component.types = [];
-  }
-
-  _.each(["base", "type"], function(attr) {
-    if(!this.hasOwnProperty(attr)) {
-      this[attr] = "";
-    }
-  }, component);
+  component.setDefaultValue([], "types");
+  component.setDefaultValue("", "base", "type");
 
   if(component.base) {
     component.classes.unshift(component.base);

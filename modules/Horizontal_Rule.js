@@ -1,4 +1,4 @@
-function HorizontalRule(args) {}
+function HorizontalRule() {}
 HorizontalRule.prototype.render = function() {
   return "<hr/>";
 }

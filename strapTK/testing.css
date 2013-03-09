@@ -1,27 +1,30 @@
 #header {
-  text-align: center;
-}
+  text-align: center; }
 
 #header-nav {
   margin: 20px -60px -60px;
-  border-radius: 0px;
-}
-
-#header-nav .navbar-inner {
-  border-radius: 0px;
-}
+  border-radius: 0px; }
+  #header-nav .navbar-inner {
+    border-radius: 0px; }
+  #header-nav .divider-vertical {
+    padding: 5px 0px;
+    margin: 0; }
 
 #navbar-format {
   width: 900px;
-  margin: 0 auto;
-}
-
-#main {
-  width: 900px;
-  margin: 0 auto;
-}
+  margin: 0 auto; }
 
 #todo-list {
   list-style: none;
-  margin-left: 0px;
-}
+  margin-left: 0px; }
+
+.main {
+  width: 900px;
+  margin: 0 auto; }
+
+/*.content {
+  max-height: 100%;
+  overflow: auto;
+}*/
+.well {
+  color: #333; }

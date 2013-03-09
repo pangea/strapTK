@@ -1,5 +1,5 @@
 function Raw(body) {
-  this.text = body;
+  this.text = (body || "");
 }
 
 Raw.prototype.render = function() {
