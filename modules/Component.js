@@ -55,89 +55,101 @@ Base.extend = function(protoProps, staticProps) {
 
 var Component = Base.extend({
 
-  initialize : function(args) {
-    if(!this.hasOwnProperty("children")) {
-      this.children = [];
-    }
-    _.each(["childPrefix", "childSuffix"], function(attr) {
-      if(!this.hasOwnProperty(attr)) {
-        this[attr] = "";
-      }
-    }, this);
-  },
+      initialize : function(args) {
+        this.setDefaultValue([], "children");
+        this.setDefaultValue("", "childPrefix", "childSuffix");
+      },
 
-  //Default template function
-  //Subcomponents should override this method to provide proper markup
-  template : function(args) {
-    return args.yield;
-  },
+      setDefaultValue: function(value) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        _.each(args, function(attr) {
+          if(!this.hasOwnProperty(attr)) {
+            this[attr] = value.valueOf();
+          }
+        }, this);
+      },
 
-  //Append a child
-  push : function(component) {
-    this.children.push(component);
-    return this;
-  },
+      //Default template function
+      //Subcomponents should override this method to provide proper markup
+      template : function(args) {
+        return args.yield;
+      },
 
-  //Remove the last child
-  pop : function() {
-    return this.children.pop();
-  },
+      //Append a child
+      push : function(component) {
+        this.children.push(component);
+        return this;
+      },
 
-  //Prepend a child
-  unshift : function(component) {
-    this.children.unshift(component);
-    return this;
-  },
+      //Remove the last child
+      pop : function() {
+        return this.children.pop();
+      },
 
-  //Remove the first child
-  shift : function() {
-    return this.children.shift();
-  },
+      //Prepend a child
+      unshift : function(component) {
+        this.children.unshift(component);
+        return this;
+      },
 
-  //Add a child at the specified index (or the last index)
-  insert : function(component, index) {
-    if(index) {
-      this.children.splice(index, 0, component);
-    } else {
-      this.children.push(component);
-    }
+      //Remove the first child
+      shift : function() {
+        return this.children.shift();
+      },
 
-    return this;
-  },
+      //Add a child at the specified index (or the last index)
+      insert : function(component, index) {
+        if(index) {
+          this.children.splice(index, 0, component);
+        } else {
+          this.children.push(component);
+        }
 
-  //Removes the child at index
-  remove : function(index) {
-    if(index) {
-      this.children.splice(index, 1);
-    } else {
-      this.pop();
-    }
-  },
+        return this;
+      },
 
-  addClass : function(newClass) {
-    if(!_.include(this.classes, newClass)) {
-      this.classes.push(newClass);
-    }
-  },
+      //Removes the child at index
+      remove : function(index) {
+        if(index) {
+          this.children.splice(index, 1);
+        } else {
+          this.pop();
+        }
+      },
 
-  removeClass : function(oldClass) {
-    this.classes = _.without(this.classes, oldClass);
-  },
+      addClass : function(newClass) {
+        if(!_.include(this.classes, newClass)) {
+          this.classes.push(newClass);
+        }
+      },
 
-  toggleClass : function(theClass) {
-    if(_.include(this.classes, theClass)) {
-      this.removeClass(theClass);
-    } else {
-      this.addClass(theClass);
-    }
-  },
+      removeClass : function(oldClass) {
+        this.classes = _.without(this.classes, oldClass);
+      },
 
-  renderChildren : function(prefix, suffix) {
-    prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+      toggleClass : function(theClass) {
+        if(_.include(this.classes, theClass)) {
+          this.removeClass(theClass);
+        } else {
+          this.addClass(theClass);
+        }
+      },
 
-    var markup = "";
-    _.each(this.children, function(child) {
-      markup += prefix + child.render() + suffix;
+      renderChildren : function(prefix, suffix) {
+        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+
+        var markup = "";
+        _.each(this.children, function(child) {
+          markup += prefix + child.render() + suffix;
+        });
+        return markup;
+      },
+
+      //Compiles the markup for this component
+      render : function() {
+
+        return this.template({"yield": this.renderChildren()});
+      },
     });
     return markup;
   },

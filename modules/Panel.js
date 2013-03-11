@@ -1,13 +1,10 @@
 var Panel = Component.extend({
-  initialize : function(args) {
-    Panel.__super__.initialize.call(this, args);
-    //classes and attributes (i of 0 & 1) are arrays
-    _.each(["classes", "attributes", "id", "body"], function(attr, i) {
-      if(!this.hasOwnProperty(attr)) {
-        this[attr] = (i < 2 ? [] : "");
-      }
-    }, this);
-  },
+      constructor: function(attributes, options) {
+        if(typeof(attributes) == "string") {
+          attributes = {body: attributes};
+        }
+        Panel.__super__.constructor.apply(this, arguments);
+      },
 
   template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</div>"),
 

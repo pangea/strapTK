@@ -104,89 +104,101 @@ Base.extend = function(protoProps, staticProps) {
 
 var Component = Base.extend({
 
-  initialize : function(args) {
-    if(!this.hasOwnProperty("children")) {
-      this.children = [];
-    }
-    _.each(["childPrefix", "childSuffix"], function(attr) {
-      if(!this.hasOwnProperty(attr)) {
-        this[attr] = "";
-      }
-    }, this);
-  },
+      initialize : function(args) {
+        this.setDefaultValue([], "children");
+        this.setDefaultValue("", "childPrefix", "childSuffix");
+      },
 
-  //Default template function
-  //Subcomponents should override this method to provide proper markup
-  template : function(args) {
-    return args.yield;
-  },
+      setDefaultValue: function(value) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        _.each(args, function(attr) {
+          if(!this.hasOwnProperty(attr)) {
+            this[attr] = value.valueOf();
+          }
+        }, this);
+      },
 
-  //Append a child
-  push : function(component) {
-    this.children.push(component);
-    return this;
-  },
+      //Default template function
+      //Subcomponents should override this method to provide proper markup
+      template : function(args) {
+        return args.yield;
+      },
 
-  //Remove the last child
-  pop : function() {
-    return this.children.pop();
-  },
+      //Append a child
+      push : function(component) {
+        this.children.push(component);
+        return this;
+      },
 
-  //Prepend a child
-  unshift : function(component) {
-    this.children.unshift(component);
-    return this;
-  },
+      //Remove the last child
+      pop : function() {
+        return this.children.pop();
+      },
 
-  //Remove the first child
-  shift : function() {
-    return this.children.shift();
-  },
+      //Prepend a child
+      unshift : function(component) {
+        this.children.unshift(component);
+        return this;
+      },
 
-  //Add a child at the specified index (or the last index)
-  insert : function(component, index) {
-    if(index) {
-      this.children.splice(index, 0, component);
-    } else {
-      this.children.push(component);
-    }
+      //Remove the first child
+      shift : function() {
+        return this.children.shift();
+      },
 
-    return this;
-  },
+      //Add a child at the specified index (or the last index)
+      insert : function(component, index) {
+        if(index) {
+          this.children.splice(index, 0, component);
+        } else {
+          this.children.push(component);
+        }
 
-  //Removes the child at index
-  remove : function(index) {
-    if(index) {
-      this.children.splice(index, 1);
-    } else {
-      this.pop();
-    }
-  },
+        return this;
+      },
 
-  addClass : function(newClass) {
-    if(!_.include(this.classes, newClass)) {
-      this.classes.push(newClass);
-    }
-  },
+      //Removes the child at index
+      remove : function(index) {
+        if(index) {
+          this.children.splice(index, 1);
+        } else {
+          this.pop();
+        }
+      },
 
-  removeClass : function(oldClass) {
-    this.classes = _.without(this.classes, oldClass);
-  },
+      addClass : function(newClass) {
+        if(!_.include(this.classes, newClass)) {
+          this.classes.push(newClass);
+        }
+      },
 
-  toggleClass : function(theClass) {
-    if(_.include(this.classes, theClass)) {
-      this.removeClass(theClass);
-    } else {
-      this.addClass(theClass);
-    }
-  },
+      removeClass : function(oldClass) {
+        this.classes = _.without(this.classes, oldClass);
+      },
 
-  renderChildren : function(prefix, suffix) {
-    prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+      toggleClass : function(theClass) {
+        if(_.include(this.classes, theClass)) {
+          this.removeClass(theClass);
+        } else {
+          this.addClass(theClass);
+        }
+      },
 
-    var markup = "";
-    _.each(this.children, function(child) {
-      markup += prefix + child.render() + suffix;
+      renderChildren : function(prefix, suffix) {
+        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+
+        var markup = "";
+        _.each(this.children, function(child) {
+          markup += prefix + child.render() + suffix;
+        });
+        return markup;
+      },
+
+      //Compiles the markup for this component
+      render : function() {
+
+        return this.template({"yield": this.renderChildren()});
+      },
     });
     return markup;
   },
@@ -213,15 +225,12 @@ var Viewport = Component.extend({
   }
 });
 var Panel = Component.extend({
-  initialize : function(args) {
-    Panel.__super__.initialize.call(this, args);
-    //classes and attributes (i of 0 & 1) are arrays
-    _.each(["classes", "attributes", "id", "body"], function(attr, i) {
-      if(!this.hasOwnProperty(attr)) {
-        this[attr] = (i < 2 ? [] : "");
-      }
-    }, this);
-  },
+      constructor: function(attributes, options) {
+        if(typeof(attributes) == "string") {
+          attributes = {body: attributes};
+        }
+        Panel.__super__.constructor.apply(this, arguments);
+      },
 
   template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</div>"),
 
@@ -382,6 +391,48 @@ var CloseButton = Link.extend({
     }
   }
 });
+var ContentRow = Panel.extend({
+      maxChildren: 12,
+      initialize: function(args) {
+        Row.__super__.initialize.call(this, args);
+
+        this.ensureChildLimit();
+        this.classes.unshift("row-fluid");
+      },
+      push: function(component) {
+        this.ensureChildLimit();
+        Row.__super__.push.call(this, component);
+      },
+      unshift: function(component) {
+        this.ensureChildLimit();
+        Row.__super__.unshift.call(this, component);
+      },
+      insert: function(component, index) {
+        this.ensureChildLimit();
+        Row.__super__.insert.call(this, component, index);
+      },
+      renderChildren: function() {
+        var rowWidth = this.maxChildren,
+            fluidChildren = this.children.length;
+
+        _.each(this.children, function(child) {
+          rowWidth -= (child.span || 0);
+          fluidChildren -= (child.span ? 1 : 0);
+        });
+
+        var span = Math.floor(rowWidth/fluidChildren),
+            markup = "";
+        _.each(this.children, function(child) {
+          markup += "<div class='span"+(child.span || span)+"'>" + child.render() + "</div>";
+        });
+        return markup;
+      },
+      ensureChildLimit: function() {
+        if(this.children.length >= this.maxChildren) {
+          throw SyntaxError("This row can only have "+this.maxChildren+" children");
+        }
+      }
+    });
 var Dropdown = Panel.extend({
 	initialize : function(args) {
 		this.__super__.initialize.call(this, args);
@@ -425,16 +476,9 @@ var Label = AbstractBadge.extend({
 var Link = Panel.extend({
   initialize : function(args) {
     Link.__super__.initialize.call(this, args);
-    var hasHREF = false;
-    _.each(this.attributes, function(attr) {
-      if(attr.match(/^href/)) {
-        hasHREF = true;
-        return false;
-      }
-    });
-    if(!hasHREF) {
-      this.attributes.push("href='#'");
-    }
+
+    this.setDefaultValue("", "href");
+    this.attributes.unshift("href='"+this.href+"'");
   },
 
   template : _.template("<a id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</a>")
@@ -625,6 +669,123 @@ Raw.prototype.render = function() {
   return this.text;
 }
 ;
+var Table = Panel.extend({
+      initialize: function(args) {
+        Table.__super__.initialize.call(this, args);
+        this.classes.unshift("table");
+        console.log(this);
+        _.each(this.children, this.throwUnlessRow); //make sure all children are table rows
+      },
+      push: function(row) {
+        this.throwUnlessRow(row);
+        Table.__super__.push.call(this, row);
+      },
+      unshift: function(row) {
+        this.throwUnlessRow(row);
+        Table.__super__.unshift.call(this, row);
+      },
+      insert: function(row, index) {
+        this.throwUnlessRow(row);
+        Table.__super__.insert.call(this, row, index);
+      },
+      throwUnlessRow: function(row) {
+        if(row instanceof Row) { return; }
+
+        throw new SyntaxError("Tables can only have Rows as children");
+      },
+      template: _.template("<table id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></table>")
+    }),
+    Row = Panel.extend({
+      initialize: function(args) {
+        Row.__super__.initialize.call(this, args);
+
+        _.each(this.children, this.throwUnlessCell); //make sure all children are table cells
+      },
+      push: function(component) {
+        this.throwUnlessCell(component);
+        Row.__super__.push.call(this, component);
+      },
+      unshift: function(component) {
+        this.throwUnlessCell(component);
+        Row.__super__.unshift.call(this, component);
+      },
+      insert: function(component, index) {
+        this.throwUnlessCell(component);
+        Row.__super__.insert.apply(this, arguments);
+      },
+      throwUnlessCell: function(cell) {
+        if(cell instanceof TableCell) { return; }
+
+        throw new SyntaxError("Rows can only have Cells as children");
+      },
+      template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
+    }),
+    TableCell = Panel.extend({
+      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
+    }),
+    TableHeader = TableCell.extend({
+      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
+    });
+    //aliases
+Table.prototype.add = Table.prototype.push;
+Row.prototype.add = Row.prototype.push;
+var Accordion = Panel.extend({
+	//this one is going to take some thought....
+	template : _.template(
+												"<div class='accordion' id='{{= rootID }}' {{= rootAttrs }}>"+
+													"{{ _(children).each(function(child){ }}"+
+													"<div class='accordion-group'>"+
+														"<div class='accordion-heading'>"+
+															"<a class='accordion-toggle' data-parent='{{= rootID }}' data-toggle='collapse' href='#collapseOne'>"+
+																"{{= child.heading}}"+
+															"</a>"+
+														"</div>"+
+														"<div class='accordion-body collapse in' id='collapseOne'>"+
+															"<div class='accordion-inner'>"+
+																"{{= child.body}}"+
+															"</div>"+
+														"</div>"+
+													"</div>"+
+													"{{ }); }}"+
+												"</div>"
+												)
+
+});
+var Carousel = Component.extend({
+	//Gunna have to come back to this one
+	template : _.template(
+												"<div class='carousel slide' id='{{= rootID }}' {{= rootAttrs }}>"+
+													"<ol class='carousel-indicators'>"+
+														"{{ _(slides).each(function(slide, i){ }}"+
+														"<li data-slide-to='{{= i }}' data-target='#{{= rootID }}'></li>"+
+														"{{= slide}}"+
+														"{{ }); }}"+
+													"</ol>"+
+													"<div class='carousel-inner'>"+
+														"{{ _(items).each(function(item){ }}"+
+														"<div class='item'></div>"+
+														"{{= item}}"+
+														"{{ }); }}"+
+													"</div>"+
+													"<a class='carousel-control left' data-slide='prev' href='#{{= rootID }}'>&lsaquo;</a>"+
+													"<a class='carousel-control right' data-slide='next' href='#{{= rootID }}'>&rsaquo;</a>"+
+												"</div>"
+												)
+
+});
+var Thumbnail = Component.extend({
+
+	template : _.template(
+												"<ul class='thumbnails'>"+
+													"{{ _(children).each(function(child){ }}"+
+													"<li class='span3'>"+
+														"<img src='{{= child }}' />"+
+													"</li>"+
+													"{{ }); }}"+
+												"</ul>"
+												)
+
+});
 /* Manifest file for compiling assets with Sprockets
  *
 
