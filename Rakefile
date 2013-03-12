@@ -1,22 +1,42 @@
 require 'sprockets'
 
+task :configure_sprockets do
+  @sprok_env = Sprockets::Environment.new
+end
+
 namespace :assets do
+  task :set_path => :configure_sprockets do
+    @sprok_env.append_path "modules/"
+  end
+
   desc "Compile assets."
-  task :compile, [:minify] do |t, args|
-    sprok_env = Sprockets::Environment.new
+  task :compile => :set_path do
+    @sprok_env["manifest.js"].write_to "strapTK.js"
+  end
 
-    sprok_env.append_path "modules/"
-    out_name = "strapTK.js"
+  desc "Minify assets"
+  task :minify => :configure_sprockets do
+    require 'uglifier'
 
-    if(args[:minify] === "true")
+    @sprok_env.js_compressor = Uglifier.new
+    @sprok_env["manifest.js"].write_to "strapTK.min.js"
+  end
+end
 
-      require 'uglifier'
+namespace :site do
 
-      sprok_env.js_compressor = Uglifier.new
+  task :set_path => :configure_sprockets do
+    @sprok_env.append_path "strapTK/"
+  end
 
-      out_name = "strapTK.min.js"
-    end
+  desc "Build site files"
+  task :build => :set_path do
+    require "haml"
+    require "tilt"
 
-    sprok_env["manifest.js"].write_to out_name
+    @sprok_env.register_engine ".haml", Tilt::HamlTemplate
+
+    @sprok_env["testing.scss"].write_to "strapTK/testing.css"
+    @sprok_env["index.html.haml"].write_to "strapTK/index.html"
   end
 end

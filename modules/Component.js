@@ -2,9 +2,13 @@
   Component - Base Class
     Components are generic objects that can add and remove children and render themselves
 */
-function Base(attributes, options)  {
+function Component(attributes, options)  {
   var attrs = attributes || {},
       opts = options || {};
+
+  if(_.isArray(attrs)) {
+    attrs = {children: attrs};
+  }
 
   for(attr in attrs) {
     this[attr] = attrs[attr];
@@ -20,7 +24,7 @@ function Base(attributes, options)  {
 // Function to correctly set up the prototype chain, for subclasses.
 // Similar to `goog.inherits`, but uses a hash of prototype properties and
 // class properties to be extended.
-Base.extend = function(protoProps, staticProps) {
+Component.extend = function(protoProps, staticProps) {
   var parent = this;
   var child;
 
@@ -53,7 +57,7 @@ Base.extend = function(protoProps, staticProps) {
   return child;
 };
 
-var Component = Base.extend({
+Component = Component.extend({
 
       initialize : function(args) {
         this.setDefaultValue([], "children");
@@ -61,10 +65,12 @@ var Component = Base.extend({
       },
 
       setDefaultValue: function(value) {
-        var args = Array.prototype.slice.call(arguments, 1);
+        var args = Array.prototype.slice.call(arguments, 1),      // get the list of attributes to apply the value to
+            method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
+
         _.each(args, function(attr) {
           if(!this.hasOwnProperty(attr)) {
-            this[attr] = value.valueOf();
+            this[attr] = value.constructor[method](this, value);  // clone value by calling its constructor function
           }
         }, this);
       },
@@ -117,24 +123,6 @@ var Component = Base.extend({
         }
       },
 
-      addClass : function(newClass) {
-        if(!_.include(this.classes, newClass)) {
-          this.classes.push(newClass);
-        }
-      },
-
-      removeClass : function(oldClass) {
-        this.classes = _.without(this.classes, oldClass);
-      },
-
-      toggleClass : function(theClass) {
-        if(_.include(this.classes, theClass)) {
-          this.removeClass(theClass);
-        } else {
-          this.addClass(theClass);
-        }
-      },
-
       renderChildren : function(prefix, suffix) {
         prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
 
@@ -151,15 +139,6 @@ var Component = Base.extend({
         return this.template({"yield": this.renderChildren()});
       },
     });
-    return markup;
-  },
-
-  //Compiles the markup for this component
-  render : function() {
-
-    return this.template({"yield": this.renderChildren()});
-  },
-});
 
 //aliases
 Component.prototype.add = Component.prototype.push;

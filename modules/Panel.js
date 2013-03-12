@@ -6,43 +6,49 @@ var Panel = Component.extend({
         Panel.__super__.constructor.apply(this, arguments);
       },
 
-  template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>{{= yield }}</div>"),
+      initialize: function(args) {
+        Panel.__super__.initialize.call(this, args);
 
-  render : function() {
-    var markup = this.body + this.renderChildren();
+        this.setDefaultValue([], "classes", "attributes");
+        this.setDefaultValue("", "id", "body");
+      },
 
-    return this.template({
-      "yield": markup,
-      "rootAttrs" : this.attributes.join(" "),
-      "rootClasses": this.classes.join(" "),
-      "rootID": this.id
-    });
-  },
+      addClass : function(newClass) {
+        if(!_.include(this.classes, newClass)) {
+          this.classes.push(newClass);
+        }
+      },
 
-  wellify : function() {
-    if(!_.include(this.classes, "well")) {
-      this.classes.push("well");
-    }
-  },
+      removeClass : function(oldClass) {
+        this.classes = _.without(this.classes, oldClass);
+      },
 
-  dewellify : function() {
-    this.classes = _.without(this.classes, "well");
-  },
+      toggleClass : function(theClass) {
+        if(_.include(this.classes, theClass)) {
+          this.removeClass(theClass);
+        } else {
+          this.addClass(theClass);
+        }
+      },
 
-  welled : function(isWelled) {
-    if(!isWelled && isWelled !== false) {
-      return _.include(this.classes, "well");
-    }
+      listClasses : function() {
+        return this.classes.join(" ");
+      },
 
-    isWelled ? this.wellify() : this.dewellify();
-  },
-  /**
-   * Sets the closability of this alert.
-   * Calling setClosable without specifying the closability sets closable to true
-   *
-   * @param closable [Boolean|null] Sets the closability of the alert.
-   */
-  setClosable : function(closable) {
-    this.closable = typeof(closable) === "boolean" ? closable : true;
-  }
-});
+      listAttributes : function() {
+        return this.attributes.join(" ");
+      }
+
+      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "rootID": this.id,
+          "rootClasses": this.listClasses(),
+          "rootAttrs" : this.listAttributes();
+        });
+      }
+    }),
+    Div = Panel;
