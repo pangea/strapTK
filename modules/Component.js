@@ -117,10 +117,9 @@ Component = Component.extend({
       //Removes the child at index
       remove : function(index) {
         if(index) {
-          this.children.splice(index, 1);
-        } else {
-          this.pop();
+          return this.children.splice(index, 1)[0];
         }
+        return this.pop();
       },
 
       renderChildren : function(prefix, suffix) {
@@ -135,7 +134,6 @@ Component = Component.extend({
 
       //Compiles the markup for this component
       render : function() {
-
         return this.template({"yield": this.renderChildren()});
       },
     });

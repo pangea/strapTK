@@ -1,9 +1,24 @@
 /**
+ * The strap object contains a set of global functions that apply to the
+ *  entire page (e.g. setting all elements as draggable)
+ */
+var strap = (function() {
+      this.allDraggable = function(draggable) {
+        if(draggable === true) {
+          $("body").find("*").attr("draggable", "true")
+        } else if(draggable === false) {
+          $("body").find("*").removeAttr("draggable")
+        }
+      }
+    })();
+
+/**
  * Decorates the given component with the necessary variables and methods to handle being typed
  *  A typed object is one that has a "base" and is then further modified with a "type".
  *  E.G. An alert can be an "error" message (and have a "type" of "error")
  *
- * This method does not overwrite any variables set on the decorated component unless it already has a setType property (which it shouldn't >:[)
+ * This method does not overwrite any variables set on the decorated component unless it
+ *  already has a setType property (which it shouldn't >:[)
  *
  * @param component [Component] the component to be decorated
  */
@@ -11,7 +26,7 @@ function Typify(component) {
 
   component.setType = function(type) {
     if(this.type) {
-      this.classes = this.removeClass(this.base+"-"+this.type);
+      this.removeClass(this.base+"-"+this.type);
       delete this.type;
     }
     if(type) {

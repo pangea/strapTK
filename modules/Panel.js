@@ -14,21 +14,27 @@ var Panel = Component.extend({
       },
 
       addClass : function(newClass) {
-        if(!_.include(this.classes, newClass)) {
-          this.classes.push(newClass);
-        }
+        var newClasses = arguments.length > 1 ? Array.prototype.slice.call(arguments, 0) : [newClass];
+        this.classes = _.union(this.classes, newClasses);
+        return this;
       },
 
       removeClass : function(oldClass) {
-        this.classes = _.without(this.classes, oldClass);
+        var args = arguments.length > 1 ? [this.classes].concat(Array.prototype.slice.call(arguments, 0)) : [this.classes, oldClass];
+        this.classes = _.without.apply(this, args);
+        return this;
       },
 
       toggleClass : function(theClass) {
-        if(_.include(this.classes, theClass)) {
-          this.removeClass(theClass);
-        } else {
-          this.addClass(theClass);
-        }
+        var theClasses = arguments.length > 1 ? Array.prototype.slice.call(arguments, 0) : [theClass];
+        _.each(theClasses, function(theClass) {
+          if(_.include(this.classes, theClass)) {
+            this.removeClass(theClass);
+          } else {
+            this.addClass(theClass);
+          }
+        }, this);
+        return this;
       },
 
       listClasses : function() {
@@ -37,7 +43,7 @@ var Panel = Component.extend({
 
       listAttributes : function() {
         return this.attributes.join(" ");
-      }
+      },
 
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
 
@@ -47,7 +53,7 @@ var Panel = Component.extend({
           "yield": markup,
           "rootID": this.id,
           "rootClasses": this.listClasses(),
-          "rootAttrs" : this.listAttributes();
+          "rootAttrs" : this.listAttributes()
         });
       }
     }),

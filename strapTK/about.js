@@ -13,7 +13,7 @@ var about = new Viewport({
             new P("Strap'd was envisioned as a lightweight rapid prototyping library.  We needed a way to speed up our development time especially in the prototyping stage.  Over an afternoon, my coworkers and I stood around a whiteboard writing out what we wanted in our 'Widget Toolkit'.  The HTML building elements hit the board almost immediately.  Followed swiftly by a suggestion from my boss for 'Data Sourcing', or connecting widgets to RESTful web APIs or even other widgets as a means of automatically gathering and displaying data.  We were gearing up for a pretty major web app and this seemed like a pretty good idea to all of us."),
             new P("A few extra details went in here and there - drag and drop support, graphing - but we already had what we, ultimately, needed.  We defined our MVP with just the HTML building parts and we set out to get it started."),
             new P("Thanks to some extremely well written code from the Backbone guys, the initial version of Strap'd only took me a few days to write.  In those fews days, I had the basics of an HTML building library and I'd defined the methods I would use to build the rest of the functionality.  It took an additional few weeks on and off, but I finally got something workable written.  At that point, I figured the best way to give the library a test run was to build a site about it, using it."),
-            new P("It was around this time we started fishing around for a name.  Strap On was a fast favorite but the obvious innuendo seemed a little much.  It took a few days of poking at it before I had an epiphany and the name 'Strap'd' came to me.  I pitched to the rest of the team and, while a little dissapointed I hadn't gone with their favorite, all agreed it sounded pretty good."),
+            new P("It was around this time we started fishing around for a name.  Strap On was a fast favorite but the obvious innuendo seemed a little much.  It took a few days of poking at it before I had an epiphany and the name 'Strap'd' came to me.  I pitched to the rest of the team and, while a little dissapointed I hadn't gone with their favorite, we all agreed it sounded pretty good."),
             new HR(),
             new PageHeader({
               header: "Behind the Curtain",
@@ -58,7 +58,7 @@ var about = new Viewport({
             new PageHeader({
               header: "Chris Rankin",
               level: 3,
-              body: "Project Management and general Ass Kickery"
+              body: "Project Management, Design, and general Ass Kickery"
             }),
             new Nav({
               type: "pills",

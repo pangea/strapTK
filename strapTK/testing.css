@@ -44,3 +44,5 @@
   .function-declaration small {
     display: block;
     color: black; }
+  .function-declaration span {
+    color: red; }

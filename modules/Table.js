@@ -1,7 +1,7 @@
 var Table = Panel.extend({
       initialize: function(args) {
         Table.__super__.initialize.call(this, args);
-        this.addClasses("table");
+        this.addClass("table");
         this.attributes.unshift("style='color: inherit'");  //monkey patch for odd behavior in Webkit
         _.each(this.children, this.throwUnlessRow);         //make sure all children are table rows
       },

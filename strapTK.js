@@ -3,26 +3,36 @@
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
 ;
-/*_.templateSettings = {
-    'evaluate': /\{\{([\s\S]+?)\}\}/g,      // {{ [code] }}
-    'interpolate': /\{\{\=([\s\S]+?)\}\}/g  // {{= [code] }}
-  };*/
+/**
+ * The strap object contains a set of global functions that apply to the
+ *  entire page (e.g. setting all elements as draggable)
+ */
+
+var strap = (function() {
+      this.allDraggable = function(draggable) {
+        if(draggable === true) {
+          $("body").find("*").attr("draggable", "true")
+        } else if(draggable === false) {
+          $("body").find("*").removeAttr("draggable")
+        }
+      }
+    })();
 
 /**
  * Decorates the given component with the necessary variables and methods to handle being typed
  *  A typed object is one that has a "base" and is then further modified with a "type".
  *  E.G. An alert can be an "error" message (and have a "type" of "error")
  *
- * This method does not overwrite any variables set on the decorated component unless it already has a setType property (which it shouldn't >:[)
+ * This method does not overwrite any variables set on the decorated component unless it
+ *  already has a setType property (which it shouldn't >:[)
  *
  * @param component [Component] the component to be decorated
  */
-
 function Typify(component) {
 
   component.setType = function(type) {
     if(this.type) {
-      this.classes = _.without(this.classes, this.base+"-"+this.type);
+      this.removeClass(this.base+"-"+this.type);
       delete this.type;
     }
     if(type) {
@@ -30,7 +40,7 @@ function Typify(component) {
         throw new RangeError("Invalid type - "+type);
       }
       this.type = type;
-      this.classes.push(this.base+"-"+type);
+      this.addClass(this.base+"-"+type);
     }
   };
 
@@ -38,7 +48,7 @@ function Typify(component) {
   component.setDefaultValue("", "base", "type");
 
   if(component.base) {
-    component.classes.unshift(component.base);
+    component.addClass(component.base);
   }
 
   if(component.type) {
@@ -166,28 +176,9 @@ Component = Component.extend({
       //Removes the child at index
       remove : function(index) {
         if(index) {
-          this.children.splice(index, 1);
-        } else {
-          this.pop();
+          return this.children.splice(index, 1)[0];
         }
-      },
-
-      addClass : function(newClass) {
-        if(!_.include(this.classes, newClass)) {
-          this.classes.push(newClass);
-        }
-      },
-
-      removeClass : function(oldClass) {
-        this.classes = _.without(this.classes, oldClass);
-      },
-
-      toggleClass : function(theClass) {
-        if(_.include(this.classes, theClass)) {
-          this.removeClass(theClass);
-        } else {
-          this.addClass(theClass);
-        }
+        return this.pop();
       },
 
       renderChildren : function(prefix, suffix) {
@@ -202,7 +193,6 @@ Component = Component.extend({
 
       //Compiles the markup for this component
       render : function() {
-
         return this.template({"yield": this.renderChildren()});
       },
     });
@@ -233,6 +223,38 @@ var Panel = Component.extend({
         this.setDefaultValue("", "id", "body");
       },
 
+      addClass : function(newClass) {
+        var newClasses = arguments.length > 1 ? Array.prototype.slice.call(arguments, 0) : [newClass];
+        this.classes = _.union(this.classes, newClasses);
+        return this;
+      },
+
+      removeClass : function(oldClass) {
+        var args = arguments.length > 1 ? [this.classes].concat(Array.prototype.slice.call(arguments, 0)) : [this.classes, oldClass];
+        this.classes = _.without.apply(this, args);
+        return this;
+      },
+
+      toggleClass : function(theClass) {
+        var theClasses = arguments.length > 1 ? Array.prototype.slice.call(arguments, 0) : [theClass];
+        _.each(theClasses, function(theClass) {
+          if(_.include(this.classes, theClass)) {
+            this.removeClass(theClass);
+          } else {
+            this.addClass(theClass);
+          }
+        }, this);
+        return this;
+      },
+
+      listClasses : function() {
+        return this.classes.join(" ");
+      },
+
+      listAttributes : function() {
+        return this.attributes.join(" ");
+      },
+
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
 
       render : function() {
@@ -240,8 +262,8 @@ var Panel = Component.extend({
         return this.template({
           "yield": markup,
           "rootID": this.id,
-          "rootClasses": this.classes.join(" "),
-          "rootAttrs" : this.attributes.join(" ")
+          "rootClasses": this.listClasses(),
+          "rootAttrs" : this.listAttributes()
         });
       }
     }),
@@ -261,7 +283,10 @@ var Link = Panel.extend({
         Link.__super__.initialize.call(this, args);
 
         this.setDefaultValue("", "href");
-        this.attributes.unshift("href='"+this.href+"'");
+      },
+
+      listAttributes : function() {
+        return this.attributes.join(" ") + " href='"+this.href+"'";
       },
 
       template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
@@ -277,6 +302,33 @@ var List = Panel.extend({
       template: _.template( "<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<%= yield %>"+
                             "</ul>")
+    });
+var Accordion = Panel.extend({
+      initialize: function(args) {
+        Accordion.__super__.initialize.call(this, args);
+
+        this.addClass("accordion");
+      },
+
+      renderChildren: function() {
+        var markup = "";
+        _.each(this.children, function(child, i) {
+          markup += "<div class='accordion-group'>" +
+                      "<div class='accordion-heading'>" +
+                        "<a class='accordion-toggle' data-parent='" + this.id + "' data-toggle='collapse' href='#" + this.id + "_" + i +"'>" +
+                          child.heading +
+                        "</a>" +
+                      "</div>" +
+                      "<div class='accordion-body collapse in' id='" + this.id + "_" + i +"'>" +
+                        "<div class='accordion-inner'>" +
+                          child.render() +
+                        "</div>" +
+                      "</div>" +
+                    "</div>";
+        }, this);
+
+        return markup;
+      }
     });
 var Alert = Panel.extend({
       initialize : function(args) {
@@ -301,8 +353,8 @@ var Alert = Panel.extend({
           "title": this.title,
           "closable": this.closable,
           "rootID": this.id,
-          "rootClasses": this.classes.join(" "),
-          "rootAttrs": this.attributes.join(" ")
+          "rootClasses": this.listClasses(),
+          "rootAttrs": this.listAttributes()
         });
       },
 
@@ -341,7 +393,7 @@ var Breadcrumbs = Panel.extend({
 		Breadcrumbs.__super__.initialize.call(this, args);
 		this.childPrefix || (this.childPrefix = "<li>");
 		this.childSuffix || (this.childSuffix = "<span class='divider'>/</span></li>");
-		this.classes.unshift("breadcrumb");
+		this.addClass("breadcrumb");
 	},
 
 	template : _.template("<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
@@ -368,22 +420,74 @@ var Button = Link.extend({
 var ButtonGroup = Panel.extend({
   initialize: function(args) {
     this.__super__.initialize.call(this, args);
-    this.classes.unshift("btn-group");
+    this.addClass("btn-group");
   }
 });
 var ButtonToolbar = Panel.extend({
   initialize: function(args) {
     this.__super__.initialize.call(this, args);
-    this.classes.unshift("btn-toolbar");
+    this.addClass("btn-toolbar");
   }
+});
+var Carousel = Panel.extend({
+  initialize: function(args) {
+    Carousel.__super__.initialize.call(this, args);
+
+    this.setDefaultValue(true, "controls");
+    this.setDefaultValue("&lsaquo;", "prevSymbol");
+    this.setDefaultValue("&rsaquo;", "nextSymbol");
+
+    this.addClass("carousel", "slide");
+  },
+
+  //Gunna have to come back to this one
+  template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>" +
+                          "{{ if(controls) { }}" +
+                            "<ol class='carousel-indicators'>" +
+                              "{{ _(slides).times(function(i){ }}" +
+                                "<li data-slide-to='{{= i }}' data-target='#{{= rootID }}' {{= i == 0 ? \"classes='active'\" : '' }}></li>" +
+                              "{{ }); }}" +
+                            "</ol>" +
+                          "{{ } }}" +
+                          "<div class='carousel-inner'>" +
+                            "{{= yield }}" +
+                          "</div>" +
+                          "{{ if(controls) { }}" +
+                            "<a class='carousel-control left' data-slide='prev' href='#{{= rootID }}'>{{= prevSymbol }}</a>" +
+                            "<a class='carousel-control right' data-slide='next' href='#{{= rootID }}'>{{= nextSymbol }}</a>" +
+                          "{{ } }}" +
+                        "</div>"),
+
+  renderChildren: function() {
+    var markup = "";
+    _.each(this.children, function(child, i) {
+      markup += "<div class='item" + (i == 0 ? " active" : "") + "'>" +
+                  child.render() +
+                "</div>";
+    });
+    return markup;
+  },
+
+  render : function() {
+    var markup = this.body + this.renderChildren();
+    return this.template({
+      "yield"       : markup,
+      "rootID"      : this.id,
+      "rootClasses" : this.listClasses(),
+      "rootAttrs"   : this.listAttributes(),
+      "controls"    : this.controls,
+      "slides"      : this.children.length,
+      "prevSymbol"  : this.prevSymbol,
+      "nextSymbol"  : this.nextSymbol
+    });
+  }
+
 });
 var CloseButton = Link.extend({
   initialize : function(args) {
-    this.__super__.initialize.call(this, args);
-    this.classes.unshift("close");
-    if(!this.hasOwnProperty("body")) {
-      this.body = "&times;"
-    }
+    CloseButton.__super__.initialize.call(this, args);
+    this.addClass("close");
+    this.body || (this.body = "&times;");
   }
 });
 var ContentRow = Panel.extend({
@@ -435,18 +539,16 @@ var Dropdown = List.extend({
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
-        this.classes.unshift("dropdown-menu");
+        this.addClass("dropdown-menu");
       }
     });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
 
-        if(!this.hasOwnProperty("title")) {
-          this.title = "";
-        }
+        this.setDefaultValue("", "title");
 
-        this.classes.unshift("hero-unit");
+        this.addClass("hero-unit");
       },
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<h1><%= title %></h1>"+
@@ -458,8 +560,8 @@ var HeroUnit = Panel.extend({
           "yield": markup,
           "title": this.title,
           "rootID": this.id,
-          "rootClasses": this.classes.join(" "),
-          "rootAttrs": this.attributes.join(" ")
+          "rootClasses": this.listClasses(),
+          "rootAttrs": this.listAttributes()
         });
       }
     });
@@ -510,10 +612,16 @@ var ICONLIST = [
       "user-md"
     ];
 var Image = Panel.extend({
-  initialize: function(args) {
+  initialize : function(args) {
     Image.__super__.initialize.call(this, args);
 
     this.setDefaultValue("", "src");
+  },
+
+  template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
+
+  listAttributes : function() {
+    return this.attributes.join(" ")+" src="+this.src;
   }
 })
 ;
@@ -523,19 +631,20 @@ var Label = AbstractBadge.extend({
     Label.__super__.initialize.call(this, args);
   }
 });
+function LineBreak() {}
+LineBreak.prototype.render = function() {
+  return "<br/>";
+}
+
+var BR = LineBreak;
 var Modal = Panel.extend({
       initialize : function(args) {
         Modal.__super__.initialize.call(this, args);
 
-        if(!this.hasOwnProperty("actions")) {
-          this.actions = [];
-        }
+        this.setDefaultValue([], "actions");
+        this.setDefaultValue("", "header");
 
-        if(!this.hasOwnProperty("header")) {
-          this.header = "";
-        }
-
-        this.classes.push("modal");
+        this.addClass("modal");
       },
 
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
@@ -578,8 +687,8 @@ var Modal = Panel.extend({
           "header":this.header,
           "actions": actionMarkup,
           "rootID": this.id,
-          "rootClasses": this.classes.join(" "),
-          "rootAttrs": this.attributes.join(" ")
+          "rootClasses": this.listClasses(),
+          "rootAttrs": this.listAttributes()
         });
       }
     });
@@ -631,7 +740,7 @@ var Nav = List.extend({
 var NavBar = Panel.extend({
       initialize : function(args) {
         NavBar.__super__.initialize.call(this, args);
-        this.classes.unshift("navbar");
+        this.addClass("navbar");
       },
 
       renderChildren : function() {
@@ -658,8 +767,8 @@ var PageHeader = Panel.extend({
           "header": this.header,
           "level": this.level,
           "rootID": this.id,
-          "rootClasses": this.classes.join(" "),
-          "rootAttrs": this.attributes.join(" ")
+          "rootClasses": this.listClasses(),
+          "rootAttrs": this.listAttributes()
         });
       }
     });
@@ -674,7 +783,7 @@ var Pagination = Panel.extend({
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
-        this.classes.unshift("pagination");
+        this.addClass("pagination");
 
         if(this.children.length === 0) {
           this.buildPages();
@@ -743,7 +852,7 @@ var ProgressBar = Panel.extend({
   }
 });
 function Raw(body) {
-  this.text = (body || "");
+  this.text = body;
 }
 
 Raw.prototype.render = function() {
@@ -753,7 +862,7 @@ Raw.prototype.render = function() {
 var Table = Panel.extend({
       initialize: function(args) {
         Table.__super__.initialize.call(this, args);
-        this.classes.unshift("table");
+        this.addClass("table");
         this.attributes.unshift("style='color: inherit'");  //monkey patch for odd behavior in Webkit
         _.each(this.children, this.throwUnlessRow);         //make sure all children are table rows
       },
@@ -795,18 +904,15 @@ var Table = Panel.extend({
         TableRow.__super__.insert.apply(this, arguments);
       },
       throwUnlessCell: function(cell) {
-        if(cell instanceof TableCell) { return; }
+        if(cell instanceof TableCell || cell instanceof TableHeader) { return; }
 
         throw new SyntaxError("Rows can only have Cells as children");
       },
       template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
     }),
-    TableCell = Panel.extend({
-      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
-    }),
-    TableHeader = TableCell.extend({
-      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
-    });
+    TableCell = Panel.extend({ template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>") }),
+    TableHeader = Panel.extend({ template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>") });
+
     //aliases
 Table.prototype.add = Table.prototype.push;
 TableRow.prototype.add = TableRow.prototype.push;
