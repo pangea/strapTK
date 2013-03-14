@@ -62,7 +62,7 @@ var api = new Viewport({
             //                                                        Constructor
             new P({
               id: "component-constructor",
-              body: "<strong>Constructor</strong> arguments: attributes (Object|Array), [options]",
+              body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
               classes: ["lead", "function-declaration"]
             }),
             new P("All keys passed into the Component constructor in the <code>attributes</code> object are applied to the created Component.  This allows a great deal of flexability to Components, but also a bit of danger <small class='muted'>(see below)</small>.  If passed an array, it will be used as the list of children for the created Component.  See the table below for a list of attributes defined and used by Components."),
@@ -171,6 +171,15 @@ var api = new Viewport({
               classes: ["lead", "function-declaration"]
             }),
             new P("For Components, the <code>template</code> function just returns the <code>yield</code> property of <code>data</code>.  It's overridden by most subclasses to actually provide markup."),
+            new HR(),
+            //                                                        RenderChildren
+            new P({
+              id: "component-renderChildren",
+              body:"<strong>renderChildren</strong> arguments: [prefix (String), suffix (String)]<small><strong>Returns:</strong> String</small>",
+              classes: ["lead", "function-declaration"]
+            }),
+            new P("Calls the <code>render</code> method of each of this component's children and wraps the output with <code>prefix</code> and <code>suffix</code>.  If <code>prefix</code> or <code>suffix</code> are not supplied, <code>childPrefix</code> and <code>childSuffix</code> are used for the unsupplied value."),
+            new HR(),
             //                                                            Render
             new P({
               id: "component-render",
@@ -193,7 +202,7 @@ var api = new Viewport({
             //                                                         Constructor
             new P({
               id: "viewport-constructor",
-              body: "<strong>Constructor</strong> arguments: attributes (Object|Array), [options]",
+              body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
               classes: ["lead", "function-declaration"]
             }),
             new P("In addition to the functionality of Component, Viewport defines an additional default attribute, root.  A Viewport's root can be any valid CSS selector or path."),
@@ -222,10 +231,7 @@ var api = new Viewport({
               classes: ["lead", "function-declaration"]
             }),
             new P("Inserts the Viewport's children into the DOM."),
-            new Alert({
-              body: "<strong>Of Note</strong><br/>If the Viewport's root does not exist in the DOM, no action will be taken and no errors will be thrown.",
-              type: "info"
-            }),
+            new Alert("<strong>Be Aware</strong><br/>If the Viewport's root does not exist in the DOM, no action will be taken and no errors will be thrown."),
             new HR(),
             //
             // Panel Documentation
@@ -241,7 +247,7 @@ var api = new Viewport({
             //                                                          Constructor
             new P({
               id: "panel-constructor",
-              body: "<strong>Constructor</strong> arguments: attributes (Object|Array|String), [options]",
+              body: "<strong>Constructor</strong> arguments: [attributes (Object|Array|String), options]",
               classes: ["lead", "function-declaration"]
             }),
             new P("On top of the attributes defined by Component, Panel defines some additional default attributes for use with the DOM <small class='muted'>(see below)</small>.  Further, the Panel constructor provides an additional method of creating objects.  If passed a string, it is used as the body of the new Panel."),
@@ -285,7 +291,7 @@ var api = new Viewport({
               type: "info"
             }),
             new HR(),
-            //                                                              Render
+            //                                                             addClass
             new P({
               id: "panel-addClass",
               body: "<strong>addClass</strong> arguments: newClass (String), [newClass2 (String), [newClass3 (String), ...]]<small><strong>Returns:</strong> Panel</small>",
@@ -301,7 +307,7 @@ var api = new Viewport({
             }),
             new P("Removes the classes given from the list of classes.  This method is chainable."),
             new HR(),
-            //                                                             addClass
+            //                                                            toggleClass
             new P({
               id: "panel-toggleClass",
               body: "<strong>toggleClass</strong> arguments: theClass, [theClass2 (String), [theClass3 (String), ...]] (String)<small><strong>Returns:</strong> Panel</small>",
@@ -324,7 +330,22 @@ var api = new Viewport({
               classes: ["lead", "function-declaration"]
             }),
             new P("Outputs the list of attributes in a way that can be inserted into the DOM."),
-            new HR()
+            new HR(),
+            //                                                              template
+            new P({
+              id: "panel-template",
+              body: "<strong>template</strong> attributes: data (Object)<small><strong>Returns:</strong> String</small>",
+              classes: ["lead", "function-declaration"]
+            }),
+            new P("Returns the full markup for this Panel.  Most subclasses of Panel provide their own markup for their template, but they all function in the same fashion."),
+            new HR(),
+            //                                                               render
+            new P({
+              id: "panel-render",
+              body: "<strong>render</strong><small><strong>Returns:</strong> String</small>",
+              classes: ["lead", "function-declaration"]
+            }),
+            new P("Compiles the markup of this panel's children and prepends its <code>body</code>, if any.")
           ]
         })
       ]

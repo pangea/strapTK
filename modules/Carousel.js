@@ -10,21 +10,21 @@ var Carousel = Panel.extend({
   },
 
   //Gunna have to come back to this one
-  template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>" +
-                          "{{ if(controls) { }}" +
+  template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
+                          "<% if(controls) { %>" +
                             "<ol class='carousel-indicators'>" +
-                              "{{ _(slides).times(function(i){ }}" +
-                                "<li data-slide-to='{{= i }}' data-target='#{{= rootID }}' {{= i == 0 ? \"classes='active'\" : '' }}></li>" +
-                              "{{ }); }}" +
+                              "<% _(slides).times(function(i){ %>" +
+                                "<li data-slide-to='<%= i %>' data-target='#<%= rootID %>' <%= i == 0 ? \"classes='active'\" : '' %>></li>" +
+                              "<% }); %>" +
                             "</ol>" +
-                          "{{ } }}" +
+                          "<% } %>" +
                           "<div class='carousel-inner'>" +
-                            "{{= yield }}" +
+                            "<%= yield %>" +
                           "</div>" +
-                          "{{ if(controls) { }}" +
-                            "<a class='carousel-control left' data-slide='prev' href='#{{= rootID }}'>{{= prevSymbol }}</a>" +
-                            "<a class='carousel-control right' data-slide='next' href='#{{= rootID }}'>{{= nextSymbol }}</a>" +
-                          "{{ } }}" +
+                          "<% if(controls) { %>" +
+                            "<a class='carousel-control left' data-slide='prev' href='#<%= rootID %>'><%= prevSymbol %></a>" +
+                            "<a class='carousel-control right' data-slide='next' href='#<%= rootID %>'><%= nextSymbol %></a>" +
+                          "<% } %>" +
                         "</div>"),
 
   renderChildren: function() {
