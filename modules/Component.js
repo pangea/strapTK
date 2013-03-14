@@ -136,6 +136,10 @@ Component = Component.extend({
       render : function() {
         return this.template({"yield": this.renderChildren()});
       },
+
+      toString : function() {
+        return this.render();
+      }
     });
 
 //aliases

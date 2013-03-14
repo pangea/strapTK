@@ -22,7 +22,8 @@ var strap = (function() {
  *
  * @param component [Component] the component to be decorated
  */
-function Typify(component) {
+function Typify(component, options) {
+  options = _.extend({}, Typify.defaults, options);
 
   component.setType = function(type) {
     if(this.type) {
@@ -38,8 +39,9 @@ function Typify(component) {
     }
   };
 
-  component.setDefaultValue([], "types");
-  component.setDefaultValue("", "base", "type");
+  component.types || (component.types = options.types);
+  component.base || (component.base = options.base);
+  component.type || (component.type = options.type);
 
   if(component.base) {
     component.addClass(component.base);
@@ -48,4 +50,10 @@ function Typify(component) {
   if(component.type) {
     component.setType(component.type);
   }
+}
+
+Typify.defaults = {
+  types: [],
+  base: "",
+  type: ""
 }

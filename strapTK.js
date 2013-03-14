@@ -28,7 +28,8 @@ var strap = (function() {
  *
  * @param component [Component] the component to be decorated
  */
-function Typify(component) {
+function Typify(component, options) {
+  options = _.extend({}, Typify.defaults, options);
 
   component.setType = function(type) {
     if(this.type) {
@@ -44,8 +45,9 @@ function Typify(component) {
     }
   };
 
-  component.setDefaultValue([], "types");
-  component.setDefaultValue("", "base", "type");
+  component.types || (component.types = options.types);
+  component.base || (component.base = options.base);
+  component.type || (component.type = options.type);
 
   if(component.base) {
     component.addClass(component.base);
@@ -54,6 +56,12 @@ function Typify(component) {
   if(component.type) {
     component.setType(component.type);
   }
+}
+
+Typify.defaults = {
+  types: [],
+  base: "",
+  type: ""
 }
 ;
 /*
@@ -195,6 +203,10 @@ Component = Component.extend({
       render : function() {
         return this.template({"yield": this.renderChildren()});
       },
+
+      toString : function() {
+        return this.render();
+      }
     });
 
 //aliases
@@ -313,13 +325,14 @@ var Accordion = Panel.extend({
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
+          var childPanelID = this.id + "-" + i;
           markup += "<div class='accordion-group'>" +
                       "<div class='accordion-heading'>" +
-                        "<a class='accordion-toggle' data-parent='" + this.id + "' data-toggle='collapse' href='#" + this.id + "_" + i +"'>" +
+                        "<a class='accordion-toggle' data-parent='#" + this.id + "' data-toggle='collapse' href='#" + childPanelID +"'>" +
                           child.heading +
                         "</a>" +
                       "</div>" +
-                      "<div class='accordion-body collapse in' id='" + this.id + "_" + i +"'>" +
+                      "<div class='accordion-body collapse" + (child.open ? " in" : "") + "' id='" + childPanelID +"'>" +
                         "<div class='accordion-inner'>" +
                           child.render() +
                         "</div>" +
@@ -338,35 +351,15 @@ var Alert = Panel.extend({
         Typify(this);
       },
 
-    	template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
-    													"<% if(closable) { %>" +
-                                "<button class='close' data-dismiss='alert' type='button'>&times;</button>" +
-                              "<% } %>" +
-    													"<strong><%= title %></strong>" +
-    													"<%= yield %>" +
-    												"</div>"),
-
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "title": this.title,
-          "closable": this.closable,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
-          "rootAttrs": this.listAttributes()
-        });
-      },
-
       isBlock : function(blocked) {
         var isBlocked = _.include(this.classes, "alert-block");
-        if(blocked) {
+        if(blocked === true) {
           if(!isBlocked) {
-            this.classes.push("alert-block");
+            this.addClass("alert-block");
           }
         } else if(blocked === false) {
           if(isBlocked) {
-            this.classes = _.without(this.classes, "alert-block");
+            this.removeClass("alert-block");
           }
         } else {
           return isBlocked;
@@ -379,7 +372,27 @@ var Alert = Panel.extend({
        * @param closable [Boolean|null] Sets the closability of the alert.
        */
       setClosable : function(closable) {
-        this.closable = typeof(closable) === "boolean" ? closable : true;
+        var hasCloseButton = false,
+            closeButtonIndex = -1;
+        _.each(this.children, function(child, i) {
+          if(child instanceof CloseButton) {
+            hasCloseButton = true;
+            closeButtonIndex = i;
+            return false;
+          }
+        });
+        if(closable === true || typeof(closable) != "boolean") {
+          if(hasCloseButton === false) {
+            this.unshift(new CloseButton({
+              attributes: ["data-dismiss='alert'"]
+            }));
+          }
+          this.closable = true;
+        } else {
+          if(hasCloseButton) {
+            this.remove(closeButtonIndex);
+          }
+        }
       }
     });
 var Badge = AbstractBadge.extend({
@@ -441,21 +454,21 @@ var Carousel = Panel.extend({
   },
 
   //Gunna have to come back to this one
-  template : _.template("<div id='{{= rootID }}' class='{{= rootClasses }}' {{= rootAttrs }}>" +
-                          "{{ if(controls) { }}" +
+  template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
+                          "<% if(controls) { %>" +
                             "<ol class='carousel-indicators'>" +
-                              "{{ _(slides).times(function(i){ }}" +
-                                "<li data-slide-to='{{= i }}' data-target='#{{= rootID }}' {{= i == 0 ? \"classes='active'\" : '' }}></li>" +
-                              "{{ }); }}" +
+                              "<% _(slides).times(function(i){ %>" +
+                                "<li data-slide-to='<%= i %>' data-target='#<%= rootID %>' <%= i == 0 ? \"classes='active'\" : '' %>></li>" +
+                              "<% }); %>" +
                             "</ol>" +
-                          "{{ } }}" +
+                          "<% } %>" +
                           "<div class='carousel-inner'>" +
-                            "{{= yield }}" +
+                            "<%= yield %>" +
                           "</div>" +
-                          "{{ if(controls) { }}" +
-                            "<a class='carousel-control left' data-slide='prev' href='#{{= rootID }}'>{{= prevSymbol }}</a>" +
-                            "<a class='carousel-control right' data-slide='next' href='#{{= rootID }}'>{{= nextSymbol }}</a>" +
-                          "{{ } }}" +
+                          "<% if(controls) { %>" +
+                            "<a class='carousel-control left' data-slide='prev' href='#<%= rootID %>'><%= prevSymbol %></a>" +
+                            "<a class='carousel-control right' data-slide='next' href='#<%= rootID %>'><%= nextSymbol %></a>" +
+                          "<% } %>" +
                         "</div>"),
 
   renderChildren: function() {
