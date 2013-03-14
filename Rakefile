@@ -15,7 +15,7 @@ namespace :assets do
   end
 
   desc "Minify assets"
-  task :minify => :configure_sprockets do
+  task :minify => :set_path do
     require 'uglifier'
 
     @sprok_env.js_compressor = Uglifier.new
