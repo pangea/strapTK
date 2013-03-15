@@ -10,8 +10,8 @@ var Breadcrumbs = Panel.extend({
 													"<%= yield %>"+
 												"</ul>"),
 	render : function() {
-		var markup = Breadcrumbs.__super__.render.call(this).split("<span class='divider'>/</span>"),
+		var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
 				last = markup.pop();
-		return markup.join("<span class='divider'>/</span>") + last;
+		return markup.join(this.childSuffix) + last;
 	}
 });

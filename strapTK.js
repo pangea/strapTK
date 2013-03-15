@@ -17,6 +17,54 @@ var strap = (function() {
         }
       }
     })();
+/**
+ * Global Extend function for creating subclasses
+ * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.
+ * You should go check out their work too: http://backbonejs.org
+ *
+ * The only modification made to this function is to add 'parent' as an argument instead
+ *  of having the function be added to an object.
+ *
+ * @param parent [Object] the object to be extended
+ * @param protoProps [Object] the properties to add to the new object's prototype
+ * @param staticProps [Object] the properties to add to the new object's constructor
+ *
+ * @return the extended object
+ */
+// Function to correctly set up the prototype chain, for subclasses.
+// Similar to `goog.inherits`, but uses a hash of prototype properties and
+// class properties to be extended.
+function Extend(parent, protoProps, staticProps) {
+  var child;
+
+  // The constructor function for the new subclass is either defined by you
+  // (the "constructor" property in your `extend` definition), or defaulted
+  // by us to simply call the parent's constructor.
+  if (protoProps && _.has(protoProps, 'constructor')) {
+    child = protoProps.constructor;
+  } else {
+    child = function(){ return parent.apply(this, arguments); };
+  }
+
+  // Add static properties to the constructor function, if supplied.
+  _.extend(child, parent, staticProps);
+
+  // Set the prototype chain to inherit from `parent`, without calling
+  // `parent`'s constructor function.
+  var Surrogate = function(){ this.constructor = child; };
+  Surrogate.prototype = parent.prototype;
+  child.prototype = new Surrogate;
+
+  // Add prototype properties (instance properties) to the subclass,
+  // if supplied.
+  if (protoProps) _.extend(child.prototype, protoProps);
+
+  // Set a convenience property in case the parent's prototype is needed
+  // later.
+  child.__super__ = parent.prototype;
+
+  return child;
+}
 
 /**
  * Decorates the given component with the necessary variables and methods to handle being typed
@@ -84,44 +132,9 @@ function Component(attributes, options)  {
   this.initialize(opts);
 };
 
-/*
- * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.
- * You should go check out their work too: http://backbonejs.org
- */
-// Function to correctly set up the prototype chain, for subclasses.
-// Similar to `goog.inherits`, but uses a hash of prototype properties and
-// class properties to be extended.
+
 Component.extend = function(protoProps, staticProps) {
-  var parent = this;
-  var child;
-
-  // The constructor function for the new subclass is either defined by you
-  // (the "constructor" property in your `extend` definition), or defaulted
-  // by us to simply call the parent's constructor.
-  if (protoProps && _.has(protoProps, 'constructor')) {
-    child = protoProps.constructor;
-  } else {
-    child = function(){ return parent.apply(this, arguments); };
-  }
-
-  // Add static properties to the constructor function, if supplied.
-  _.extend(child, parent, staticProps);
-
-  // Set the prototype chain to inherit from `parent`, without calling
-  // `parent`'s constructor function.
-  var Surrogate = function(){ this.constructor = child; };
-  Surrogate.prototype = parent.prototype;
-  child.prototype = new Surrogate;
-
-  // Add prototype properties (instance properties) to the subclass,
-  // if supplied.
-  if (protoProps) _.extend(child.prototype, protoProps);
-
-  // Set a convenience property in case the parent's prototype is needed
-  // later.
-  child.__super__ = parent.prototype;
-
-  return child;
+  return Extend(this, protoProps, staticProps);
 };
 
 Component = Component.extend({
@@ -150,6 +163,7 @@ Component = Component.extend({
 
       //Append a child
       push : function(component) {
+        this.checkIfRenderable(component);
         this.children.push(component);
         return this;
       },
@@ -161,6 +175,7 @@ Component = Component.extend({
 
       //Prepend a child
       unshift : function(component) {
+        this.checkIfRenderable(component);
         this.children.unshift(component);
         return this;
       },
@@ -172,6 +187,7 @@ Component = Component.extend({
 
       //Add a child at the specified index (or the last index)
       insert : function(component, index) {
+        this.checkIfRenderable(component);
         if(index) {
           this.children.splice(index, 0, component);
         } else {
@@ -187,6 +203,14 @@ Component = Component.extend({
           return this.children.splice(index, 1)[0];
         }
         return this.pop();
+      },
+
+      checkIfRenderable : function(renderable) {
+        if(typeof(renderable.render) == "function") {
+          return;
+        }
+
+        throw TypeError("Object does not respond to render.")
       },
 
       renderChildren : function(prefix, suffix) {
@@ -413,9 +437,9 @@ var Breadcrumbs = Panel.extend({
 													"<%= yield %>"+
 												"</ul>"),
 	render : function() {
-		var markup = Breadcrumbs.__super__.render.call(this).split("<span class='divider'>/</span>"),
+		var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
 				last = markup.pop();
-		return markup.join("<span class='divider'>/</span>") + last;
+		return markup.join(this.childSuffix) + last;
 	}
 });
 var Button = Link.extend({
@@ -432,13 +456,13 @@ var Button = Link.extend({
     });
 var ButtonGroup = Panel.extend({
   initialize: function(args) {
-    this.__super__.initialize.call(this, args);
+    ButtonGroup.__super__.initialize.call(this, args);
     this.addClass("btn-group");
   }
 });
 var ButtonToolbar = Panel.extend({
   initialize: function(args) {
-    this.__super__.initialize.call(this, args);
+    ButtonToolbar.__super__.initialize.call(this, args);
     this.addClass("btn-toolbar");
   }
 });
@@ -504,10 +528,9 @@ var CloseButton = Link.extend({
   }
 });
 var ContentRow = Panel.extend({
-      maxChildren: 12,
       initialize: function(args) {
         Row.__super__.initialize.call(this, args);
-
+        this.setDefaultValue(12, "maxChildren");
         this.ensureChildLimit();
         this.addClass("row-fluid");
       },
@@ -523,7 +546,8 @@ var ContentRow = Panel.extend({
         this.ensureChildLimit();
         Row.__super__.insert.call(this, component, index);
       },
-      renderChildren: function() {
+      renderChildren: function(prefix, suffix) {
+        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
         var rowWidth = this.maxChildren,
             fluidChildren = this.children.length;
 
@@ -535,16 +559,18 @@ var ContentRow = Panel.extend({
         var span = Math.floor(rowWidth/fluidChildren),
             markup = "";
         _.each(this.children, function(child) {
-          markup += "<div class='span"+(child.span || span)+"'>" + child.render() + "</div>";
+          markup += "<div class='span"+(child.span || span)+"'>" + prefix + child.render() + suffix + "</div>";
         });
         return markup;
       },
       ensureChildLimit: function() {
         if(this.children.length >= this.maxChildren) {
-          throw SyntaxError("This row can only have "+this.maxChildren+" children");
+          throw TooManyChildrenError("This row can only have "+this.maxChildren+" children");
         }
       }
     });
+
+var TooManyChildrenError = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"});
 var Dropdown = List.extend({
       initialize : function(args) {
         Dropdown.__super__.initialize.call(this, args);

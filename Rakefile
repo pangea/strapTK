@@ -1,10 +1,12 @@
 require 'sprockets'
 
+desc "[private] Configure the sprockets environment"
 task :configure_sprockets do
   @sprok_env = Sprockets::Environment.new
 end
 
 namespace :assets do
+  desc "[private] Sets up the correct paths to build the StrapTK source"
   task :set_path => :configure_sprockets do
     @sprok_env.append_path "modules/"
   end
@@ -24,7 +26,7 @@ namespace :assets do
 end
 
 namespace :site do
-
+  desc "[private] Sets up the paths to build the StrapTK site"
   task :set_path => :configure_sprockets do
     @sprok_env.append_path "strapTK/"
   end

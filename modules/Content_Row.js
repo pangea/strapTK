@@ -1,8 +1,7 @@
 var ContentRow = Panel.extend({
-      maxChildren: 12,
       initialize: function(args) {
         Row.__super__.initialize.call(this, args);
-
+        this.setDefaultValue(12, "maxChildren");
         this.ensureChildLimit();
         this.addClass("row-fluid");
       },
@@ -18,7 +17,8 @@ var ContentRow = Panel.extend({
         this.ensureChildLimit();
         Row.__super__.insert.call(this, component, index);
       },
-      renderChildren: function() {
+      renderChildren: function(prefix, suffix) {
+        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
         var rowWidth = this.maxChildren,
             fluidChildren = this.children.length;
 
@@ -30,13 +30,15 @@ var ContentRow = Panel.extend({
         var span = Math.floor(rowWidth/fluidChildren),
             markup = "";
         _.each(this.children, function(child) {
-          markup += "<div class='span"+(child.span || span)+"'>" + child.render() + "</div>";
+          markup += "<div class='span"+(child.span || span)+"'>" + prefix + child.render() + suffix + "</div>";
         });
         return markup;
       },
       ensureChildLimit: function() {
         if(this.children.length >= this.maxChildren) {
-          throw SyntaxError("This row can only have "+this.maxChildren+" children");
+          throw TooManyChildrenError("This row can only have "+this.maxChildren+" children");
         }
       }
     });
+
+var TooManyChildrenError = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"});

@@ -40,11 +40,46 @@ var abstractBadgeHeader = new PageHeader({
                           body: "extends Link"
                         }).render(),
 
+    buttonGroupHeader = new PageHeader({
+                          id: "buttonGroup",
+                          header: "ButtonGroup",
+                          level: 3,
+                          body: "extends Panel"
+                        }).render(),
+
+    buttonToolbarHeader = new PageHeader({
+                            id: "buttonToolbar",
+                            header: "ButtonToolbar",
+                            level: 3,
+                            body: "extends Panel"
+                          }).render(),
+
+    carouselHeader = new PageHeader({
+                            id: "carousel",
+                            header: "Carousel",
+                            level: 3,
+                            body: "extends Panel"
+                          }).render(),
+
+    contentRowHeader = new PageHeader({
+                        id: "contentRow",
+                        header: "ContentRow",
+                        level: 3,
+                        body: "extends Panel"
+                      }).render(),
+
     componentHeader = new PageHeader({
                         id: "component",
                         header: "Component",
                         level: 3,
                         body: "One object to rule them all!"
+                      }).render(),
+
+    extendHeader = new PageHeader({
+                        id: "extend",
+                        header: "Extend",
+                        level: 3,
+                        body: "create new objects from old ones"
                       }).render(),
 
     panelHeader = new PageHeader({
@@ -53,6 +88,13 @@ var abstractBadgeHeader = new PageHeader({
                     level: 3,
                     body: "extends Component."
                   }).render(),
+
+    typifyHeader = new PageHeader({
+                      id: "typify",
+                      header: "Typify",
+                      level: 3,
+                      body: "adds Type awareness"
+                    }).render(),
 
     viewportHeader = new PageHeader({
                         id: "viewport",
@@ -90,6 +132,7 @@ var abstractBadgeHeader = new PageHeader({
               body: "<strong>Name of Method</strong> arguments: typeExpected (list|of|types), [optionalArgument] <small><strong>Returns:</strong> typeOfReturn | Alias: <em>list, of, aliases</em> | <span>Throws:</span> potential, errors, thrown</small>",
               classes: ["lead", "function-declaration"]
             }),
+            new P("Further, you may see the following syntax for types: #functionName.  This indicates that the passed object must have a method called <code>functionName</code>."),
             new P("After the method declaration will be a description of the method's action and any other relevant information.  After the description, you may see one or more alerts.  These alerts take the following forms:"),
             new Alert("<strong>Be Aware</strong><br/>These alerts indicate potential pitfalls or other behavior that might not seem obvious.  You should read these."),
             new Alert({
@@ -129,7 +172,7 @@ var abstractBadgeHeader = new PageHeader({
                   id: "abstractBadge-wrapper",
                   heading: abstractBadgeHeader,
                   children: [
-                    new P("AbstractBadge is, as its name suggests, an abstract class.  It's extended by Badge and Label and only exists to keep the code DRY.  AbstractBadge is a type aware class."),
+                    new P("AbstractBadge is, as its name suggests, an abstract class.  It's extended by Badge and Label and only exists to keep the code DRY.  AbstractBadge is a type aware Component."),
                     new Raw("AbstractBadge defines the following types:"),
                     new List([
                       new Raw("success"),
@@ -226,7 +269,15 @@ var abstractBadgeHeader = new PageHeader({
                           new Link("nowhere")
                         ])
                       ]
-                    })
+                    }),
+                    new HR(),
+                    //                                                    Render
+                    new P({
+                      id: "carousel-render",
+                      body:"<strong>render</strong><small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Breadcrumbs define their own render fucntion to properly format their output.  Some additional processing goes into ensuring the correct placement of dividers.")
                   ]
                 }),
                 //
@@ -256,6 +307,312 @@ var abstractBadgeHeader = new PageHeader({
                       new Raw("inverse"),
                       new Raw("link")
                     ])
+                  ]
+                }),
+                //
+                //                                             ButtonGroup Documentation
+                //
+                new Panel({
+                  id: "buttonGroup-wrapper",
+                  heading: buttonGroupHeader,
+                  children: [
+                    new P("ButtonGroups are a wrapper around buttons to group them logically and structurally.  They allow you to build simple menu bars or provide multiple choice options."),
+                    new P({
+                      body: "Example:",
+                      children: [
+                        new ButtonGroup([
+                          new Button({
+                            body: "Look",
+                            attributes: ["onclick='return false;'", "data-toggle='buttons-radio'"]
+                          }),
+                          new Button({
+                            body: "We're",
+                            attributes: ["onclick='return false;'", "data-toggle='buttons-radio'"]
+                          }),
+                          new Button({
+                            body: "Radio",
+                            attributes: ["onclick='return false;'", "data-toggle='buttons-radio'"]
+                          }),
+                          new Button({
+                            body: "Buttons",
+                            attributes: ["onclick='return false;'", "data-toggle='buttons-radio'"]
+                          })
+                        ])
+                      ]
+                    })
+                  ]
+                }),
+                //
+                //                                            ButtonToolbar Documentation
+                //
+                new Panel({
+                  id: "buttonToolbar-wrapper",
+                  heading: buttonToolbarHeader,
+                  children: [
+                    new P("ButtonToolbars are a wrapper around ButtonGroups to group them logically and structurally.  They group ButtonGroups on a single line and allow for more complex grouping of options."),
+                    new P({
+                      body: "Example:",
+                      children: [
+                        new ButtonToolbar([
+                          new ButtonGroup([
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "align-left"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "align-center"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "align-right"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "align-justify"
+                                })
+                              ]
+                            })
+                          ]),
+                          new ButtonGroup([
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "indent-left"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "indent-right"
+                                })
+                              ]
+                            })
+                          ]),
+                          new ButtonGroup([
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "font"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "bold"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "italic"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "strikethrough"
+                                })
+                              ]
+                            }),
+                            new Button({
+                              attributes: ["onclick='return false;'"],
+                              children: [
+                                new Icon({
+                                  type: "underline"
+                                })
+                              ]
+                            })
+                          ])
+                        ])
+                      ]
+                    })
+                  ]
+                }),
+                //
+                //                                              Carousel Documentation
+                //
+                new Panel({
+                  id: "carousel-wrapper",
+                  heading: carouselHeader,
+                  children: [
+                    new P("Carousels provide a compact way of displaying graphical content.  Carousels are one of the more complicated elements, markup-wise."),
+                    new P({
+                      body: "Example:",
+                      children: [
+                        new Carousel({
+                          id: "example-carousel",
+                          children :[
+                            new Panel([
+                              new Image({src: "http://placehold.it/350x250&text=Content"}),
+                              new Panel({
+                                body: "<h4>Look ma!</h4>",
+                                classes: ["carousel-caption"],
+                                children: [
+                                  new P("We've got a caption over this image.")
+                                ]
+                              })
+                            ]),
+                            new Panel([
+                              new Image({src: "http://placehold.it/350x250&text=Content"}),
+                              new Panel({
+                                body: "<h4>Look ma!</h4>",
+                                classes: ["carousel-caption"],
+                                children: [
+                                  new P("We've got a caption over this image.")
+                                ]
+                              })
+                            ])
+                          ]
+                        })
+                      ]
+                    }),
+                    new HR(),
+                    //                                                Constructor
+                    new P({
+                      id: "carousel-constructor",
+                      body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Carousel's define some additional default attributes used to generate its controls."),
+                    new Table({
+                      body: "<caption>Defined Attributes</caption>",
+                      children: [
+                        new TableRow([
+                          new TableHeader("Attribute"),
+                          new TableHeader("Type"),
+                          new TableHeader("Default"),
+                          new TableHeader("Description")
+                        ]),
+                        new TableRow([
+                          new TableCell("<code>controls</code>"),
+                          new TableCell("<strong>Boolean</strong>"),
+                          new TableCell("<strong>true</strong>"),
+                          new TableCell("Determines if the Carousel should render its controls.")
+                        ]),
+                        new TableRow([
+                          new TableCell("<code>prevSymbol</code>"),
+                          new TableCell("<strong>String</strong>"),
+                          new TableCell("<strong>\"&amp;lsaquo;\"</strong>"),
+                          new TableCell("This is the symbol to show on the 'previous' control button.")
+                        ]),
+                        new TableRow([
+                          new TableCell("<code>nextSymbol</code>"),
+                          new TableCell("<strong>String</strong>"),
+                          new TableCell("<strong>\"&amp;rsaquo;\"</strong>"),
+                          new TableCell("This is the symbol to show on the 'next' control button.")
+                        ])
+                      ]
+                    }),
+                    new HR(),
+                    //                                                RenderChildren
+                    new P({
+                      id: "carousel-renderChildren",
+                      body:"<strong>renderChildren</strong><small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Because of the slightly complex markup required for carousels, the <code>renderChildren</code> function is overridden to prevent the use of <code>childPrefix</code> and <code>childSuffix</code>."),
+                    new HR(),
+                    //                                                    Render
+                    new P({
+                      id: "carousel-render",
+                      body:"<strong>render</strong><small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Carousels define their own render function to pass additional parameters to their templates.")
+                  ]
+                }),
+                //
+                //                                              ContentRow Documentation
+                //
+                new Panel({
+                  id: "contentRow-wrapper",
+                  heading: contentRowHeader,
+                  children: [
+                    new P("ContentRow provides an easy means to create Bootstrap's 'fluid-row'.  It overloads the child adding methods to ensure that no more than 12 children are active and correctly formats the wrapping elements to have the correct 'span' class.  It goes further by allowing child elements to specify their span width and fluidly assigns the remaining space to the other children."),
+                    new HR(),
+                    //                                                Constructor
+                    new P({
+                      id: "contentRow-constructor",
+                      body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("ContentRow defines a new attribute, <code>maxChildren</code>, to help with child management."),
+                    new Table({
+                      body: "<caption>Defined Attributes</caption>",
+                      children: [
+                      new TableRow([
+                        new TableHeader("Attribute"),
+                        new TableHeader("Type"),
+                        new TableHeader("Default"),
+                        new TableHeader("Description")
+                      ]),
+                      new TableRow([
+                        new TableCell("<code>maxChildren</code>"),
+                        new TableCell("<strong>Integer</strong>"),
+                        new TableCell("<strong>12</strong>"),
+                        new TableCell("The maximum number of children the ContentRow can contain."),
+                      ])
+                    ]}),
+                    new HR(),
+                    //                                                    Push
+                    new P({
+                      id: "contentRow-push",
+                      body: "<strong>push</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | Alias: <em>add</em> | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends Component.push to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
+                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
+                    new HR(),
+                    //                                                   Unshift
+                    new P({
+                      id: "contentRow-unshift",
+                      body: "<strong>unshift</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends Component.unshift to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
+                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
+                    new HR(),
+                    //                                                    Insert
+                    new P({
+                      id: "contentRow-insert",
+                      body:"<strong>insert</strong> arguments: component (#render), [index (Integer)]<small><strong>Returns:</strong> Component | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends Component.insert to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
+                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
+                    new HR(),
+                    //                                                RenderChildren
+                    new P({
+                      id: "contentRow-renderChildren",
+                      body:"<strong>renderChildren</strong> arguments: [prefix (String), suffix (String)]<small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Calls the <code>render</code> method of each of this component's children and wraps the output with <code>prefix</code> and <code>suffix</code>.  If <code>prefix</code> or <code>suffix</code> are not supplied, <code>childPrefix</code> and <code>childSuffix</code> are used for the unsupplied value.  Additionally, this function processes the correct span of each child element and wraps the rendered output accordingly.  From the outside, you would first encounter this added wrapping, then the prefix/suffix markup, then the rendered child.")
                   ]
                 }),
                 //
@@ -308,6 +665,9 @@ var abstractBadgeHeader = new PageHeader({
                     }),
                     new Alert("<strong>Be Aware</strong><br/>Because the constructor for Components applies all keys supplied in the attributes object directly to the created Component, you can accidentally overwrite existing Object or Component methods that can cause your Components to behave erratically."),
                     new Alert({
+                      body: "<strong>Under The Hood</strong><br/>Although all attributes are applied in Component constructors, the default values for those constructors are defined in the <code>initialize</code> function <small class='muted'>(not listed)</small>."
+                    }),
+                    new Alert({
                       body: "<strong>Of Note</strong><br/>No current subclass of Component uses the supplied <code>options</code> argument.",
                       type: "info"
                     }),
@@ -323,13 +683,14 @@ var abstractBadgeHeader = new PageHeader({
                       body: "<strong>Under The Hood</strong><br/>Some logical gymnastics went into the creation of this function to ensure that each attribute has a unique value.  Have a look at the source to see how it works.  It's pretty cool.",
                       type: "success"
                     }),
+                    new HR(),
                     //                                                    Push
                     new P({
                       id: "component-push",
-                      body: "<strong>push</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | Alias: <em>add</em></small>",
+                      body: "<strong>push</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | Alias: <em>add</em> | <span>Throws:</span> TypeError</small>",
                       classes: ["lead", "function-declaration"]
                     }),
-                    new P("Adds a child to the end of the list of children.  This function is chainable."),
+                    new P("Adds a child to the end of the list of children.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
                     new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
                     new HR(),
                     //                                                     Pop
@@ -343,10 +704,10 @@ var abstractBadgeHeader = new PageHeader({
                     //                                                   Unshift
                     new P({
                       id: "component-unshift",
-                      body: "<strong>unshift</strong> arguments: component (#render) <small><strong>Returns:</strong> Component</small>",
+                      body: "<strong>unshift</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | <span>Throws:</span> TypeError</small>",
                       classes: ["lead", "function-declaration"]
                     }),
-                    new P("Adds a child to the beginning of the list of children.  This function is chainable."),
+                    new P("Adds a child to the beginning of the list of children.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
                     new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
                     new HR(),
                     //                                                    Shift
@@ -360,10 +721,10 @@ var abstractBadgeHeader = new PageHeader({
                     //                                                    Insert
                     new P({
                       id: "component-insert",
-                      body:"<strong>insert</strong> arguments: component (#render), [index (Integer)]<small><strong>Returns:</strong> Component</small>",
+                      body:"<strong>insert</strong> arguments: component (#render), [index (Integer)]<small><strong>Returns:</strong> Component | <span>Throws:</span> TypeError</small>",
                       classes: ["lead", "function-declaration"]
                     }),
-                    new P("Inserts <code>component</code> into the list of children at <code>index</code>.  If no index is supplied, <code>component</code> is added to the end of the list of children.  This function is chainable."),
+                    new P("Inserts <code>component</code> into the list of children at <code>index</code>.  If no index is supplied, <code>component</code> is added to the end of the list of children.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
                     new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
                     new HR(),
                     //                                                    Remove
@@ -582,17 +943,30 @@ var abstractBadgeHeader = new PageHeader({
               id: "utilities",
               children: [
                 //
+                //                                                  Extend Documentation
+                //
+                new Panel({
+                  id: "extend-wrapper",
+                  heading: extendHeader,
+                  children: [
+                    new P("Unceremoniously torn from the chest of Backbone.js, the Extend function provides, easily, half the functionality of Strap'd.  For my own uses, I converted it into a standalone function and I've used it to generate Component's extend method and make a few custom errors."),
+                    new HR(),
+                    //                                                    Decorator
+                    new P({
+                      id: "extend-decorator",
+                      body: "<strong>Extend</strong> arguments: parent (Object), [protoParams (Object), [staticParams (Object)]]<small><strong>Returns:</strong> Function</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends <code>parent</code>, attaching <code>protoParams</code> to the new object's prototype and <code>staticParams</code> to the new object's constructor.  Adds a <code>__super__</code> static attribute to directly access <code>parent</code>'s prototype.")
+                  ]
+                }),
+                //
                 //                                                  Typify Documentation
                 //
                 new Panel({
-                  heading: "<h3>Typify</h3>",
+                  id: "typify-wrapper",
+                  heading: typifyHeader,
                   children: [
-                    new PageHeader({
-                      id: "typify",
-                      header: "Typify",
-                      level: 3,
-                      body: "adds Type awareness"
-                    }),
                     new P("Typify is a Component Decorator.  It adds type awareness to Compnents in a non-destructive way.  Typify is used in a few standard Components (e.g. Alert) to allow one Component to have multiple defined display states."),
                     //                                                    Decorator
                     new P({
@@ -600,8 +974,8 @@ var abstractBadgeHeader = new PageHeader({
                       body: "<strong>Typify</strong> arguments: component (Component), [options (Object)]",
                       classes: ["lead", "function-declaration"]
                     }),
-                    new P("This function modifies the given Component to be type aware.  It adds two default attributes (<code>base</code> and <code>type</code>) and an additional method <small class-'muted'>(see below)</small>.  It also relies on an array of <code>types</code> to hold the valid values of <code>type</code>.  Typed Components express their types through their CSS classes.  Ergo, a Component with a <code>base</code> of 'foo' and a <code>type</code> of 'bar' would have the classes 'foo foo-bar'."),
-                    new P("The optional <code>options</code> object can be used to set the <code>types<code>, <code>base</code>, and <code>type</code> attributes of <code>component</code>.  Alternatively, you can define these attributes before calling Typify."),
+                    new P("This function modifies the given Component to be type aware.  It adds two default attributes (<code>base</code> and <code>type</code>) and an additional method <small class='muted'>(see below)</small>.  It also relies on an array of <code>types</code> to hold the valid values of <code>type</code>.  Typed Components express their types through their CSS classes.  Ergo, a Component with a <code>base</code> of 'foo' and a <code>type</code> of 'bar' would have the classes 'foo foo-bar'."),
+                    new P("The optional <code>options</code> object can be used to set the <code>types</code>, <code>base</code>, and <code>type</code> attributes of <code>component</code>.  Alternatively, you can define these attributes before calling Typify."),
                     new HR(),
                     //                                                     setType
                     new P({

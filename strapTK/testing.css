@@ -37,6 +37,11 @@
 #object-list .accordion-body, #utilities .accordion-body {
   box-shadow: 0px 0px 20px 5px #eeeeee inset; }
 
+#example-carousel {
+  width: 350px;
+  height: 250px;
+  margin: 0 auto; }
+
 .main {
   width: 900px;
   margin: 0 auto; }
