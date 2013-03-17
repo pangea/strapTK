@@ -68,9 +68,16 @@ function Extend(parent, protoProps, staticProps) {
  * This method does not overwrite any variables set on the decorated component unless it
  *  already has a setType property (which it shouldn't >:[)
  *
- * @param component [Component] the component to be decorated
+ * @param component [Component] the Component to be decorated
+ * @param options   [Object]    Optional.  The settings for this typed Component
+ *
+ * @throws TypeError if component is not an instance or subclass of Component
  */
 function Typify(component, options) {
+  if(!(component instanceof Component)) {
+    throw TypeError("Typify can only operate on Components");
+  }
+  
   options = _.extend({}, Typify.defaults, options);
 
   component.setType = function(type) {

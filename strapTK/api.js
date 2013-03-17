@@ -971,11 +971,12 @@ var abstractBadgeHeader = new PageHeader({
                     //                                                    Decorator
                     new P({
                       id: "typify-decorator",
-                      body: "<strong>Typify</strong> arguments: component (Component), [options (Object)]",
+                      body: "<strong>Typify</strong> arguments: component (Component), [options (Object)]<small><span>Throws:</span> TypeError</small>",
                       classes: ["lead", "function-declaration"]
                     }),
                     new P("This function modifies the given Component to be type aware.  It adds two default attributes (<code>base</code> and <code>type</code>) and an additional method <small class='muted'>(see below)</small>.  It also relies on an array of <code>types</code> to hold the valid values of <code>type</code>.  Typed Components express their types through their CSS classes.  Ergo, a Component with a <code>base</code> of 'foo' and a <code>type</code> of 'bar' would have the classes 'foo foo-bar'."),
                     new P("The optional <code>options</code> object can be used to set the <code>types</code>, <code>base</code>, and <code>type</code> attributes of <code>component</code>.  Alternatively, you can define these attributes before calling Typify."),
+                    new P("Throws a TypeError if <code>component</code> is not an instance or subclass of Component."),
                     new HR(),
                     //                                                     setType
                     new P({
