@@ -112,3 +112,45 @@ Typify.defaults = {
   base: "",
   type: ""
 }
+
+/**
+ * Source adds data sources to Components.
+ * This allows them to gather data from a remote API via AJAX or Websockets
+ * 
+ * Specifying a source URL with the websocket protocol (ws:// or wss://) will force
+ *  the source to always be gathered via websocket.  If a websocket connection is not
+ *  available, a WebsocketConnectError will be thrown.  Of note, this process will
+ *  fall back to HTTP protocol before throwing an error.
+ *
+ * Sourced Components MUST specify a callback to handle the data returned by the server
+ *  before calling the sync() method.  Failure to do so will result in an error.
+ *
+ * @param component [Component] the Component to add sourcing to
+ * @param options   [Object]    Optional.  The settings for this Sourced Component
+ *
+ * @throws TypeError if component is not an instance or subclass of Component
+ */
+ function Source(component, options) {
+   if(!(component instanceof Component)) {
+    throw TypeError("Source can only operate on Components");
+  }
+  
+  options || (options = {});
+  
+  component.sync = function() {
+    
+  }
+  
+  //set up data sourcing options
+  
+  component.fetcher = new Fetcher(component);
+ }
+ 
+ /**
+  * Creates an XMLHTTPRequest or Websocket object
+  *
+  * @param component [Component] the parent object of this Fetcher
+  */
+ function Fetcher(component) {
+   var p = this.parent = component;
+ }
