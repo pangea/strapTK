@@ -40,5 +40,3 @@ var ContentRow = Panel.extend({
         }
       }
     });
-
-var TooManyChildrenError = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"});

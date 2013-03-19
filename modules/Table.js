@@ -20,7 +20,7 @@ var Table = Panel.extend({
       throwUnlessRow: function(row) {
         if(row instanceof TableRow) { return; }
 
-        throw new SyntaxError("Tables can only have Rows as children");
+        throw new TypeError("Tables can only have Rows as children");
       },
       template: _.template("<table id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></table>")
     }),
@@ -45,7 +45,7 @@ var Table = Panel.extend({
       throwUnlessCell: function(cell) {
         if(cell instanceof TableCell || cell instanceof TableHeader) { return; }
 
-        throw new SyntaxError("Rows can only have Cells as children");
+        throw new TypeError("Rows can only have Cells as children");
       },
       template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
     }),
