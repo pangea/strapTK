@@ -1,0 +1,17 @@
+strap.construct(JSON)
+  - builds a Strap'd Tree from a JSON object
+
+Add name members to each constructor that can be used to save the klass
+
+{
+  klass : Strap'd object class (eg Component)
+  ...
+  (toJSON rendering of all members that are JSONifiable)
+}
+
+simple ex.
+{
+  klass : "Panel"
+  id : "myDiv",
+  classes : ["a", "class"]
+}

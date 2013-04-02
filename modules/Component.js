@@ -116,6 +116,16 @@ Component = Component.extend({
       toString : function() {
         return this.render();
       }
+
+      /**
+       * Returns a JSON string that accurately represents this component
+       * The JSON returned by this method can then be used to reconstruct the full tree
+       */
+      toJSON : function() {
+
+      };
+    },{
+      name : "Component"
     });
 
 //aliases
