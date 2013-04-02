@@ -216,7 +216,7 @@ function Fetcher(options) {
   // Sourced Components are also valid data sources
   } else if(source instanceof Component && source.data)  {
     // subscribe to the source's update event
-    $(source).on("update."+id, messageCallback);
+    $(source).on("component.update."+id, messageCallback);
 
   } else {
     throw new SyntaxError("Invalid source type.");
@@ -248,7 +248,7 @@ function Fetcher(options) {
     if(source instanceof Component) {
 
       // reset update callback on sourced component
-      $(source).off("update."+id).on("update."+id, messageCallback);
+      $(source).off("component.update."+id).on("component.update."+id, messageCallback);
 
     } else if(websocket) {
       websocket.removeEventListener("message");
