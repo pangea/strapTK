@@ -9,4 +9,6 @@ var List = Panel.extend({
       template: _.template( "<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<%= yield %>"+
                             "</ul>")
+    },{
+      klass: "List"
     });

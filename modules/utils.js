@@ -2,7 +2,7 @@
  * The strap object contains a set of global functions that apply to the
  *  entire page (e.g. setting all elements as draggable)
  */
-var strap = (function() {
+var strap = new (function() {
       this.allDraggable = function(draggable) {
         if(draggable === true) {
           $("body").find("*").attr("draggable", "true")
@@ -10,7 +10,45 @@ var strap = (function() {
           $("body").find("*").removeAttr("draggable")
         }
       }
+
+      // Constructs Strap'd Objects from JSON
+      this.build = function(json) {
+
+        function parse(json) {
+          var obj,
+              name = json.klass,
+              children = json.children;
+
+          delete json.klass;
+          delete json.children;
+
+          obj = new window[name](json);
+
+          if(children && _.isArray(children) && children.length) {
+            _(children).each(function(child) {
+              obj.add(parse(child));
+            });
+          }
+
+          return obj;
+        }
+
+        if(typeof(json) === "string") {
+          json = JSON.parse(json);
+        }
+
+        if(_.isArray(json)) {
+          var _ret = [];
+          _(json).each(function(obj) {
+            _ret.push(parse(obj));
+          });
+          return _ret;
+        } else {
+          return parse(json);
+        }
+      }
     })();
+
 /**
  * Global Extend function for creating subclasses
  * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.

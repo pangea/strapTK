@@ -39,4 +39,6 @@ var Nav = List.extend({
 
         return this.divided;
       }
+    },{
+      klass: "Nav"
     });

@@ -20,4 +20,6 @@ var HeroUnit = Panel.extend({
           "rootAttrs": this.listAttributes()
         });
       }
+    },{
+      klass: "HeroUnit"
     });

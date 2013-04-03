@@ -9,6 +9,8 @@ var Icon = Panel.extend({
       },
 
       template : _.template("<i id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>></i> <%= yield %>")
+    },{
+      klass: "Icon"
     });
 
 var ICONLIST = [

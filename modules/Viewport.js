@@ -6,4 +6,6 @@ var Viewport = Component.extend({
       render : function() {
         return $(this.root).empty().append(this.renderChildren());
       }
+    },{
+      klass: "Viewport"
     });

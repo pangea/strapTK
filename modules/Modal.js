@@ -52,6 +52,8 @@ var Modal = Panel.extend({
           "rootAttrs": this.listAttributes()
         });
       }
+    },{
+      klass: "Modal"
     });
 
 //aliases

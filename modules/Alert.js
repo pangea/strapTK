@@ -49,4 +49,6 @@ var Alert = Panel.extend({
           }
         }
       }
+    },{
+      klass: "Alert"
     });

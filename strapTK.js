@@ -8,7 +8,7 @@
  *  entire page (e.g. setting all elements as draggable)
  */
 
-var strap = (function() {
+var strap = new (function() {
       this.allDraggable = function(draggable) {
         if(draggable === true) {
           $("body").find("*").attr("draggable", "true")
@@ -16,7 +16,45 @@ var strap = (function() {
           $("body").find("*").removeAttr("draggable")
         }
       }
+
+      // Constructs Strap'd Objects from JSON
+      this.build = function(json) {
+
+        function parse(json) {
+          var obj,
+              name = json.klass,
+              children = json.children;
+
+          delete json.klass;
+          delete json.children;
+
+          obj = new window[name](json);
+
+          if(children && _.isArray(children) && children.length) {
+            _(children).each(function(child) {
+              obj.add(parse(child));
+            });
+          }
+
+          return obj;
+        }
+
+        if(typeof(json) === "string") {
+          json = JSON.parse(json);
+        }
+
+        if(_.isArray(json)) {
+          var _ret = [];
+          _(json).each(function(obj) {
+            _ret.push(parse(obj));
+          });
+          return _ret;
+        } else {
+          return parse(json);
+        }
+      }
     })();
+
 /**
  * Global Extend function for creating subclasses
  * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.
@@ -142,6 +180,7 @@ Component = Component.extend({
       initialize : function(args) {
         this.setDefaultValue([], "children");
         this.setDefaultValue("", "childPrefix", "childSuffix");
+        this.klass = this.constructor.klass;
       },
 
       setDefaultValue: function(value) {
@@ -231,6 +270,26 @@ Component = Component.extend({
       toString : function() {
         return this.render();
       }
+
+      /**
+       * Returns a JSON string that accurately represents this component
+       * The JSON returned by this method can then be used to reconstruct the full tree
+       */
+      // toJSON : function() {
+      //     // begin stringification
+      //   var json = '{';
+      //     // stringify the name of the constructor for use in deserialization
+      //   json += '"klass" : ' + this.constructor.name + ',';
+      //     // convert each serializable key to it's JSON form
+      //   for(var key in this) {
+      //     if(this.hasOwnProperty(key) && typeof(this[key]) !== "function") {
+      //       json += '"' + key + '" : ' + JSON.stringify(this[key]) + ',';
+      //     }
+      //   }
+      //   return json + '}';
+      // };
+    },{
+      klass : "Component"
     });
 
 //aliases
@@ -243,6 +302,8 @@ var Viewport = Component.extend({
       render : function() {
         return $(this.root).empty().append(this.renderChildren());
       }
+    },{
+      klass: "Viewport"
     });
 var Panel = Component.extend({
       constructor: function(attributes, options) {
@@ -302,6 +363,8 @@ var Panel = Component.extend({
           "rootAttrs" : this.listAttributes()
         });
       }
+    },{
+      klass: "Panel"
     }),
     Div = Panel;
 var AbstractBadge = Panel.extend({
@@ -313,6 +376,8 @@ var AbstractBadge = Panel.extend({
       template : _.template("<span id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<%= yield %>"+
                             "</span>")
+    },{
+      klass: "AbstractBadge"
     });
 var Link = Panel.extend({
       initialize : function(args) {
@@ -326,6 +391,8 @@ var Link = Panel.extend({
       },
 
       template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
+    },{
+      klass: "Link"
     });
 var List = Panel.extend({
       initialize: function(args) {
@@ -338,6 +405,8 @@ var List = Panel.extend({
       template: _.template( "<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<%= yield %>"+
                             "</ul>")
+    },{
+      klass: "List"
     });
 var Accordion = Panel.extend({
       initialize: function(args) {
@@ -366,6 +435,8 @@ var Accordion = Panel.extend({
 
         return markup;
       }
+    },{
+      klass: "Accordion"
     });
 var Alert = Panel.extend({
       initialize : function(args) {
@@ -418,30 +489,36 @@ var Alert = Panel.extend({
           }
         }
       }
+    },{
+      klass: "Alert"
     });
 var Badge = AbstractBadge.extend({
   initialize : function(args) {
     this.base = "badge";
     Badge.__super__.initialize.call(this, args);
   }
-});
+},{
+      name: "Badge"
+    });
 var Breadcrumbs = Panel.extend({
-	initialize : function(args) {
-		Breadcrumbs.__super__.initialize.call(this, args);
-		this.childPrefix || (this.childPrefix = "<li>");
-		this.childSuffix || (this.childSuffix = "<span class='divider'>/</span></li>");
-		this.addClass("breadcrumb");
-	},
+      initialize : function(args) {
+        Breadcrumbs.__super__.initialize.call(this, args);
+        this.childPrefix || (this.childPrefix = "<li>");
+        this.childSuffix || (this.childSuffix = "<span class='divider'>/</span></li>");
+        this.addClass("breadcrumb");
+      },
 
-	template : _.template("<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-													"<%= yield %>"+
-												"</ul>"),
-	render : function() {
-		var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
-				last = markup.pop();
-		return markup.join(this.childSuffix) + last;
-	}
-});
+      template : _.template("<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+                              "<%= yield %>"+
+                            "</ul>"),
+      render : function() {
+        var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
+            last = markup.pop();
+        return markup.join(this.childSuffix) + last;
+      }
+    },{
+      name: "Breadcrumbs"
+    });
 var Button = Link.extend({
       initialize : function(args) {
         Button.__super__.initialize.call(this, args);
@@ -453,80 +530,90 @@ var Button = Link.extend({
 
         Typify(this);
       }
+    },{
+      name: "Button"
     });
 var ButtonGroup = Panel.extend({
-  initialize: function(args) {
-    ButtonGroup.__super__.initialize.call(this, args);
-    this.addClass("btn-group");
-  }
-});
+      initialize: function(args) {
+        ButtonGroup.__super__.initialize.call(this, args);
+        this.addClass("btn-group");
+      }
+    },{
+      name: "ButtonGroup"
+    });
 var ButtonToolbar = Panel.extend({
-  initialize: function(args) {
-    ButtonToolbar.__super__.initialize.call(this, args);
-    this.addClass("btn-toolbar");
-  }
-});
+      initialize: function(args) {
+        ButtonToolbar.__super__.initialize.call(this, args);
+        this.addClass("btn-toolbar");
+      }
+    },{
+      name: "ButtonToolbar"
+    });
 var Carousel = Panel.extend({
-  initialize: function(args) {
-    Carousel.__super__.initialize.call(this, args);
+      initialize: function(args) {
+        Carousel.__super__.initialize.call(this, args);
 
-    this.setDefaultValue(true, "controls");
-    this.setDefaultValue("&lsaquo;", "prevSymbol");
-    this.setDefaultValue("&rsaquo;", "nextSymbol");
+        this.setDefaultValue(true, "controls");
+        this.setDefaultValue("&lsaquo;", "prevSymbol");
+        this.setDefaultValue("&rsaquo;", "nextSymbol");
 
-    this.addClass("carousel", "slide");
-  },
+        this.addClass("carousel", "slide");
+      },
 
-  //Gunna have to come back to this one
-  template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
-                          "<% if(controls) { %>" +
-                            "<ol class='carousel-indicators'>" +
-                              "<% _(slides).times(function(i){ %>" +
-                                "<li data-slide-to='<%= i %>' data-target='#<%= rootID %>' <%= i == 0 ? \"classes='active'\" : '' %>></li>" +
-                              "<% }); %>" +
-                            "</ol>" +
-                          "<% } %>" +
-                          "<div class='carousel-inner'>" +
-                            "<%= yield %>" +
-                          "</div>" +
-                          "<% if(controls) { %>" +
-                            "<a class='carousel-control left' data-slide='prev' href='#<%= rootID %>'><%= prevSymbol %></a>" +
-                            "<a class='carousel-control right' data-slide='next' href='#<%= rootID %>'><%= nextSymbol %></a>" +
-                          "<% } %>" +
-                        "</div>"),
+      //Gunna have to come back to this one
+      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
+                              "<% if(controls) { %>" +
+                                "<ol class='carousel-indicators'>" +
+                                  "<% _(slides).times(function(i){ %>" +
+                                    "<li data-slide-to='<%= i %>' data-target='#<%= rootID %>' <%= i == 0 ? \"classes='active'\" : '' %>></li>" +
+                                  "<% }); %>" +
+                                "</ol>" +
+                              "<% } %>" +
+                              "<div class='carousel-inner'>" +
+                                "<%= yield %>" +
+                              "</div>" +
+                              "<% if(controls) { %>" +
+                                "<a class='carousel-control left' data-slide='prev' href='#<%= rootID %>'><%= prevSymbol %></a>" +
+                                "<a class='carousel-control right' data-slide='next' href='#<%= rootID %>'><%= nextSymbol %></a>" +
+                              "<% } %>" +
+                            "</div>"),
 
-  renderChildren: function() {
-    var markup = "";
-    _.each(this.children, function(child, i) {
-      markup += "<div class='item" + (i == 0 ? " active" : "") + "'>" +
-                  child.render() +
-                "</div>";
+      renderChildren: function() {
+        var markup = "";
+        _.each(this.children, function(child, i) {
+          markup += "<div class='item" + (i == 0 ? " active" : "") + "'>" +
+                      child.render() +
+                    "</div>";
+        });
+        return markup;
+      },
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield"       : markup,
+          "rootID"      : this.id,
+          "rootClasses" : this.listClasses(),
+          "rootAttrs"   : this.listAttributes(),
+          "controls"    : this.controls,
+          "slides"      : this.children.length,
+          "prevSymbol"  : this.prevSymbol,
+          "nextSymbol"  : this.nextSymbol
+        });
+      }
+
+    },{
+      name: "Carousel"
     });
-    return markup;
-  },
-
-  render : function() {
-    var markup = this.body + this.renderChildren();
-    return this.template({
-      "yield"       : markup,
-      "rootID"      : this.id,
-      "rootClasses" : this.listClasses(),
-      "rootAttrs"   : this.listAttributes(),
-      "controls"    : this.controls,
-      "slides"      : this.children.length,
-      "prevSymbol"  : this.prevSymbol,
-      "nextSymbol"  : this.nextSymbol
-    });
-  }
-
-});
 var CloseButton = Link.extend({
-  initialize : function(args) {
-    CloseButton.__super__.initialize.call(this, args);
-    this.addClass("close");
-    this.body || (this.body = "&times;");
-  }
-});
+      initialize : function(args) {
+        CloseButton.__super__.initialize.call(this, args);
+        this.addClass("close");
+        this.body || (this.body = "&times;");
+      }
+    },{
+      name: "CloseButton"
+    });
 var ContentRow = Panel.extend({
       initialize: function(args) {
         Row.__super__.initialize.call(this, args);
@@ -568,9 +655,9 @@ var ContentRow = Panel.extend({
           throw TooManyChildrenError("This row can only have "+this.maxChildren+" children");
         }
       }
+    },{
+      klass: "ContentRow"
     });
-
-var TooManyChildrenError = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"});
 var Dropdown = List.extend({
       initialize : function(args) {
         Dropdown.__super__.initialize.call(this, args);
@@ -580,6 +667,8 @@ var Dropdown = List.extend({
 
         this.addClass("dropdown-menu");
       }
+    },{
+      klass: "Dropdown"
     });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
@@ -603,8 +692,10 @@ var HeroUnit = Panel.extend({
           "rootAttrs": this.listAttributes()
         });
       }
+    },{
+      klass: "HeroUnit"
     });
-function HorizontalRule() {}
+function HorizontalRule() { this.klass = "HorizontalRule"; }
 HorizontalRule.prototype.render = function() {
   return "<hr/>";
 }
@@ -621,6 +712,8 @@ var Icon = Panel.extend({
       },
 
       template : _.template("<i id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>></i> <%= yield %>")
+    },{
+      klass: "Icon"
     });
 
 var ICONLIST = [
@@ -651,26 +744,30 @@ var ICONLIST = [
       "user-md"
     ];
 var Image = Panel.extend({
-  initialize : function(args) {
-    Image.__super__.initialize.call(this, args);
+      initialize : function(args) {
+        Image.__super__.initialize.call(this, args);
 
-    this.setDefaultValue("", "src");
-  },
+        this.setDefaultValue("", "src");
+      },
 
-  template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
+      template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
 
-  listAttributes : function() {
-    return this.attributes.join(" ")+" src="+this.src;
-  }
-})
+      listAttributes : function() {
+        return this.attributes.join(" ")+" src="+this.src;
+      }
+    },{
+      klass: "Image"
+    })
 ;
 var Label = AbstractBadge.extend({
-  initialize : function(args) {
-    this.base = "label";
-    Label.__super__.initialize.call(this, args);
-  }
-});
-function LineBreak() {}
+      initialize : function(args) {
+        this.base = "label";
+        Label.__super__.initialize.call(this, args);
+      }
+    },{
+      klass: "Label"
+    });
+function LineBreak() { this.klass = "LineBreak"; }
 LineBreak.prototype.render = function() {
   return "<br/>";
 }
@@ -730,6 +827,8 @@ var Modal = Panel.extend({
           "rootAttrs": this.listAttributes()
         });
       }
+    },{
+      klass: "Modal"
     });
 
 //aliases
@@ -775,6 +874,8 @@ var Nav = List.extend({
 
         return this.divided;
       }
+    },{
+      klass: "Nav"
     });
 var NavBar = Panel.extend({
       initialize : function(args) {
@@ -785,6 +886,8 @@ var NavBar = Panel.extend({
       renderChildren : function() {
         return "<div class='navbar-inner'>" + NavBar.__super__.renderChildren.call(this) + "</div>";
       }
+    },{
+      klass: "NavBar"
     });
 var PageHeader = Panel.extend({
       initialize: function(args) {
@@ -810,6 +913,8 @@ var PageHeader = Panel.extend({
           "rootAttrs": this.listAttributes()
         });
       }
+    },{
+      klass: "PageHeader"
     });
 var Pagination = Panel.extend({
       initialize: function(args) {
@@ -853,45 +958,52 @@ var Pagination = Panel.extend({
         }
       }
 
+    },{
+      klass: "Pagination"
     });
 var Paragraph = Panel.extend({
       template : _.template("<p id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></p>")
+    },{
+      klass: "Paragraph"
     }),
     P = Paragraph;
 var ProgressBar = Panel.extend({
-  initialize: function(args) {
-    ProgressBar.__super__.initialize.call(this, args);
-    this.setDefaultValue(100, "width");
+      initialize: function(args) {
+        ProgressBar.__super__.initialize.call(this, args);
+        this.setDefaultValue(100, "width");
 
-    this.setWidth(this.width);
+        this.setWidth(this.width);
 
-    this.base = "bar";
-    this.types = ["info", "success", "warning", "danger"];
-    Typify(this);
-  },
+        this.base = "bar";
+        this.types = ["info", "success", "warning", "danger"];
+        Typify(this);
+      },
 
-  setWidth: function(newWidth) {
-    if(newWidth > 100) {
-      throw new RangeError("cannot set width greater than 100%");
-    } else if(newWidth < 0) {
-      throw new RangeError("cannot set width less than 0%");
-    }
+      setWidth: function(newWidth) {
+        if(newWidth > 100) {
+          throw new RangeError("cannot set width greater than 100%");
+        } else if(newWidth < 0) {
+          throw new RangeError("cannot set width less than 0%");
+        }
 
-    //set width and style attributes
-    var oldWidth = this.width;
-    this.width = newWidth;
-    this.attributes = _.reject(this.attributes, function(attr) {
-      return attr.match(/style/i);
-    }).concat(["style='width: "+newWidth+"'"]);
+        //set width and style attributes
+        var oldWidth = this.width;
+        this.width = newWidth;
+        this.attributes = _.reject(this.attributes, function(attr) {
+          return attr.match(/style/i);
+        }).concat(["style='width: "+newWidth+"'"]);
 
-    //fire width-change event so that parent ProgressBarGroups can update accordingly
-    if(oldWidth !== newWidth) {
-      $(this).trigger("progressbar.width-change", newWidth, oldWidth);
-    }
-  }
-});
+        //fire width-change event so that parent ProgressBarGroups can update accordingly
+        if(oldWidth !== newWidth) {
+          $(this).trigger("progressbar.width-change", newWidth, oldWidth);
+        }
+      }
+    },{
+      klass: "ProgressBar"
+    });
 function Raw(body) {
   this.text = body;
+  this.klass = "Raw"
 }
 
 Raw.prototype.render = function() {
@@ -920,10 +1032,13 @@ var Table = Panel.extend({
       throwUnlessRow: function(row) {
         if(row instanceof TableRow) { return; }
 
-        throw new SyntaxError("Tables can only have Rows as children");
+        throw new TypeError("Tables can only have Rows as children");
       },
       template: _.template("<table id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></table>")
+    },{
+      klass: "Table"
     }),
+
     TableRow = Panel.extend({
       initialize: function(args) {
         TableRow.__super__.initialize.call(this, args);
@@ -945,16 +1060,31 @@ var Table = Panel.extend({
       throwUnlessCell: function(cell) {
         if(cell instanceof TableCell || cell instanceof TableHeader) { return; }
 
-        throw new SyntaxError("Rows can only have Cells as children");
+        throw new TypeError("Rows can only have Cells as children");
       },
       template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
+    },{
+      klass: "TableRow"
     }),
-    TableCell = Panel.extend({ template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>") }),
-    TableHeader = Panel.extend({ template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>") });
+
+    TableCell = Panel.extend({
+      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
+    },{
+      klass: "TableCell"
+    }),
+
+    TableHeader = Panel.extend({
+      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
+    },{
+      klass: "TableHeader"
+    });
 
     //aliases
 Table.prototype.add = Table.prototype.push;
 TableRow.prototype.add = TableRow.prototype.push;
+var TooManyChildrenError  = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"}),
+
+    WebsocketConnectError = Extend(Error, {message: "Unable to connect via websocket.", name: "WebsocketConnectError"});
 /* Manifest file for compiling assets with Sprockets
  *
 

@@ -7,4 +7,6 @@ var Dropdown = List.extend({
 
         this.addClass("dropdown-menu");
       }
+    },{
+      klass: "Dropdown"
     });

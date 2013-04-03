@@ -39,4 +39,6 @@ var ContentRow = Panel.extend({
           throw TooManyChildrenError("This row can only have "+this.maxChildren+" children");
         }
       }
+    },{
+      klass: "ContentRow"
     });

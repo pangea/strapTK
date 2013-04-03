@@ -27,6 +27,7 @@ Component = Component.extend({
       initialize : function(args) {
         this.setDefaultValue([], "children");
         this.setDefaultValue("", "childPrefix", "childSuffix");
+        this.klass = this.constructor.klass;
       },
 
       setDefaultValue: function(value) {
@@ -121,11 +122,21 @@ Component = Component.extend({
        * Returns a JSON string that accurately represents this component
        * The JSON returned by this method can then be used to reconstruct the full tree
        */
-      toJSON : function() {
-
-      };
+      // toJSON : function() {
+      //     // begin stringification
+      //   var json = '{';
+      //     // stringify the name of the constructor for use in deserialization
+      //   json += '"klass" : ' + this.constructor.name + ',';
+      //     // convert each serializable key to it's JSON form
+      //   for(var key in this) {
+      //     if(this.hasOwnProperty(key) && typeof(this[key]) !== "function") {
+      //       json += '"' + key + '" : ' + JSON.stringify(this[key]) + ',';
+      //     }
+      //   }
+      //   return json + '}';
+      // };
     },{
-      name : "Component"
+      klass : "Component"
     });
 
 //aliases

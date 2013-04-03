@@ -10,4 +10,6 @@ var Link = Panel.extend({
       },
 
       template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
+    },{
+      klass: "Link"
     });

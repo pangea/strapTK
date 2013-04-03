@@ -22,4 +22,6 @@ var PageHeader = Panel.extend({
           "rootAttrs": this.listAttributes()
         });
       }
+    },{
+      klass: "PageHeader"
     });

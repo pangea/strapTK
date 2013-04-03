@@ -40,4 +40,6 @@ var Pagination = Panel.extend({
         }
       }
 
+    },{
+      klass: "Pagination"
     });

@@ -3,4 +3,6 @@ var Badge = AbstractBadge.extend({
     this.base = "badge";
     Badge.__super__.initialize.call(this, args);
   }
-});
+},{
+      name: "Badge"
+    });

@@ -25,4 +25,6 @@ var Accordion = Panel.extend({
 
         return markup;
       }
+    },{
+      klass: "Accordion"
     });

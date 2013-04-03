@@ -7,4 +7,6 @@ var AbstractBadge = Panel.extend({
       template : _.template("<span id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<%= yield %>"+
                             "</span>")
+    },{
+      klass: "AbstractBadge"
     });

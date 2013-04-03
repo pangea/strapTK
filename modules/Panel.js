@@ -56,5 +56,7 @@ var Panel = Component.extend({
           "rootAttrs" : this.listAttributes()
         });
       }
+    },{
+      klass: "Panel"
     }),
     Div = Panel;

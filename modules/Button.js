@@ -9,4 +9,6 @@ var Button = Link.extend({
 
         Typify(this);
       }
+    },{
+      name: "Button"
     });
