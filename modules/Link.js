@@ -2,7 +2,7 @@ var Link = Panel.extend({
       initialize : function(args) {
         Link.__super__.initialize.call(this, args);
 
-        this.setDefaultValue("", "href");
+        this.setDefaultValue("#", "href");
       },
 
       listAttributes : function() {

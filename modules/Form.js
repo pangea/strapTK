@@ -6,7 +6,7 @@ var Form = Panel.extend({
         this.setDefaultValue("", "action");
       },
 
-      template : _.template( "<form id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </form>"),
+      template : _.template( "<form id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></form>"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "method", "action");
