@@ -715,7 +715,7 @@ var FormInput = Panel.extend({
                       "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
                     ];
 
-        this.setDefaultValue("", "placeholder", "name");
+        this.setDefaultValue("", "placeholder", "name", "value");
         this.setDefaultValue("text", "type");
         this.base = "input";
         Typify(this);
@@ -724,7 +724,7 @@ var FormInput = Panel.extend({
       template : _.template("<input id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
 
       listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name");
+        return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name", "value");
       }
     });
 var FormLabel = Panel.extend({
