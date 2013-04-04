@@ -1,21 +1,21 @@
 var ContentRow = Panel.extend({
       initialize: function(args) {
-        Row.__super__.initialize.call(this, args);
+        ContentRow.__super__.initialize.call(this, args);
         this.setDefaultValue(12, "maxChildren");
         this.ensureChildLimit();
         this.addClass("row-fluid");
       },
       push: function(component) {
         this.ensureChildLimit();
-        Row.__super__.push.call(this, component);
+        ContentRow.__super__.push.call(this, component);
       },
       unshift: function(component) {
         this.ensureChildLimit();
-        Row.__super__.unshift.call(this, component);
+        ContentRow.__super__.unshift.call(this, component);
       },
       insert: function(component, index) {
         this.ensureChildLimit();
-        Row.__super__.insert.call(this, component, index);
+        ContentRow.__super__.insert.call(this, component, index);
       },
       renderChildren: function(prefix, suffix) {
         prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
