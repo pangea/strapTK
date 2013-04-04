@@ -180,6 +180,7 @@ Component = Component.extend({
       initialize : function(args) {
         this.setDefaultValue([], "children");
         this.setDefaultValue("", "childPrefix", "childSuffix");
+          // used for deserialization from JSON
         this.klass = this.constructor.klass;
       },
 
@@ -188,7 +189,7 @@ Component = Component.extend({
             method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
 
         _.each(args, function(attr) {
-          if(!this.hasOwnProperty(attr)) {
+          if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
             this[attr] = value.constructor[method](this, value);  // clone value by calling its constructor function
           }
         }, this);
@@ -711,7 +712,7 @@ var FormInput = Panel.extend({
                       "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
                     ];
 
-        this.setDefaultValue("", "placeholder");
+        this.setDefaultValue("", "placeholder", "name");
         this.setDefaultValue("text", "type");
         this.base = "input";
         Typify(this);
@@ -720,7 +721,7 @@ var FormInput = Panel.extend({
       template : _.template("<input id='<%= rootID %>' class='<%= rootClass %>' <%= rootAttrs %> />"),
 
       listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "type", "placeholder");
+        return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name");
       }
     });
 var FormLabel = Panel.extend({
@@ -1175,6 +1176,11 @@ var Table = Panel.extend({
     //aliases
 Table.prototype.add = Table.prototype.push;
 TableRow.prototype.add = TableRow.prototype.push;
+var Textarea = Panel.extend({
+      template : _.template("<textarea id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </textarea>")
+    }, {
+      klass : "Textarea"
+    });
 var TooManyChildrenError  = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"}),
 
     WebsocketConnectError = Extend(Error, {message: "Unable to connect via websocket.", name: "WebsocketConnectError"});
