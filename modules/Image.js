@@ -8,7 +8,7 @@ var Image = Panel.extend({
       template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
 
       listAttributes : function() {
-        return this.attributes.join(" ")+" src="+this.src;
+        return FormSelect.__super__.listAttributes.call(this, "src");
       }
     },{
       klass: "Image"

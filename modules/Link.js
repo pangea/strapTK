@@ -6,7 +6,7 @@ var Link = Panel.extend({
       },
 
       listAttributes : function() {
-        return this.attributes.join(" ") + " href='"+this.href+"'";
+        return FormSelect.__super__.listAttributes.call(this, "href");
       },
 
       template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")

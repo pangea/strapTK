@@ -126,8 +126,8 @@ function Typify(component, options) {
   };
 
   component.types || (component.types = options.types);
-  component.base || (component.base = options.base);
-  component.type || (component.type = options.type);
+  component.base  || (component.base  = options.base);
+  component.type  || (component.type  = options.type);
 
   if(component.base) {
     component.addClass(component.base);

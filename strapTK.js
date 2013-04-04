@@ -132,8 +132,8 @@ function Typify(component, options) {
   };
 
   component.types || (component.types = options.types);
-  component.base || (component.base = options.base);
-  component.type || (component.type = options.type);
+  component.base  || (component.base  = options.base);
+  component.type  || (component.type  = options.type);
 
   if(component.base) {
     component.addClass(component.base);
@@ -310,6 +310,7 @@ var Panel = Component.extend({
         if(typeof(attributes) == "string") {
           attributes = {body: attributes};
         }
+
         Panel.__super__.constructor.apply(this, arguments);
       },
 
@@ -320,20 +321,26 @@ var Panel = Component.extend({
         this.setDefaultValue("", "id", "body");
       },
 
-      addClass : function(newClass) {
-        var newClasses = arguments.length > 1 ? Array.prototype.slice.call(arguments, 0) : [newClass];
+      addClass : function() {
+        // gather up the classes to be added
+        var newClasses = Array.prototype.slice.call(arguments, 0);
+        // combine the current class list with the new class list, ignoring duplicates
         this.classes = _.union(this.classes, newClasses);
         return this;
       },
 
-      removeClass : function(oldClass) {
-        var args = arguments.length > 1 ? [this.classes].concat(Array.prototype.slice.call(arguments, 0)) : [this.classes, oldClass];
+      removeClass : function() {
+        // gather up the classes to be removed, and add them to an array
+        // the final result is [[list, of, current, classes], list, of, classes, to, be, removed]
+        var args = [this.classes].concat(Array.prototype.slice.call(arguments, 0));
+        // apply the arguments to _.without
+        // this is equivalent to _.without(this.classes, list, of, classes, to, be, removed);
         this.classes = _.without.apply(this, args);
         return this;
       },
 
-      toggleClass : function(theClass) {
-        var theClasses = arguments.length > 1 ? Array.prototype.slice.call(arguments, 0) : [theClass];
+      toggleClass : function() {
+        var theClasses = Array.prototype.slice.call(arguments, 0);
         _.each(theClasses, function(theClass) {
           if(_.include(this.classes, theClass)) {
             this.removeClass(theClass);
@@ -348,8 +355,17 @@ var Panel = Component.extend({
         return this.classes.join(" ");
       },
 
+      // this function can be called with a list of additional attributes that will be included in the output
       listAttributes : function() {
-        return this.attributes.join(" ");
+        // convert arguments into an actual array and wrap it with Lo-Dash
+        var addAttrs = _(Array.prototype.slice.call(arguments, 0));
+        // map the values to the ones attached to this Panel
+        addAttrs.map(function(val) {
+          return val + "='" + this[val] + "'";
+        }, this);
+
+        // return the combined list
+        return this.attributes.join(" ") + " " + addAttrs.value().join(" ");
       },
 
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
@@ -387,7 +403,7 @@ var Link = Panel.extend({
       },
 
       listAttributes : function() {
-        return this.attributes.join(" ") + " href='"+this.href+"'";
+        return FormSelect.__super__.listAttributes.call(this, "href");
       },
 
       template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
@@ -493,11 +509,11 @@ var Alert = Panel.extend({
       klass: "Alert"
     });
 var Badge = AbstractBadge.extend({
-  initialize : function(args) {
-    this.base = "badge";
-    Badge.__super__.initialize.call(this, args);
-  }
-},{
+      initialize : function(args) {
+        this.base = "badge";
+        Badge.__super__.initialize.call(this, args);
+      }
+    },{
       name: "Badge"
     });
 var Breadcrumbs = Panel.extend({
@@ -670,6 +686,83 @@ var Dropdown = List.extend({
     },{
       klass: "Dropdown"
     });
+var Form = Panel.extend({
+      initialize : function(args) {
+        Form.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("GET", "method");
+        this.setDefaultValue("", "action");
+      },
+
+      template : _.template( "<form id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </form>"),
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "method", "action");
+      }
+    },{
+      klass: "Form"
+    });
+var FormInput = Panel.extend({
+      initialize : function(args) {
+        FormInput.__super__.initialize.call(this, args);
+
+        this.types = [
+                      "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",
+                      "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
+                    ];
+
+        this.setDefaultValue("", "placeholder");
+        this.setDefaultValue("text", "type");
+        this.base = "input";
+        Typify(this);
+      },
+
+      template : _.template("<input id='<%= rootID %>' class='<%= rootClass %>' <%= rootAttrs %> />"),
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "type", "placeholder");
+      }
+    });
+var FormLabel = Panel.extend({
+      template : _.template("<label id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAtrs %>> <%= yield %> </label>")
+    },{
+      klass : "FormLabel"
+    });
+var FormSelect = Panel.extend({
+      template : _.template("<select id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </select>")
+    },{
+      klass : "FormSelect"
+    }),
+
+    SelectOption = Panel.extend({
+      initialize : function(args) {
+        SelectOption.__super__.initialize.call(this, args);
+
+        this.setDefaultValue(this.body, "value");
+      },
+
+      template : _.template("<option <%= rootAttrs %>> <%= yield %> </option>"),
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "value");
+      }
+    }, {
+      klass : "SelectOption"
+    }),
+
+    OptGroup = Panel.extend({
+      initialize : function(args) {
+        OptGroup.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("", "label");
+      },
+
+      template : _.template("<optgroup <%= rootAttrs %>> <%= yield %> </optgroup>"),
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "label");
+      }
+    });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
@@ -753,7 +846,7 @@ var Image = Panel.extend({
       template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
 
       listAttributes : function() {
-        return this.attributes.join(" ")+" src="+this.src;
+        return FormSelect.__super__.listAttributes.call(this, "src");
       }
     },{
       klass: "Image"
