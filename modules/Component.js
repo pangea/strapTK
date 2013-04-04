@@ -27,6 +27,7 @@ Component = Component.extend({
       initialize : function(args) {
         this.setDefaultValue([], "children");
         this.setDefaultValue("", "childPrefix", "childSuffix");
+          // used for deserialization from JSON
         this.klass = this.constructor.klass;
       },
 
@@ -35,7 +36,7 @@ Component = Component.extend({
             method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
 
         _.each(args, function(attr) {
-          if(!this.hasOwnProperty(attr)) {
+          if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
             this[attr] = value.constructor[method](this, value);  // clone value by calling its constructor function
           }
         }, this);
