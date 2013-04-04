@@ -358,15 +358,13 @@ var Panel = Component.extend({
 
       // this function can be called with a list of additional attributes that will be included in the output
       listAttributes : function() {
-        // convert arguments into an actual array and wrap it with Lo-Dash
-        var addAttrs = _(Array.prototype.slice.call(arguments, 0));
-        // map the values to the ones attached to this Panel
-        addAttrs.map(function(val) {
+        // convert arguments into an actual array and map the values to the ones attached to this Panel
+        var addAttrs = _.map(Array.prototype.slice.call(arguments, 0), function(val) {
           return val + "='" + this[val] + "'";
         }, this);
 
         // return the combined list
-        return this.attributes.join(" ") + " " + addAttrs.value().join(" ");
+        return this.attributes.join(" ") + " " + addAttrs.join(" ");
       },
 
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
