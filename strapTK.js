@@ -1180,7 +1180,7 @@ var Table = Panel.extend({
 Table.prototype.add = Table.prototype.push;
 TableRow.prototype.add = TableRow.prototype.push;
 var Textarea = Panel.extend({
-      template : _.template("<textarea id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </textarea>")
+      template : _.template("<textarea id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></textarea>")
     }, {
       klass : "Textarea"
     });
