@@ -52,11 +52,16 @@ var Panel = Component.extend({
       listAttributes : function() {
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         var addAttrs = _.map(Array.prototype.slice.call(arguments, 0), function(val) {
+          // remove empty values
+          if(this[val] === "") {
+            return false;
+          }
+
           return val + "='" + this[val] + "'";
         }, this);
 
         // return the combined list
-        return this.attributes.join(" ") + " " + addAttrs.join(" ");
+        return this.attributes.join(" ") + " " + _.compact(addAttrs).join(" ");
       },
 
       template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
