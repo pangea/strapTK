@@ -13,7 +13,7 @@ var FormInput = Panel.extend({
         Typify(this);
       },
 
-      template : _.template("<input id='<%= rootID %>' class='<%= rootClass %>' <%= rootAttrs %> />"),
+      template : _.template("<input id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name");
