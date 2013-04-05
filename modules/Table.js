@@ -25,48 +25,7 @@ var Table = Panel.extend({
       template: _.template("<table id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></table>")
     },{
       klass: "Table"
-    }),
-
-    TableRow = Panel.extend({
-      initialize: function(args) {
-        TableRow.__super__.initialize.call(this, args);
-
-        _.each(this.children, this.throwUnlessCell); //make sure all children are table cells
-      },
-      push: function(component) {
-        this.throwUnlessCell(component);
-        TableRow.__super__.push.call(this, component);
-      },
-      unshift: function(component) {
-        this.throwUnlessCell(component);
-        TableRow.__super__.unshift.call(this, component);
-      },
-      insert: function(component, index) {
-        this.throwUnlessCell(component);
-        TableRow.__super__.insert.apply(this, arguments);
-      },
-      throwUnlessCell: function(cell) {
-        if(cell instanceof TableCell || cell instanceof TableHeader) { return; }
-
-        throw new TypeError("Rows can only have Cells as children");
-      },
-      template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
-    },{
-      klass: "TableRow"
-    }),
-
-    TableCell = Panel.extend({
-      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
-    },{
-      klass: "TableCell"
-    }),
-
-    TableHeader = Panel.extend({
-      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
-    },{
-      klass: "TableHeader"
     });
 
     //aliases
 Table.prototype.add = Table.prototype.push;
-TableRow.prototype.add = TableRow.prototype.push;

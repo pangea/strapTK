@@ -742,38 +742,6 @@ var FormSelect = Panel.extend({
       template : _.template("<select id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </select>")
     },{
       klass : "FormSelect"
-    }),
-
-    SelectOption = Panel.extend({
-      initialize : function(args) {
-        SelectOption.__super__.initialize.call(this, args);
-
-        this.setDefaultValue(this.body, "value");
-      },
-
-      template : _.template("<option <%= rootAttrs %>> <%= yield %> </option>"),
-
-      listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "value");
-      }
-    }, {
-      klass : "SelectOption"
-    }),
-
-    OptGroup = Panel.extend({
-      initialize : function(args) {
-        OptGroup.__super__.initialize.call(this, args);
-
-        this.setDefaultValue("", "label");
-      },
-
-      template : _.template("<optgroup <%= rootAttrs %>> <%= yield %> </optgroup>"),
-
-      listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "label");
-      }
-    },{
-      klass: "OptGroup"
     });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
@@ -993,6 +961,21 @@ var NavBar = Panel.extend({
     },{
       klass: "NavBar"
     });
+var OptGroup = Panel.extend({
+      initialize : function(args) {
+        OptGroup.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("", "label");
+      },
+
+      template : _.template("<optgroup <%= rootAttrs %>> <%= yield %> </optgroup>"),
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "label");
+      }
+    },{
+      klass: "OptGroup"
+    });
 var PageHeader = Panel.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
@@ -1105,8 +1088,9 @@ var ProgressBar = Panel.extend({
       klass: "ProgressBar",
       types: ["info", "success", "warning", "danger"]
     });
-function Raw(body) {
-  this.text = body;
+function Raw(attrs) {
+  // the idea here is you can send in an object with the field body or just a string for the body
+  this.text = attrs.body || attrs;
   this.klass = "Raw"
 }
 
@@ -1114,6 +1098,21 @@ Raw.prototype.render = function() {
   return this.text;
 }
 ;
+var SelectOption = Panel.extend({
+      initialize : function(args) {
+        SelectOption.__super__.initialize.call(this, args);
+
+        this.setDefaultValue(this.body, "value");
+      },
+
+      template : _.template("<option <%= rootAttrs %>> <%= yield %> </option>"),
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "value");
+      }
+    }, {
+      klass : "SelectOption"
+    });
 var Table = Panel.extend({
       initialize: function(args) {
         Table.__super__.initialize.call(this, args);
@@ -1141,9 +1140,21 @@ var Table = Panel.extend({
       template: _.template("<table id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></table>")
     },{
       klass: "Table"
-    }),
+    });
 
-    TableRow = Panel.extend({
+    //aliases
+Table.prototype.add = Table.prototype.push;
+var TableCell = Panel.extend({
+      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
+    },{
+      klass: "TableCell"
+    });
+var TableHeader = Panel.extend({
+      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
+    },{
+      klass: "TableHeader"
+    });
+var TableRow = Panel.extend({
       initialize: function(args) {
         TableRow.__super__.initialize.call(this, args);
 
@@ -1169,22 +1180,9 @@ var Table = Panel.extend({
       template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
     },{
       klass: "TableRow"
-    }),
-
-    TableCell = Panel.extend({
-      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
-    },{
-      klass: "TableCell"
-    }),
-
-    TableHeader = Panel.extend({
-      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
-    },{
-      klass: "TableHeader"
     });
 
-    //aliases
-Table.prototype.add = Table.prototype.push;
+// aliases
 TableRow.prototype.add = TableRow.prototype.push;
 var Textarea = Panel.extend({
       template : _.template("<textarea id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></textarea>")
