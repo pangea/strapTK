@@ -881,10 +881,11 @@ var abstractBadgeHeader = new PageHeader({
                     //                                                   listAttributes
                     new P({
                       id: "panel-listAttributes",
-                      body: "<strong>listAttributes</strong><small><strong>Returns:</strong> String</small>",
+                      body: "<strong>listAttributes</strong> arguments: [addAttr (string) [, addAttr2 (string) [, ...]]]<small><strong>Returns:</strong> String</small>",
                       classes: ["lead", "function-declaration"]
                     }),
-                    new P("Outputs the list of attributes in a way that can be inserted into the DOM."),
+                    new P("Outputs the list of attributes in a way that can be inserted into the DOM.  Further, if supplied additional attributes, it will look for said attributes on the Panel and append them to the list of attributes.  Form elements use this functionality extensively to provide easy access to their most used attributes (e.g. name or placeholder)."),
+                    new Alert("<strong>Be Aware</strong><br/>listAttributes ignores falsy values when compiling attributes from the arguments supplied.  If your element needs to have a falsy attribute (e.g. value=''), add it manually to the attributes array."),
                     new HR(),
                     //                                                      template
                     new P({

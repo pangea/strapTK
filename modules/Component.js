@@ -89,6 +89,19 @@ Component = Component.extend({
         return this;
       },
 
+      // Gets the child at the selected index
+      get : function(index) {
+        switch(typeof(index)) {
+          case "string":
+            return this[index];
+
+          case "number":
+            return this.children[index];
+        }
+
+        throw TypeError("index must be a string or number.");
+      }
+
       //Removes the child at index
       remove : function(index) {
         if(index) {
