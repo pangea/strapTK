@@ -100,7 +100,7 @@ Component = Component.extend({
         }
 
         throw TypeError("index must be a string or number.");
-      }
+      },
 
       //Removes the child at index
       remove : function(index) {
