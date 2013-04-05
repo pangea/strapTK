@@ -8,7 +8,6 @@ var Nav = List.extend({
         this.setDefaultValue(false, "divided");
 
         this.base = "nav";
-        this.types = ["tabs", "pills", "list"];
         Typify(this);
       },
 
@@ -40,5 +39,6 @@ var Nav = List.extend({
         return this.divided;
       }
     },{
-      klass: "Nav"
+      klass: "Nav",
+      types: ["tabs", "pills", "list"]
     });

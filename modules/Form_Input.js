@@ -2,11 +2,6 @@ var FormInput = Panel.extend({
       initialize : function(args) {
         FormInput.__super__.initialize.call(this, args);
 
-        this.types = [
-                      "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",
-                      "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
-                    ];
-
         this.setDefaultValue("", "placeholder", "name", "value");
         this.setDefaultValue("text", "type");
         this.base = "input";
@@ -18,4 +13,10 @@ var FormInput = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name", "value");
       }
+    },{
+      klass: "FormInput",
+      types:  [
+                "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",
+                "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
+              ]
     });

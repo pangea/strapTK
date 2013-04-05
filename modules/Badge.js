@@ -4,5 +4,5 @@ var Badge = AbstractBadge.extend({
         Badge.__super__.initialize.call(this, args);
       }
     },{
-      name: "Badge"
+      klass: "Badge"
     });

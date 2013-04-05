@@ -126,7 +126,7 @@ function Typify(component, options) {
       delete this.type;
     }
     if(type) {
-      if(!_.include(this.types, type)) {
+      if(!_.include(this.constructor.types, type)) {
         throw new RangeError("Invalid type - "+type);
       }
       this.type = type;
@@ -134,7 +134,8 @@ function Typify(component, options) {
     }
   };
 
-  component.types || (component.types = options.types);
+  component.constructor.types || (component.constructor.types = options.types);
+
   component.base  || (component.base  = options.base);
   component.type  || (component.type  = options.type);
 
@@ -394,14 +395,14 @@ var Panel = Component.extend({
 var AbstractBadge = Panel.extend({
       initialize : function(args) {
         AbstractBadge.__super__.initialize.call(this, args);
-        this.types = ["success", "warning", "important", "info", "inverse"];
         Typify(this);
       },
       template : _.template("<span id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
                               "<%= yield %>"+
                             "</span>")
     },{
-      klass: "AbstractBadge"
+      klass: "AbstractBadge",
+      types : ["success", "warning", "important", "info", "inverse"]
     });
 var Link = Panel.extend({
       initialize : function(args) {
@@ -466,7 +467,6 @@ var Alert = Panel.extend({
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);
         this.base = "alert";
-        this.types =["error", "success", "info"]
         Typify(this);
       },
 
@@ -514,7 +514,8 @@ var Alert = Panel.extend({
         }
       }
     },{
-      klass: "Alert"
+      klass: "Alert",
+      types: ["error", "success", "info"]
     });
 var Badge = AbstractBadge.extend({
       initialize : function(args) {
@@ -522,7 +523,7 @@ var Badge = AbstractBadge.extend({
         Badge.__super__.initialize.call(this, args);
       }
     },{
-      name: "Badge"
+      klass: "Badge"
     });
 var Breadcrumbs = Panel.extend({
       initialize : function(args) {
@@ -541,7 +542,7 @@ var Breadcrumbs = Panel.extend({
         return markup.join(this.childSuffix) + last;
       }
     },{
-      name: "Breadcrumbs"
+      klass: "Breadcrumbs"
     });
 var Button = Link.extend({
       initialize : function(args) {
@@ -550,12 +551,12 @@ var Button = Link.extend({
         this.attributes.unshift("type='button'");
 
         this.base = "btn";
-        this.types = ["primary", "info", "success", "warning", "danger", "inverse", "link"];
 
         Typify(this);
       }
     },{
-      name: "Button"
+      klass: "Button",
+      types: ["primary", "info", "success", "warning", "danger", "inverse", "link"]
     });
 var ButtonGroup = Panel.extend({
       initialize: function(args) {
@@ -563,7 +564,7 @@ var ButtonGroup = Panel.extend({
         this.addClass("btn-group");
       }
     },{
-      name: "ButtonGroup"
+      klass: "ButtonGroup"
     });
 var ButtonToolbar = Panel.extend({
       initialize: function(args) {
@@ -571,7 +572,7 @@ var ButtonToolbar = Panel.extend({
         this.addClass("btn-toolbar");
       }
     },{
-      name: "ButtonToolbar"
+      klass: "ButtonToolbar"
     });
 var Carousel = Panel.extend({
       initialize: function(args) {
@@ -627,7 +628,7 @@ var Carousel = Panel.extend({
       }
 
     },{
-      name: "Carousel"
+      klass: "Carousel"
     });
 var CloseButton = Link.extend({
       initialize : function(args) {
@@ -636,7 +637,7 @@ var CloseButton = Link.extend({
         this.body || (this.body = "&times;");
       }
     },{
-      name: "CloseButton"
+      klass: "CloseButton"
     });
 var ContentRow = Panel.extend({
       initialize: function(args) {
@@ -714,11 +715,6 @@ var FormInput = Panel.extend({
       initialize : function(args) {
         FormInput.__super__.initialize.call(this, args);
 
-        this.types = [
-                      "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",
-                      "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
-                    ];
-
         this.setDefaultValue("", "placeholder", "name", "value");
         this.setDefaultValue("text", "type");
         this.base = "input";
@@ -730,6 +726,12 @@ var FormInput = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name", "value");
       }
+    },{
+      klass: "FormInput",
+      types:  [
+                "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",
+                "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
+              ]
     });
 var FormLabel = Panel.extend({
       template : _.template("<label id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></label>")
@@ -770,6 +772,8 @@ var FormSelect = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "label");
       }
+    },{
+      klass: "OptGroup"
     });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
@@ -807,43 +811,42 @@ var Icon = Panel.extend({
         Icon.__super__.initialize.call(this, args);
 
         this.base = "icon";
-        this.types = ICONLIST; // hopefully, this will keep memory down since I'm passing around a reference object
 
         Typify(this);
       },
 
       template : _.template("<i id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>></i> <%= yield %>")
     },{
-      klass: "Icon"
+      klass: "Icon",
+      types: [
+              "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md",
+              "stethoscope", "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right",
+              "angle-up", "angle-down", "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop",
+              "laptop", "tablet", "mobile-phone", "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk",
+              "ban-circle", "bar-chart", "barcode", "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn",
+              "calendar", "camera", "camera-retro", "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload",
+              "coffee", "cog", "cogs", "comment", "comment-alt", "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt",
+              "edit", "envelope", "envelope-alt", "exchange", "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet",
+              "film", "filter", "fire", "flag", "folder-close", "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group",
+              "hdd", "headphones", "heart", "heart-empty", "home", "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock",
+              "magic", "magnet", "map-marker", "minus", "minus-sign", "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil",
+              "picture", "plane", "plus", "plus-sign", "print", "pushpin", "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove",
+              "remove-circle", "remove-sign", "reorder", "reply", "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search",
+              "share", "share-alt", "shopping-cart", "signal", "signin", "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty",
+              "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down", "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload",
+              "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up", "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt",
+              "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width", "align-left", "align-center", "align-right", "align-justify",
+              "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link", "paper-clip", "columns", "table", "th-large", "th",
+              "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up", "angle-down", "arrow-down", "arrow-left",
+              "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left", "chevron-right", "chevron-up",
+              "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right", "double-angle-up",
+              "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
+              "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small",
+              "phone", "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign",
+              "pinterest", "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit",
+              "plus-sign-alt", "stethoscope", "user-md"
+            ]
     });
-
-var ICONLIST = [
-      "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md", "stethoscope",
-      "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right", "angle-up", "angle-down",
-      "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop", "laptop", "tablet", "mobile-phone",
-      "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk", "ban-circle", "bar-chart", "barcode",
-      "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn", "calendar", "camera", "camera-retro",
-      "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload", "coffee", "cog", "cogs", "comment", "comment-alt",
-      "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt", "edit", "envelope", "envelope-alt", "exchange",
-      "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet", "film", "filter", "fire", "flag", "folder-close",
-      "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group", "hdd", "headphones", "heart", "heart-empty", "home",
-      "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock", "magic", "magnet", "map-marker", "minus", "minus-sign",
-      "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil", "picture", "plane", "plus", "plus-sign", "print", "pushpin",
-      "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove", "remove-circle", "remove-sign", "reorder", "reply",
-      "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search", "share", "share-alt", "shopping-cart", "signal", "signin",
-      "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty", "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down",
-      "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload", "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up",
-      "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt", "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width",
-      "align-left", "align-center", "align-right", "align-justify", "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link",
-      "paper-clip", "columns", "table", "th-large", "th", "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up",
-      "angle-down", "arrow-down", "arrow-left", "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left",
-      "chevron-right", "chevron-up", "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right",
-      "double-angle-up", "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
-      "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small", "phone",
-      "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign", "pinterest",
-      "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit", "plus-sign-alt", "stethoscope",
-      "user-md"
-    ];
 var Image = Panel.extend({
       initialize : function(args) {
         Image.__super__.initialize.call(this, args);
@@ -944,7 +947,6 @@ var Nav = List.extend({
         this.setDefaultValue(false, "divided");
 
         this.base = "nav";
-        this.types = ["tabs", "pills", "list"];
         Typify(this);
       },
 
@@ -976,7 +978,8 @@ var Nav = List.extend({
         return this.divided;
       }
     },{
-      klass: "Nav"
+      klass: "Nav",
+      types: ["tabs", "pills", "list"]
     });
 var NavBar = Panel.extend({
       initialize : function(args) {
@@ -1076,7 +1079,6 @@ var ProgressBar = Panel.extend({
         this.setWidth(this.width);
 
         this.base = "bar";
-        this.types = ["info", "success", "warning", "danger"];
         Typify(this);
       },
 
@@ -1100,7 +1102,8 @@ var ProgressBar = Panel.extend({
         }
       }
     },{
-      klass: "ProgressBar"
+      klass: "ProgressBar",
+      types: ["info", "success", "warning", "danger"]
     });
 function Raw(body) {
   this.text = body;

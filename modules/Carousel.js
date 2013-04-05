@@ -52,5 +52,5 @@ var Carousel = Panel.extend({
       }
 
     },{
-      name: "Carousel"
+      klass: "Carousel"
     });

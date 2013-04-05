@@ -4,5 +4,5 @@ var ButtonGroup = Panel.extend({
         this.addClass("btn-group");
       }
     },{
-      name: "ButtonGroup"
+      klass: "ButtonGroup"
     });

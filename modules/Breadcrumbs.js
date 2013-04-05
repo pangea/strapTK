@@ -15,5 +15,5 @@ var Breadcrumbs = Panel.extend({
         return markup.join(this.childSuffix) + last;
       }
     },{
-      name: "Breadcrumbs"
+      klass: "Breadcrumbs"
     });

@@ -6,7 +6,6 @@ var ProgressBar = Panel.extend({
         this.setWidth(this.width);
 
         this.base = "bar";
-        this.types = ["info", "success", "warning", "danger"];
         Typify(this);
       },
 
@@ -30,5 +29,6 @@ var ProgressBar = Panel.extend({
         }
       }
     },{
-      klass: "ProgressBar"
+      klass: "ProgressBar",
+      types: ["info", "success", "warning", "danger"]
     });

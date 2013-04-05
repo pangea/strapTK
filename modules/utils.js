@@ -120,7 +120,7 @@ function Typify(component, options) {
       delete this.type;
     }
     if(type) {
-      if(!_.include(this.types, type)) {
+      if(!_.include(this.constructor.types, type)) {
         throw new RangeError("Invalid type - "+type);
       }
       this.type = type;
@@ -128,7 +128,8 @@ function Typify(component, options) {
     }
   };
 
-  component.types || (component.types = options.types);
+  component.constructor.types || (component.constructor.types = options.types);
+
   component.base  || (component.base  = options.base);
   component.type  || (component.type  = options.type);
 

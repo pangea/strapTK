@@ -5,5 +5,5 @@ var CloseButton = Link.extend({
         this.body || (this.body = "&times;");
       }
     },{
-      name: "CloseButton"
+      klass: "CloseButton"
     });

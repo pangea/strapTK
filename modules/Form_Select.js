@@ -32,4 +32,6 @@ var FormSelect = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "label");
       }
+    },{
+      klass: "OptGroup"
     });

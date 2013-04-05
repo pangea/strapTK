@@ -2,7 +2,6 @@ var Alert = Panel.extend({
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);
         this.base = "alert";
-        this.types =["error", "success", "info"]
         Typify(this);
       },
 
@@ -50,5 +49,6 @@ var Alert = Panel.extend({
         }
       }
     },{
-      klass: "Alert"
+      klass: "Alert",
+      types: ["error", "success", "info"]
     });

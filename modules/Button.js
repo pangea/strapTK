@@ -5,10 +5,10 @@ var Button = Link.extend({
         this.attributes.unshift("type='button'");
 
         this.base = "btn";
-        this.types = ["primary", "info", "success", "warning", "danger", "inverse", "link"];
 
         Typify(this);
       }
     },{
-      name: "Button"
+      klass: "Button",
+      types: ["primary", "info", "success", "warning", "danger", "inverse", "link"]
     });

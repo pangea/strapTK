@@ -89,6 +89,55 @@ var abstractBadgeHeader = new PageHeader({
                         body: "create new objects from old ones"
                       }).render(),
 
+    formHeader = new PageHeader({
+                    id: "form",
+                    header: "Form",
+                    level: 3,
+                    body: "Extends Panel"
+                  }).render(),
+
+    formInputHeader = new PageHeader({
+                        id: "formInput",
+                        header: "FormInput",
+                        level: 3,
+                        body: "Extends Panel"
+                      }).render(),
+
+    formLabelHeader = new PageHeader({
+                        id: "formLabel",
+                        header: "FormLabel",
+                        level: 3,
+                        body: "Extends Panel"
+                      }).render(),
+
+    formSelectHeader = new PageHeader({
+                          id: "formSelect",
+                          header: "FormSelect",
+                          level: 3,
+                          body: "Extends Panel"
+                        }).render(),
+
+    heroUnitHeader = new PageHeader({
+                        id: "heroUnit",
+                        header: "HeroUnit",
+                        level: 3,
+                        body: "Extends Panel"
+                      }).render(),
+
+    horizontalRuleHeader = new PageHeader({
+                              id: "horizontalRule",
+                              header: "HorizontalRule",
+                              level: 3,
+                              body: ""
+                            }).render(),
+
+    iconHeader = new PageHeader({
+                        id: "icon",
+                        header: "Icon",
+                        level: 3,
+                        body: "Extends Panel"
+                      }).render(),
+
     panelHeader = new PageHeader({
                     id: "panel",
                     header: "Panel",
@@ -673,6 +722,18 @@ var abstractBadgeHeader = new PageHeader({
                       classes: ["lead", "function-declaration"]
                     }),
                     new P("Removes and returns the component at <code>index</code> from the list of children.  If no index is supplied, removes the last child."),
+                    new HR(),
+                    //                                                     Get
+                    new P({
+                      id: "component-get",
+                      body:"<strong>get</strong> arguments: index (Integer|String)<small><strong>Returns:</strong> * | undefined</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Gets a value from this Component.  If the supplied <code>index</code> is an integer, this method returns the child at that index.  If the supplied <code>index</code> is a string, it returns the value of that key on this Component (e.g. get('body') returns Component.body)."),
+                    new Alert({
+                      body: "<strong>Under the Hood</strong><br/>This method was primarily conceived as an prettier way to manipulate a Component's children.  Later, I decided it might also be a prettier way of getting other values off of a Component when the name of the attribute isn't known beforehand.",
+                      type: "success"
+                    }),
                     new HR(),
                     //                                                   Template
                     new P({

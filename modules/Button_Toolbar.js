@@ -4,5 +4,5 @@ var ButtonToolbar = Panel.extend({
         this.addClass("btn-toolbar");
       }
     },{
-      name: "ButtonToolbar"
+      klass: "ButtonToolbar"
     });
