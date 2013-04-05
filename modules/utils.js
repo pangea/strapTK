@@ -3,6 +3,9 @@
  *  entire page (e.g. setting all elements as draggable)
  */
 var strap = new (function() {
+      /**
+       * @WIP
+       */
       this.allDraggable = function(draggable) {
         if(draggable === true) {
           $("body").find("*").attr("draggable", "true")

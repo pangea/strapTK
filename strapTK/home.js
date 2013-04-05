@@ -24,11 +24,7 @@ var home = new Viewport({
               children: [
                 new Icon({
                   type: "double-angle-right",
-                  body: "<strong>Helpers for all basic HTML markup!</strong> (Not just Bootstrap components)"
-                }),
-                new Icon({
-                  type: "double-angle-right",
-                  body: "<strong>Sourcable components.</strong>  Attach API driven data sources to your components and watch them update in real time!"
+                  body: "<strong>Sourced components!</strong>  Attach API driven data sources to your components and watch them update in real time!"
                 }),
                 new Icon({
                   type: "double-angle-right",

@@ -61,6 +61,13 @@ var abstractBadgeHeader = new PageHeader({
                             body: "extends Panel"
                           }).render(),
 
+    componentHeader = new PageHeader({
+                        id: "component",
+                        header: "Component",
+                        level: 3,
+                        body: "One object to rule them all!"
+                      }).render(),
+
     contentRowHeader = new PageHeader({
                         id: "contentRow",
                         header: "ContentRow",
@@ -68,11 +75,11 @@ var abstractBadgeHeader = new PageHeader({
                         body: "extends Panel"
                       }).render(),
 
-    componentHeader = new PageHeader({
-                        id: "component",
-                        header: "Component",
+    dropdownHeader = new PageHeader({
+                        id: "dropdown",
+                        header: "Dropdown",
                         level: 3,
-                        body: "One object to rule them all!"
+                        body: "Extends List"
                       }).render(),
 
     extendHeader = new PageHeader({
@@ -547,75 +554,6 @@ var abstractBadgeHeader = new PageHeader({
                   ]
                 }),
                 //
-                //                                              ContentRow Documentation
-                //
-                new Panel({
-                  id: "contentRow-wrapper",
-                  heading: contentRowHeader,
-                  children: [
-                    new P("ContentRow provides an easy means to create Bootstrap's 'fluid-row'.  It overloads the child adding methods to ensure that no more than 12 children are active and correctly formats the wrapping elements to have the correct 'span' class.  It goes further by allowing child elements to specify their span width and fluidly assigns the remaining space to the other children."),
-                    new HR(),
-                    //                                                Constructor
-                    new P({
-                      id: "contentRow-constructor",
-                      body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
-                      classes: ["lead", "function-declaration"]
-                    }),
-                    new P("ContentRow defines a new attribute, <code>maxChildren</code>, to help with child management."),
-                    new Table({
-                      body: "<caption>Defined Attributes</caption>",
-                      children: [
-                      new TableRow([
-                        new TableHeader("Attribute"),
-                        new TableHeader("Type"),
-                        new TableHeader("Default"),
-                        new TableHeader("Description")
-                      ]),
-                      new TableRow([
-                        new TableCell("<code>maxChildren</code>"),
-                        new TableCell("<strong>Integer</strong>"),
-                        new TableCell("<strong>12</strong>"),
-                        new TableCell("The maximum number of children the ContentRow can contain."),
-                      ])
-                    ]}),
-                    new HR(),
-                    //                                                    Push
-                    new P({
-                      id: "contentRow-push",
-                      body: "<strong>push</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | Alias: <em>add</em> | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
-                      classes: ["lead", "function-declaration"]
-                    }),
-                    new P("Extends Component.push to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
-                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
-                    new HR(),
-                    //                                                   Unshift
-                    new P({
-                      id: "contentRow-unshift",
-                      body: "<strong>unshift</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
-                      classes: ["lead", "function-declaration"]
-                    }),
-                    new P("Extends Component.unshift to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
-                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
-                    new HR(),
-                    //                                                    Insert
-                    new P({
-                      id: "contentRow-insert",
-                      body:"<strong>insert</strong> arguments: component (#render), [index (Integer)]<small><strong>Returns:</strong> Component | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
-                      classes: ["lead", "function-declaration"]
-                    }),
-                    new P("Extends Component.insert to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
-                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
-                    new HR(),
-                    //                                                RenderChildren
-                    new P({
-                      id: "contentRow-renderChildren",
-                      body:"<strong>renderChildren</strong> arguments: [prefix (String), suffix (String)]<small><strong>Returns:</strong> String</small>",
-                      classes: ["lead", "function-declaration"]
-                    }),
-                    new P("Calls the <code>render</code> method of each of this component's children and wraps the output with <code>prefix</code> and <code>suffix</code>.  If <code>prefix</code> or <code>suffix</code> are not supplied, <code>childPrefix</code> and <code>childSuffix</code> are used for the unsupplied value.  Additionally, this function processes the correct span of each child element and wraps the rendered output accordingly.  From the outside, you would first encounter this added wrapping, then the prefix/suffix markup, then the rendered child.")
-                  ]
-                }),
-                //
                 //                                              Component Documentation
                 //
                 new Panel({
@@ -665,7 +603,8 @@ var abstractBadgeHeader = new PageHeader({
                     }),
                     new Alert("<strong>Be Aware</strong><br/>Because the constructor for Components applies all keys supplied in the attributes object directly to the created Component, you can accidentally overwrite existing Object or Component methods that can cause your Components to behave erratically."),
                     new Alert({
-                      body: "<strong>Under The Hood</strong><br/>Although all attributes are applied in Component constructors, the default values for those constructors are defined in the <code>initialize</code> function <small class='muted'>(not listed)</small>."
+                      body: "<strong>Under The Hood</strong><br/>Although all attributes are applied in Component constructors, the default values for those constructors are defined in the <code>initialize</code> function <small class='muted'>(not listed)</small>.",
+                      type: "success"
                     }),
                     new Alert({
                       body: "<strong>Of Note</strong><br/>No current subclass of Component uses the supplied <code>options</code> argument.",
@@ -766,6 +705,85 @@ var abstractBadgeHeader = new PageHeader({
                       classes: ["lead", "function-declaration"]
                     }),
                     new P("Overloads Object.toString() to return ")
+                  ]
+                }),
+                //
+                //                                              ContentRow Documentation
+                //
+                new Panel({
+                  id: "contentRow-wrapper",
+                  heading: contentRowHeader,
+                  children: [
+                    new P("ContentRow provides an easy means to create Bootstrap's 'fluid-row'.  It overloads the child adding methods to ensure that no more than 12 children are active and correctly formats the wrapping elements to have the correct 'span' class.  It goes further by allowing child elements to specify their span width and fluidly assigns the remaining space to the other children."),
+                    new HR(),
+                    //                                                Constructor
+                    new P({
+                      id: "contentRow-constructor",
+                      body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("ContentRow defines a new attribute, <code>maxChildren</code>, to help with child management."),
+                    new Table({
+                      body: "<caption>Defined Attributes</caption>",
+                      children: [
+                      new TableRow([
+                        new TableHeader("Attribute"),
+                        new TableHeader("Type"),
+                        new TableHeader("Default"),
+                        new TableHeader("Description")
+                      ]),
+                      new TableRow([
+                        new TableCell("<code>maxChildren</code>"),
+                        new TableCell("<strong>Integer</strong>"),
+                        new TableCell("<strong>12</strong>"),
+                        new TableCell("The maximum number of children the ContentRow can contain."),
+                      ])
+                    ]}),
+                    new HR(),
+                    //                                                    Push
+                    new P({
+                      id: "contentRow-push",
+                      body: "<strong>push</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | Alias: <em>add</em> | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends Component.push to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
+                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
+                    new HR(),
+                    //                                                   Unshift
+                    new P({
+                      id: "contentRow-unshift",
+                      body: "<strong>unshift</strong> arguments: component (#render) <small><strong>Returns:</strong> Component | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends Component.unshift to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
+                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
+                    new HR(),
+                    //                                                    Insert
+                    new P({
+                      id: "contentRow-insert",
+                      body:"<strong>insert</strong> arguments: component (#render), [index (Integer)]<small><strong>Returns:</strong> Component | <span>Throws:</span> TooManyChildrenError, TypeError</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Extends Component.insert to enforce the <code>maxChildren</code> limit.  Throws a TooManyChildrenError if you attempt to add a child to a ContentRow that is already at its maximum.  Throws TypeError if <code>component</code> doesn't have a member function called <code>render</code>.  This function is chainable."),
+                    new Alert("<strong>Be Aware</strong><br/>This function does not check if the added component already exists in the list of children."),
+                    new HR(),
+                    //                                                RenderChildren
+                    new P({
+                      id: "contentRow-renderChildren",
+                      body:"<strong>renderChildren</strong> arguments: [prefix (String), suffix (String)]<small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Calls the <code>render</code> method of each of this component's children and wraps the output with <code>prefix</code> and <code>suffix</code>.  If <code>prefix</code> or <code>suffix</code> are not supplied, <code>childPrefix</code> and <code>childSuffix</code> are used for the unsupplied value.  Additionally, this function processes the correct span of each child element and wraps the rendered output accordingly.  From the outside, you would first encounter this added wrapping, then the prefix/suffix markup, then the rendered child.")
+                  ]
+                }),
+                //
+                //                                                 Dropdown Documentation
+                //
+                new Panel({
+                  id: "dropdown-wrapper",
+                  heading: dropdownHeader,
+                  children: [
+                    new P("Dropdowns are a more locked down version of a standard unordered list.  As the name suggests, they provide a simple way to build Bootstrap's Dropdown widget.")
                   ]
                 }),
                 //
