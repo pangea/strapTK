@@ -29,7 +29,7 @@ Component = Component.extend({
 
         _.each(this.children, function(child) {
           this.checkIfRenderable(child);
-        });
+        }, this);
 
         this.setDefaultValue("", "childPrefix", "childSuffix");
           // used for deserialization from JSON

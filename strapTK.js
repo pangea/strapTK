@@ -185,7 +185,7 @@ Component = Component.extend({
 
         _.each(this.children, function(child) {
           this.checkIfRenderable(child);
-        });
+        }, this);
 
         this.setDefaultValue("", "childPrefix", "childSuffix");
           // used for deserialization from JSON
@@ -719,7 +719,7 @@ var FormInput = Panel.extend({
       }
     });
 var FormLabel = Panel.extend({
-      template : _.template("<label id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </label>")
+      template : _.template("<label id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></label>")
     },{
       klass : "FormLabel"
     });
