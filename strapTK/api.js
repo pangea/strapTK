@@ -1030,7 +1030,7 @@ var abstractBadgeHeader = new PageHeader({
                 //
                 new Panel({
                   id: "formInput-wrapper",
-                  heading: formHeader,
+                  heading: formInputHeader,
                   children: [
                     new P("FormInputs are the input tag analogs in Strap'd.  FormInputs are type aware Components."),
                     new Alert({
@@ -1074,6 +1074,99 @@ var abstractBadgeHeader = new PageHeader({
                         ])
                       ]
                     })
+                  ]
+                }),
+                //
+                //                                                FormLabel Documentation
+                //
+                new Panel({
+                  id: "formLabel-wrapper",
+                  heading: formLabelHeader,
+                  children: [
+                    new P("A FormLabel is a simple component providing access to a &lt;label&gt; tag.")
+                  ]
+                }),
+                //
+                //                                                FormSelect Documentation
+                //
+                new Panel({
+                  id: "formSelect-wrapper",
+                  heading: formSelectHeader,
+                  children: [
+                    new P("A FormSelect is a simple component providing access to a &lt;select&gt; tag.")
+                  ]
+                }),
+                //
+                //                                                 HeroUnit Documentation
+                //
+                new Panel({
+                  id: "heroUnit-wrapper",
+                  heading: heroUnitHeader,
+                  children: [
+                    new P("A Hero Unit is a type of typographical component.  It's primary purpose is to bring attention to an important part of the site.  The header at the top of every page of this site is a Hero Unit."),
+                    new HR(),
+                    //                                                 Constructor
+                    new P({
+                      id: "heroUnit-constructor",
+                      body: "<strong>Constructor</strong> arguments: [attributes (Object|Array|String), options]",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Hero Units define an additional attribute to provide easy access to the text dispayed in its header portion."),
+                    new Table({
+                      body: "<caption>Defined Attributes</caption>",
+                      children: [
+                        new TableRow([
+                          new TableHeader("Attribute"),
+                          new TableHeader("Type"),
+                          new TableHeader("Default"),
+                          new TableHeader("Description")
+                        ]),
+                        new TableRow([
+                          new TableCell("<code>title</code>"),
+                          new TableCell("<strong>String</strong>"),
+                          new TableCell('<strong>""</strong>'),
+                          new TableCell("The text to display in the header portion of the Hero Unit.")
+                        ])
+                      ]
+                    }),
+                    new HR(),
+                    //                                                    render
+                    new P({
+                      id: "heroUnit-render",
+                      body: "<strong>render</strong><small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("Simple override of Panel.render to provide title support in Hero Unit templates.")
+                  ]
+                }),
+                //
+                //                                              HorizonalRule Documentation
+                //
+                new Panel({
+                  id: "horizontalRule-wrapper",
+                  heading: horizontalRuleHeader,
+                  children: [
+                    new PageHeader({
+                      header: "Alias: HR",
+                      level: 4
+                    }),
+                    new P("The Horizontal Rule is one of the few elements that doesn't extend from another component.  It provides a simple means of accessing the &lt;hr/&gt; tag."),
+                    new HR(),
+                    //                                                  Constructor
+                    new P({
+                      id: "panel-constructor",
+                      body: "<strong>Constructor</strong>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("The constructor for Horizontal Rules simply defines the <code>klass</code> of the object to allow it to be serialized and deserialized."),
+                    new HR(),
+                    //                                                    render
+                    new P({
+                      id: "heroUnit-render",
+                      body: "<strong>render</strong><small><strong>Returns:</strong> String</small>",
+                      classes: ["lead", "function-declaration"]
+                    }),
+                    new P("The render method for Horizontal Rules just returns '&lt;hr/&gt;'.")
                   ]
                 }),
                 //

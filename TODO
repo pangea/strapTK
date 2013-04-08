@@ -1,1 +1,5 @@
-Change all templates to remove floating attributes (blank id's, classes, etc.)
+Include attributes and functions from extended components in the definitions of their children.
+  Not full definitions, just lists.
+  EG
+    Imported from Component:
+      #render, #renderChildren, #setDefaultValue, ...
