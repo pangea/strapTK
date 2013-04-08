@@ -56,6 +56,11 @@ var strap = new (function() {
           return parse(json);
         }
       }
+
+      // Generate a simple Lo-Dash template
+      this.generateSimpleTemplate = function(tag) {
+        return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
+      }
     })();
 
 /**
@@ -108,14 +113,15 @@ function Extend(parent, protoProps, staticProps) {
 }
 
 /**
- * Decorates the given component with the necessary variables and methods to handle being typed
+ * Decorates the given component with the necessary variables and methods to handle being typed.
  *  A typed object is one that has a "base" and is then further modified with a "type".
  *  E.G. An alert can be an "error" message (and have a "type" of "error")
  *
  * This method does not overwrite any variables set on the decorated component unless it
  *  already has a setType property (which it shouldn't >:[)
  *
- * @param component [Component] the component to be decorated
+ * @param component [Component] the component to be decorated,
+ * @param options   [Object]    the default values of type, base, and types can be defined in this object
  */
 function Typify(component, options) {
   options = _.extend({}, Typify.defaults, options);
@@ -133,11 +139,14 @@ function Typify(component, options) {
       this.addClass(this.base+"-"+type);
     }
   };
-
-  component.constructor.types || (component.constructor.types = options.types);
-
-  component.base  || (component.base  = options.base);
-  component.type  || (component.type  = options.type);
+    // call is used here to force the value of this to be the
+    //  component's constructor instead of the component itself
+  component.setDefaultValue.call(component.constructor, options.types, "types");  // set the types, if not already set
+                                                                                  // types are defined on the constructor because only instance of
+                                                                                  //  the list of types is needed for each instance of this component
+                                                                                  //  In most cases, this function will do nothing
+  component.setDefaultValue(options.base, "base");  // set the base, if not already set
+  component.setDefaultValue(options.type, "type");  // set the type, if not already set
 
   if(component.base) {
     component.addClass(component.base);
@@ -149,7 +158,7 @@ function Typify(component, options) {
 }
 
 Typify.defaults = {
-  types: [],
+  types: [""],
   base: "",
   type: ""
 }
@@ -364,27 +373,32 @@ var Panel = Component.extend({
       // this function can be called with a list of additional attributes that will be included in the output
       listAttributes : function() {
         // convert arguments into an actual array and map the values to the ones attached to this Panel
-        var addAttrs = _.map(Array.prototype.slice.call(arguments, 0), function(val) {
-          // remove empty values
-          if(this[val] === "") {
-            return false;
-          }
+        // the HTML ID is always added to this list
+        var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
+            addAttrs = _.map(args, function(val) {
+              // remove empty values
+              if(this[val] === "") {
+                return false;
+              }
 
-          return val + "='" + this[val] + "'";
-        }, this);
+              return val + "='" + this[val] + "'";
+            }, this),
+            classes = this.listClasses();
+
+        if(classes !== "") {
+          addAttrs.push("class='"+classes+"'");
+        }
 
         // return the combined list
         return this.attributes.join(" ") + " " + _.compact(addAttrs).join(" ");
       },
 
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
+      template : strap.generateSimpleTemplate("div"),
 
       render : function() {
         var markup = this.body + this.renderChildren();
         return this.template({
           "yield": markup,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs" : this.listAttributes()
         });
       }
@@ -397,9 +411,7 @@ var AbstractBadge = Panel.extend({
         AbstractBadge.__super__.initialize.call(this, args);
         Typify(this);
       },
-      template : _.template("<span id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-                              "<%= yield %>"+
-                            "</span>")
+      template : strap.generateSimpleTemplate("span")
     },{
       klass: "AbstractBadge",
       types : ["success", "warning", "important", "info", "inverse"]
@@ -415,7 +427,7 @@ var Link = Panel.extend({
         return FormSelect.__super__.listAttributes.call(this, "href");
       },
 
-      template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
+      template : strap.generateSimpleTemplate("a")
     },{
       klass: "Link"
     });
@@ -427,9 +439,7 @@ var List = Panel.extend({
         this.childSuffix || (this.childSuffix = "</li>");
       },
 
-      template: _.template( "<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-                              "<%= yield %>"+
-                            "</ul>")
+      template: strap.generateSimpleTemplate("ul")
     },{
       klass: "List"
     });
@@ -533,9 +543,8 @@ var Breadcrumbs = Panel.extend({
         this.addClass("breadcrumb");
       },
 
-      template : _.template("<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-                              "<%= yield %>"+
-                            "</ul>"),
+      template : strap.generateSimpleTemplate("ul"),
+
       render : function() {
         var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
             last = markup.pop();
@@ -586,7 +595,7 @@ var Carousel = Panel.extend({
       },
 
       //Gunna have to come back to this one
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
+      template : _.template("<div <%= rootAttrs %>>" +
                               "<% if(controls) { %>" +
                                 "<ol class='carousel-indicators'>" +
                                   "<% _(slides).times(function(i){ %>" +
@@ -618,7 +627,6 @@ var Carousel = Panel.extend({
         return this.template({
           "yield"       : markup,
           "rootID"      : this.id,
-          "rootClasses" : this.listClasses(),
           "rootAttrs"   : this.listAttributes(),
           "controls"    : this.controls,
           "slides"      : this.children.length,
@@ -703,7 +711,7 @@ var Form = Panel.extend({
         this.setDefaultValue("", "action");
       },
 
-      template : _.template( "<form id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></form>"),
+      template : strap.generateSimpleTemplate("form"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "method", "action");
@@ -721,7 +729,7 @@ var FormInput = Panel.extend({
         Typify(this);
       },
 
-      template : _.template("<input id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
+      template : _.template("<input <%= rootAttrs %> />"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name", "value");
@@ -734,12 +742,12 @@ var FormInput = Panel.extend({
               ]
     });
 var FormLabel = Panel.extend({
-      template : _.template("<label id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></label>")
+      template : strap.generateSimpleTemplate("label")
     },{
       klass : "FormLabel"
     });
 var FormSelect = Panel.extend({
-      template : _.template("<select id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>> <%= yield %> </select>")
+      template : strap.generateSimpleTemplate("select")
     },{
       klass : "FormSelect"
     });
@@ -751,7 +759,7 @@ var HeroUnit = Panel.extend({
 
         this.addClass("hero-unit");
       },
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+      template : _.template("<div <%= rootAttrs %>>"+
                               "<h1><%= title %></h1>"+
                               "<%= yield %>"+
                             "</div>"),
@@ -760,8 +768,6 @@ var HeroUnit = Panel.extend({
         return this.template({
           "yield": markup,
           "title": this.title,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs": this.listAttributes()
         });
       }
@@ -783,7 +789,7 @@ var Icon = Panel.extend({
         Typify(this);
       },
 
-      template : _.template("<i id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>></i> <%= yield %>")
+      template : _.template("<i <%= rootAttrs %>></i> <%= yield %>")
     },{
       klass: "Icon",
       types: [
@@ -822,7 +828,7 @@ var Image = Panel.extend({
         this.setDefaultValue("", "src");
       },
 
-      template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
+      template : _.template("<img <%= rootAttrs %> />"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "src");
@@ -855,7 +861,7 @@ var Modal = Panel.extend({
         this.addClass("modal");
       },
 
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+      template : _.template("<div <%= rootAttrs %>>"+
                               "<div class='modal-header'>"+
                                 "<% if(closable) { %>" +
                                   "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
@@ -894,8 +900,6 @@ var Modal = Panel.extend({
           "yield": markup,
           "header":this.header,
           "actions": actionMarkup,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs": this.listAttributes()
         });
       }
@@ -968,7 +972,7 @@ var OptGroup = Panel.extend({
         this.setDefaultValue("", "label");
       },
 
-      template : _.template("<optgroup <%= rootAttrs %>> <%= yield %> </optgroup>"),
+      template : strap.generateSimpleTemplate("optgroup"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "label");
@@ -982,7 +986,7 @@ var PageHeader = Panel.extend({
         this.setDefaultValue("", "header");
         this.setDefaultValue(1, "level");
       },
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+      template : _.template("<div <%= rootAttrs %>>"+
     													"<h<%= level %>>"+
     														"<%= header%> "+
     														"<small><%= yield%></small>"+
@@ -995,8 +999,6 @@ var PageHeader = Panel.extend({
           "yield": markup,
           "header": this.header,
           "level": this.level,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs": this.listAttributes()
         });
       }
@@ -1049,7 +1051,7 @@ var Pagination = Panel.extend({
       klass: "Pagination"
     });
 var Paragraph = Panel.extend({
-      template : _.template("<p id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></p>")
+      template : strap.generateSimpleTemplate("p")
     },{
       klass: "Paragraph"
     }),
@@ -1105,7 +1107,7 @@ var SelectOption = Panel.extend({
         this.setDefaultValue(this.body, "value");
       },
 
-      template : _.template("<option <%= rootAttrs %>> <%= yield %> </option>"),
+      template : strap.generateSimpleTemplate("option"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "value");
@@ -1120,24 +1122,29 @@ var Table = Panel.extend({
         this.attributes.unshift("style='color: inherit'");  //monkey patch for odd behavior in Webkit
         _.each(this.children, this.throwUnlessRow);         //make sure all children are table rows
       },
+
       push: function(row) {
         this.throwUnlessRow(row);
         Table.__super__.push.call(this, row);
       },
+
       unshift: function(row) {
         this.throwUnlessRow(row);
         Table.__super__.unshift.call(this, row);
       },
+
       insert: function(row, index) {
         this.throwUnlessRow(row);
         Table.__super__.insert.call(this, row, index);
       },
+
       throwUnlessRow: function(row) {
         if(row instanceof TableRow) { return; }
 
         throw new TypeError("Tables can only have Rows as children");
       },
-      template: _.template("<table id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></table>")
+
+      template: strap.generateSimpleTemplate("table")
     },{
       klass: "Table"
     });
@@ -1145,12 +1152,12 @@ var Table = Panel.extend({
     //aliases
 Table.prototype.add = Table.prototype.push;
 var TableCell = Panel.extend({
-      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
+      template : strap.generateSimpleTemplate("td")
     },{
       klass: "TableCell"
     });
 var TableHeader = Panel.extend({
-      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
+      template : strap.generateSimpleTemplate("th")
     },{
       klass: "TableHeader"
     });
@@ -1160,24 +1167,29 @@ var TableRow = Panel.extend({
 
         _.each(this.children, this.throwUnlessCell); //make sure all children are table cells
       },
+
       push: function(component) {
         this.throwUnlessCell(component);
         TableRow.__super__.push.call(this, component);
       },
+
       unshift: function(component) {
         this.throwUnlessCell(component);
         TableRow.__super__.unshift.call(this, component);
       },
+
       insert: function(component, index) {
         this.throwUnlessCell(component);
         TableRow.__super__.insert.apply(this, arguments);
       },
+
       throwUnlessCell: function(cell) {
         if(cell instanceof TableCell || cell instanceof TableHeader) { return; }
 
         throw new TypeError("Rows can only have Cells as children");
       },
-      template: _.template("<tr id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></tr>")
+
+      template: strap.generateSimpleTemplate("tr")
     },{
       klass: "TableRow"
     });
@@ -1185,7 +1197,7 @@ var TableRow = Panel.extend({
 // aliases
 TableRow.prototype.add = TableRow.prototype.push;
 var Textarea = Panel.extend({
-      template : _.template("<textarea id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></textarea>")
+      template : strap.generateSimpleTemplate("textarea")
     }, {
       klass : "Textarea"
     });

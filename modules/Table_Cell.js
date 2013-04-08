@@ -1,5 +1,5 @@
 var TableCell = Panel.extend({
-      template : _.template("<td id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></td>")
+      template : strap.generateSimpleTemplate("td")
     },{
       klass: "TableCell"
     });

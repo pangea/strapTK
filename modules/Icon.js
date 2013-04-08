@@ -7,7 +7,7 @@ var Icon = Panel.extend({
         Typify(this);
       },
 
-      template : _.template("<i id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>></i> <%= yield %>")
+      template : _.template("<i <%= rootAttrs %>></i> <%= yield %>")
     },{
       klass: "Icon",
       types: [

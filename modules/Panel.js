@@ -51,27 +51,32 @@ var Panel = Component.extend({
       // this function can be called with a list of additional attributes that will be included in the output
       listAttributes : function() {
         // convert arguments into an actual array and map the values to the ones attached to this Panel
-        var addAttrs = _.map(Array.prototype.slice.call(arguments, 0), function(val) {
-          // remove empty values
-          if(this[val] === "") {
-            return false;
-          }
+        // the HTML ID is always added to this list
+        var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
+            addAttrs = _.map(args, function(val) {
+              // remove empty values
+              if(this[val] === "") {
+                return false;
+              }
 
-          return val + "='" + this[val] + "'";
-        }, this);
+              return val + "='" + this[val] + "'";
+            }, this),
+            classes = this.listClasses();
+
+        if(classes !== "") {
+          addAttrs.push("class='"+classes+"'");
+        }
 
         // return the combined list
         return this.attributes.join(" ") + " " + _.compact(addAttrs).join(" ");
       },
 
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></div>"),
+      template : strap.generateSimpleTemplate("div"),
 
       render : function() {
         var markup = this.body + this.renderChildren();
         return this.template({
           "yield": markup,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs" : this.listAttributes()
         });
       }

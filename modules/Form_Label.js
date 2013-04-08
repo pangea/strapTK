@@ -1,5 +1,5 @@
 var FormLabel = Panel.extend({
-      template : _.template("<label id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></label>")
+      template : strap.generateSimpleTemplate("label")
     },{
       klass : "FormLabel"
     });

@@ -6,7 +6,7 @@ var HeroUnit = Panel.extend({
 
         this.addClass("hero-unit");
       },
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+      template : _.template("<div <%= rootAttrs %>>"+
                               "<h1><%= title %></h1>"+
                               "<%= yield %>"+
                             "</div>"),
@@ -15,8 +15,6 @@ var HeroUnit = Panel.extend({
         return this.template({
           "yield": markup,
           "title": this.title,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs": this.listAttributes()
         });
       }

@@ -6,9 +6,7 @@ var List = Panel.extend({
         this.childSuffix || (this.childSuffix = "</li>");
       },
 
-      template: _.template( "<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-                              "<%= yield %>"+
-                            "</ul>")
+      template: strap.generateSimpleTemplate("ul")
     },{
       klass: "List"
     });

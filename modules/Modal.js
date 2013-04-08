@@ -8,7 +8,7 @@ var Modal = Panel.extend({
         this.addClass("modal");
       },
 
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+      template : _.template("<div <%= rootAttrs %>>"+
                               "<div class='modal-header'>"+
                                 "<% if(closable) { %>" +
                                   "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
@@ -47,8 +47,6 @@ var Modal = Panel.extend({
           "yield": markup,
           "header":this.header,
           "actions": actionMarkup,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs": this.listAttributes()
         });
       }

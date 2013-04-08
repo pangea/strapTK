@@ -4,7 +4,7 @@ var PageHeader = Panel.extend({
         this.setDefaultValue("", "header");
         this.setDefaultValue(1, "level");
       },
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
+      template : _.template("<div <%= rootAttrs %>>"+
     													"<h<%= level %>>"+
     														"<%= header%> "+
     														"<small><%= yield%></small>"+
@@ -17,8 +17,6 @@ var PageHeader = Panel.extend({
           "yield": markup,
           "header": this.header,
           "level": this.level,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
           "rootAttrs": this.listAttributes()
         });
       }

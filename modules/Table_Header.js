@@ -1,5 +1,5 @@
 var TableHeader = Panel.extend({
-      template : _.template("<th id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></th>")
+      template : strap.generateSimpleTemplate("th")
     },{
       klass: "TableHeader"
     });

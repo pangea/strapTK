@@ -5,7 +5,7 @@ var SelectOption = Panel.extend({
         this.setDefaultValue(this.body, "value");
       },
 
-      template : _.template("<option <%= rootAttrs %>> <%= yield %> </option>"),
+      template : strap.generateSimpleTemplate("option"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "value");

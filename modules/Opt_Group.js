@@ -5,7 +5,7 @@ var OptGroup = Panel.extend({
         this.setDefaultValue("", "label");
       },
 
-      template : _.template("<optgroup <%= rootAttrs %>> <%= yield %> </optgroup>"),
+      template : strap.generateSimpleTemplate("optgroup"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "label");

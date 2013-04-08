@@ -5,7 +5,7 @@ var Image = Panel.extend({
         this.setDefaultValue("", "src");
       },
 
-      template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
+      template : _.template("<img <%= rootAttrs %> />"),
 
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "src");

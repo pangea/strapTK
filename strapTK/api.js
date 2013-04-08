@@ -1034,12 +1034,13 @@ var abstractBadgeHeader = new PageHeader({
                   children: [
                     new P("FormInputs are the input tag analogs in Strap'd.  FormInputs are type aware Components."),
                     new Alert({
-                      body: "<strong>Under the Hood</strong><br/>Originally, I'd designed FormInputs to not be type aware.  However, because I felt they needed a <code>type</code> atribute, I decided to overturn that decision."
-                    })
+                      body: "<strong>Under the Hood</strong><br/>Originally, I'd designed FormInputs to not be type aware.  However, because I felt they needed a <code>type</code> attribute, I decided to overturn that decision.  Plus, it helps that inputs generated using Strap'd can be easily styled using the provided 'base-type' style class names applied to them.",
+                      type: "success"
+                    }),
                     new HR(),
                     //                                                 Constructor
                     new P({
-                      id: "form-constructor",
+                      id: "formInput-constructor",
                       body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
                       classes: ["lead", "function-declaration"]
                     }),
@@ -1054,16 +1055,22 @@ var abstractBadgeHeader = new PageHeader({
                           new TableHeader("Description")
                         ]),
                         new TableRow([
-                          new TableCell("<code>method</code>"),
-                          new TableCell("<strong>String</strong>"),
-                          new TableCell('<strong>"GET"</strong>'),
-                          new TableCell("The HTTP verb used to send this form's data.")
-                        ]),
-                        new TableRow([
-                          new TableCell("<code>action</code>"),
+                          new TableCell("<code>placeholder</code>"),
                           new TableCell("<strong>String</strong>"),
                           new TableCell('<strong>""</strong>'),
-                          new TableCell("The URI this request will be sent to.")
+                          new TableCell("The text to display when the input is empty (does not apply to all input types)")
+                        ]),
+                        new TableRow([
+                          new TableCell("<code>name</code>"),
+                          new TableCell("<strong>String</strong>"),
+                          new TableCell('<strong>""</strong>'),
+                          new TableCell("The HTML name attribute associated with this input.")
+                        ]),
+                        new TableRow([
+                          new TableCell("<code>value</code>"),
+                          new TableCell("<strong>String</strong>"),
+                          new TableCell('<strong>""</strong>'),
+                          new TableCell("The defualt value of this input.")
                         ])
                       ]
                     })

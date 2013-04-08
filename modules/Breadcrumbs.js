@@ -6,9 +6,8 @@ var Breadcrumbs = Panel.extend({
         this.addClass("breadcrumb");
       },
 
-      template : _.template("<ul id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-                              "<%= yield %>"+
-                            "</ul>"),
+      template : strap.generateSimpleTemplate("ul"),
+
       render : function() {
         var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
             last = markup.pop();

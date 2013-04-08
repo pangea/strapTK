@@ -9,7 +9,7 @@ var Link = Panel.extend({
         return FormSelect.__super__.listAttributes.call(this, "href");
       },
 
-      template : _.template("<a id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></a>")
+      template : strap.generateSimpleTemplate("a")
     },{
       klass: "Link"
     });

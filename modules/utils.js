@@ -50,6 +50,11 @@ var strap = new (function() {
           return parse(json);
         }
       }
+
+      // Generate a simple Lo-Dash template
+      this.generateSimpleTemplate = function(tag) {
+        return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
+      }
     })();
 
 /**
@@ -102,14 +107,15 @@ function Extend(parent, protoProps, staticProps) {
 }
 
 /**
- * Decorates the given component with the necessary variables and methods to handle being typed
+ * Decorates the given component with the necessary variables and methods to handle being typed.
  *  A typed object is one that has a "base" and is then further modified with a "type".
  *  E.G. An alert can be an "error" message (and have a "type" of "error")
  *
  * This method does not overwrite any variables set on the decorated component unless it
  *  already has a setType property (which it shouldn't >:[)
  *
- * @param component [Component] the component to be decorated
+ * @param component [Component] the component to be decorated,
+ * @param options   [Object]    the default values of type, base, and types can be defined in this object
  */
 function Typify(component, options) {
   options = _.extend({}, Typify.defaults, options);
@@ -127,11 +133,14 @@ function Typify(component, options) {
       this.addClass(this.base+"-"+type);
     }
   };
-
-  component.constructor.types || (component.constructor.types = options.types);
-
-  component.base  || (component.base  = options.base);
-  component.type  || (component.type  = options.type);
+    // call is used here to force the value of this to be the
+    //  component's constructor instead of the component itself
+  component.setDefaultValue.call(component.constructor, options.types, "types");  // set the types, if not already set
+                                                                                  // types are defined on the constructor because only instance of
+                                                                                  //  the list of types is needed for each instance of this component
+                                                                                  //  In most cases, this function will do nothing
+  component.setDefaultValue(options.base, "base");  // set the base, if not already set
+  component.setDefaultValue(options.type, "type");  // set the type, if not already set
 
   if(component.base) {
     component.addClass(component.base);
@@ -143,7 +152,7 @@ function Typify(component, options) {
 }
 
 Typify.defaults = {
-  types: [],
+  types: [""],
   base: "",
   type: ""
 }

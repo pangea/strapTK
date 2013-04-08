@@ -10,7 +10,7 @@ var Carousel = Panel.extend({
       },
 
       //Gunna have to come back to this one
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>" +
+      template : _.template("<div <%= rootAttrs %>>" +
                               "<% if(controls) { %>" +
                                 "<ol class='carousel-indicators'>" +
                                   "<% _(slides).times(function(i){ %>" +
@@ -42,7 +42,6 @@ var Carousel = Panel.extend({
         return this.template({
           "yield"       : markup,
           "rootID"      : this.id,
-          "rootClasses" : this.listClasses(),
           "rootAttrs"   : this.listAttributes(),
           "controls"    : this.controls,
           "slides"      : this.children.length,
