@@ -1,7 +1,7 @@
 <html lang='en-US' xml:lang='en-US' xmlns='http://www.w3.org/1999/xhtml'>
   <head>
     <link href='../dependencies/bootstrap/css/bootstrap.min.css' rel='stylesheet' />
-    <link href='../dependencies/bootstrap/css/bootstrap-repsponsive.min.css' rel='stylesheet' />
+    <link href='../dependencies/bootstrap/css/bootstrap-responsive.min.css' rel='stylesheet' />
     <link href='../dependencies/font-awesome/font-awesome.min.css' rel='stylesheet' />
     <link href='testing.css' rel='stylesheet' />
     <script src='../dependencies/lodash.min.js'></script>
@@ -9,101 +9,10 @@
     <script src='../dependencies/bootstrap/js/bootstrap.min.js'></script>
     <script src='../strapTK.js'></script>
     <!-- / GET STRAP'D -->
+    <script src='page.js'></script>
     <script src='home.js'></script>
     <script src='api.js'></script>
     <script src='about.js'></script>
-    <script type='text/javascript'>
-      //<![CDATA[
-        var page = new Viewport({
-          children: [
-            new Panel({
-              id: "header-wrapper",
-              children: [
-                new HeroUnit({
-                  id: "header",
-                  title: "Strap'd ToolKit",
-                  body: "An extensible framework for building HTML markup using Bootstrap, Font-Awesome, Lo-Dash, and jQuery.",
-                  children: [
-                    new NavBar({
-                      id: "header-nav",
-                      children: [
-                        new Panel({
-                          id: "navbar-format",
-                          children: [
-                            new Link({
-                              body: "Home",
-                              id: "home-link",
-                              classes: ["brand"],
-                              href: "#home"
-                            }),
-                            new Nav({
-                              divided: true,
-                              id: "nav-tabs",
-                              children: [
-                                new Raw(""),
-                                new Link({
-                                  body: "Get Strap'd",
-                                  id: "dl-link",
-                                  href: "../strapTK.min.js"
-                                }),
-                                new Link({
-                                  body: "API Docs",
-                                  id: "api-link",
-                                  href: "#api"
-                                }),
-                                new Link({
-                                  body: "About",
-                                  id: "about-link",
-                                  href: "#about"
-                                }),
-                                new Raw("")
-                              ]
-                            })
-                          ]
-                        })
-                      ]
-                    })
-                  ]
-                })
-              ]
-            }),
-            new Panel({
-              id: "content-wrapper",
-              classes: ["tab-content"],
-              children: [
-                new Panel({
-                  id: "home",
-                  classes: ["tab-pane", "fade", "in", "active"]
-                }),
-                new Panel({
-                  id: "api",
-                  classes: ["tab-pane", "fade", "in"]
-                }),
-                new Panel({
-                  id: "about",
-                  classes: ["tab-pane", "fade", "in"]
-                })
-              ]
-            })
-          ]
-        });
-        
-        $(function() {
-          page.render();
-          home.render();
-          api.render();
-          about.render();
-        
-          $('#header-nav a').on("click", function(e) {
-            e.preventDefault();
-            $(this).tab("show");
-            if($(this).is("#home-link")) {
-              $("#nav-tabs .active").removeClass("active");
-            }
-          });
-        });
-      //]]>
-    </script>
   </head>
   <body></body>
 </html>
