@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.1.0 Copyright 2013 to Chris Hall
+ * Strap'd ToolKit v 0.1.1 Copyright 2013 to Chris Hall
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
 ;
@@ -163,12 +163,17 @@ Typify.defaults = {
   type: ""
 }
 ;
-/*
-  Component - Base Class
-    Components are generic objects that can add and remove children and render themselves
-*/
+/**
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class
+ * Generic Class that can apply arbitrary fields to itself and is extendable.
+ * Base objects cannot be created directly as they lack an #initialize function.
+ *
+ * @param {Object|Array}  [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+ * @param {Object}        [options={}]     Passed to the initialize function (currently unused by any default component)
+ */
 
-function Component(attributes, options)  {
+function Base(attributes, options)  {
   var attrs = attributes || {},
       opts = options || {};
 
@@ -183,26 +188,71 @@ function Component(attributes, options)  {
   this.initialize(opts);
 };
 
-
-Component.extend = function(protoProps, staticProps) {
+/**
+ * Wrapper for the Extend function to provide this as the parent of the new object
+ *
+ * @see Extend
+ */
+Base.extend = function(protoProps, staticProps) {
   return Extend(this, protoProps, staticProps);
 };
 
-Component = Component.extend({
-
+/**
+ * @class Components are generic objects that can add and remove children and render themselves
+ * @extends Base
+ */
+var Component = Base.extend(
+    /**
+     * @lends Component#
+     */
+    {
+      /**
+       * Initializes Components with default values and performs sanity checks
+       *
+       * @param {Object} [args] Additional arguments (currently unused)
+       */
       initialize : function(args) {
+        /**
+         * The child components of this component
+         *
+         * @name children
+         * @field
+         * @default []
+         */
         this.setDefaultValue([], "children");
 
         _.each(this.children, function(child) {
           this.checkIfRenderable(child);
         }, this);
 
+        /**
+         * The string to prefix to each child's rendered markup
+         *
+         * @name childPrefix
+         * @field
+         * @default []
+         */
         this.setDefaultValue("", "childPrefix", "childSuffix");
-          // used for deserialization from JSON
+
+        /** used for deserialization from JSON */
         this.klass = this.constructor.klass;
       },
 
-      setDefaultValue: function(value) {
+      /**
+       * Sets the value of a field, if and only if it hasn't been defined on this object.
+       * That is, it defines the value if Object.field was set on this Object and not in this Object's prototype chain.
+       *
+       * This method accepts a variable number of attibutes.
+       * E.G.
+       * <code>this.setDefaultValue("", "childPrefix", "childSuffix")</code>
+       *
+       * @param value The value to assign
+       * @param {String} attribute The key to assign a value.
+       *
+       * @example
+       * this.setDefaultValue("", "childPrefix", "childSuffix");
+       */
+      setDefaultValue: function(value, attribute) {
         var args = Array.prototype.slice.call(arguments, 1),      // get the list of attributes to apply the value to
             method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
 
