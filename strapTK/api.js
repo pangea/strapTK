@@ -1288,7 +1288,7 @@ var abstractBadgeHeader = new PageHeader({
                   ]
                 }),
                 //
-                //                                                Viewport Documentation
+                //                                                    Viewport Documentation
                 //
                 new Panel({
                   id: "viewport-wrapper",
@@ -1296,7 +1296,7 @@ var abstractBadgeHeader = new PageHeader({
                   children: [
                     new P("The Viewport class provides the means to render Components to the screen.  This is the only class that interacts directly with the DOM."),
                     new HR(),
-                    //                                                 Constructor
+                    //                                                     Constructor
                     new P({
                       id: "viewport-constructor",
                       body: "<strong>Constructor</strong> arguments: [attributes (Object|Array), options]",
@@ -1321,7 +1321,7 @@ var abstractBadgeHeader = new PageHeader({
                       ]
                     }),
                     new HR(),
-                    //                                                    Render
+                    //                                                       Render
                     new P({
                       id: "viewport-render",
                       body: "<strong>render</strong>",
@@ -1334,7 +1334,7 @@ var abstractBadgeHeader = new PageHeader({
               ]
             }),
             //
-            //                                                     Utility Documentation
+            //                                                       Utility Documentation
             //
             new PageHeader({
               header: "Utilities",
@@ -1345,7 +1345,7 @@ var abstractBadgeHeader = new PageHeader({
               id: "utilities",
               children: [
                 //
-                //                                                  Extend Documentation
+                //                                                   Extend Documentation
                 //
                 new Panel({
                   id: "extend-wrapper",

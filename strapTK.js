@@ -299,8 +299,18 @@ Component = Component.extend({
         return this.template({"yield": this.renderChildren()});
       },
 
-      toString : function() {
-        return this.render();
+      /**
+       * Provide a useful toString method
+       */
+      toString : function(asJSON) {
+        return asJSON ? JSON.stringify(this) : this.render();
+      },
+
+      /**
+       * Create a deep clone of this Component
+       */
+      clone : function() {
+        return strap.build(this.toString(true));
       }
 
     },{
@@ -825,7 +835,7 @@ var Image = Panel.extend({
       initialize : function(args) {
         Image.__super__.initialize.call(this, args);
 
-        this.setDefaultValue("", "src");
+        this.setDefaultValue(this.body, "src");
       },
 
       template : _.template("<img <%= rootAttrs %> />"),
@@ -844,6 +854,11 @@ var Label = AbstractBadge.extend({
       }
     },{
       klass: "Label"
+    });
+var Legend = Panel.extend({
+      template: strap.generateSimpleTemplate("legend")
+    }, {
+      klass: "Legend"
     });
 function LineBreak() { this.klass = "LineBreak"; }
 LineBreak.prototype.render = function() {
@@ -1114,6 +1129,32 @@ var SelectOption = Panel.extend({
       }
     }, {
       klass : "SelectOption"
+    });
+var Source = Panel.extend({
+      initialize : function(args) {
+        Source.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("", "src");
+        this.setDefaultValue({}, "data");
+
+        //set up Fetching here, if src exists
+      },
+
+      template : function() { throw "Not Implemented"; },
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "data" : this.data,
+          "rootAttrs" : this.listAttributes()
+        });
+      }
+    });
+var Span = Panel.extend({
+      template: strap.generateSimpleTemplate("span")
+    }, {
+      klass: "Span"
     });
 var Table = Panel.extend({
       initialize: function(args) {
