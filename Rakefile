@@ -28,7 +28,8 @@ end
 namespace :site do
   desc "[private] Sets up the paths to build the StrapTK site"
   task :set_path => :configure_sprockets do
-    @sprok_env.append_path "strapTK/"
+    @sprok_env.append_path "stylesheets/"
+    @sprok_env.append_path "."
   end
 
   desc "Build site files"
@@ -38,7 +39,7 @@ namespace :site do
 
     @sprok_env.register_engine ".haml", Tilt::HamlTemplate
 
-    @sprok_env["testing.scss"].write_to "strapTK/testing.css"
-    @sprok_env["index.html.haml"].write_to "strapTK/index.html"
+    @sprok_env["testing.scss"].write_to "stylesheets/testing.css"
+    @sprok_env["index.html.haml"].write_to "index.html"
   end
 end
