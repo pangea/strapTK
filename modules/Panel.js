@@ -1,12 +1,38 @@
-var Panel = Component.extend({
+var Panel = Component.extend(
+    /** @lends Panel# */
+    {
+      /**
+       * Extends the functionality of the Base contstructor to also allow a String to be passed as attributes.
+       * If attributes is a String, it's used as the body of the resulting Panel.
+       *
+       * @class
+       * Panels are components designed to work with the DOM.
+       * They have templates that return HTML and fields and methods for working with HTML markup.
+       * Aliased as Div
+       *
+       * @extends Component
+       *
+       * @property {String[]} classes     The list of classes for this Panel
+       * @property {String[]} attributes  The list of attributes for this Panel (can be any valid XML attribute)
+       * @property {String}   id          The CSS ID of this Panel
+       * @property {String}   body        The text and/or markup that makes up this Panel
+       *
+       * @constructs
+       *
+       * @param {Object|Array|String} [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+       * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
+       *
+       * @see Base
+       */
       constructor: function(attributes, options) {
         if(typeof(attributes) == "string") {
           attributes = {body: attributes};
         }
 
-        Panel.__super__.constructor.apply(this, arguments);
+        Panel.__super__.constructor.call(this, attributes, options);
       },
 
+      /** @see Component#initialize */
       initialize: function(args) {
         Panel.__super__.initialize.call(this, args);
 
@@ -14,6 +40,14 @@ var Panel = Component.extend({
         this.setDefaultValue("", "id", "body");
       },
 
+      /**
+       * Adds classes to the list of classes
+       * This function accepts a variable number of arguments
+       * this function is chainable
+       *
+       * @param {String} newClass The new class to be added
+       * @returns {Panel} this
+       */
       addClass : function() {
         // gather up the classes to be added
         var newClasses = Array.prototype.slice.call(arguments, 0);
@@ -22,6 +56,14 @@ var Panel = Component.extend({
         return this;
       },
 
+      /**
+       * Removes classes to the list of classes
+       * This function accepts a variable number of arguments
+       * this function is chainable
+       *
+       * @param {String} oldClass The new class to be removed
+       * @returns {Panel} this
+       */
       removeClass : function() {
         // gather up the classes to be removed, and add them to an array
         // the final result is [[list, of, current, classes], list, of, classes, to, be, removed]
@@ -32,47 +74,97 @@ var Panel = Component.extend({
         return this;
       },
 
+      /**
+       * Adds or removes classes from the list of classes
+       * This function accepts a variable number of arguments
+       * this function is chainable
+       *
+       * @param {String} theClass The class to be toggled
+       * @returns {Panel} this
+       */
       toggleClass : function() {
-        var theClasses = Array.prototype.slice.call(arguments, 0);
-        _.each(theClasses, function(theClass) {
-          if(_.include(this.classes, theClass)) {
-            this.removeClass(theClass);
-          } else {
-            this.addClass(theClass);
-          }
-        }, this);
+        var theClasses = Array.prototype.slice.call(arguments, 0),
+            existingClasses = _.intersection(this.classes, theClasses);
+
+        // Essentially, what we're doing here is combining the classes to be toggled
+        //  with the current list of classes to add any new ones.
+        // Then, we're removing the ones that existed in both lists prior to the union
+        this.classes = _.without(_.union(this.classes, theClasses), existingClasses);
+
         return this;
       },
 
+      /**
+       * Helper method to stringify the class array for DOM insertion
+       *
+       * @returns {String} The list of classes, space separated.
+       */
       listClasses : function() {
         return this.classes.join(" ");
       },
 
-      // this function can be called with a list of additional attributes that will be included in the output
+      /**
+       * Compiles all the HTML attributes and returns them in a manner acceptable for DOM insertion
+       * This method always tries to attach the ID and classes of the Panel
+       * If supplied string keys as arguments, it will attempt to add these keys to the attribute output in the following form:
+       * key='value_of_key'
+       *
+       * If the key has no value or is not defined, it is not added to the list
+       *
+       * @param {String} [addAttr]  Additional attribute to be added to the compiled list of attributes
+       *
+       * @returns {String} A space separated list of attributes ready for use in the DOM
+       */
       listAttributes : function() {
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
-            addAttrs = _.map(args, function(val) {
+            addAttrs = _.map(args, function(key) {
               // remove empty values
-              if(this[val] === "") {
+              if(this[key] === "" || typeof(this[key]) === "undefined") {
                 return false;
               }
 
-              return val + "='" + this[val] + "'";
+              return key + "='" + this[key] + "'";
             }, this),
             classes = this.listClasses();
 
+        // Add the classes, if any
         if(classes !== "") {
           addAttrs.push("class='"+classes+"'");
         }
 
         // return the combined list
-        return this.attributes.join(" ") + " " + _.compact(addAttrs).join(" ");
+        return _.union(this.attributes, addAttrs).join(" ");
       },
 
+      /**
+       * Panels and their subclasses all define HTML markup templates.
+       * Panel templates are very simple, and are built using the {@link Strap#generateSimpleTemplate} method
+       *
+       * @param {Object} args           The data used to construct the template
+       * @param {Object} args.yield     The main body of the template
+       * @param {Object} args.rootAttrs The HTML attributes of the root HTML element of the template
+       *
+       * @returns {String} the HTML markup for this Panel
+       *
+       * @see Panel#render
+       * @see Strap#generateSimpleTemplate
+       * @see <a href='http://lodash.com/docs#template' target='_dash'>Lo-Dash's Template Docs</a>
+       */
       template : strap.generateSimpleTemplate("div"),
 
+      /**
+       * Panel#render, much like Component#render, compiles the markup of all child Components.
+       * However, it prepends the body field to the markup returned by #renderChildren.
+       * It then passes this combined markup as the yield property of the object passed into #template
+       * It also passes the result of #listAttributes as the rootAttrs property of the object passed into the template
+       *
+       * @returns {String} the HTML markup for this Panel
+       *
+       * @see Panel#template
+       * @see Component#renderChildren
+       */
       render : function() {
         var markup = this.body + this.renderChildren();
         return this.template({
@@ -80,7 +172,10 @@ var Panel = Component.extend({
           "rootAttrs" : this.listAttributes()
         });
       }
-    },{
+    },
+    /** @lends Panel */
+    {
       klass: "Panel"
     }),
+    /** @ignore */
     Div = Panel;

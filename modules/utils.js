@@ -3,7 +3,7 @@
  *  entire page (e.g. setting all elements as draggable)
  */
 var strap = new (function() {
-      /**
+      /**#nocode+
        * @WIP
        */
       this.allDraggable = function(draggable) {
@@ -13,10 +13,19 @@ var strap = new (function() {
           $("body").find("*").removeAttr("draggable")
         }
       }
+      /**#nocode- */
 
       // Constructs Strap'd Objects from JSON
       this.build = function(json) {
 
+        /**
+         * Parses the JSON and produces Strap'd classes
+         * Some Magic happens here
+         *
+         * @private
+         *
+         * @returns {Object} A Strap'd object
+         */
         function parse(json) {
           var obj,
               name = json.klass,
@@ -25,28 +34,36 @@ var strap = new (function() {
           delete json.klass;
           delete json.children;
 
+          // Create the base strap'd class
           obj = new window[name](json);
 
+          // Check if the object was manually typified
+          if(obj.type && !obj.setType) {
+            Typify(obj);  // and typify it
+          }
+
+          // Parse the list of children
           if(children && _.isArray(children) && children.length) {
             _(children).each(function(child) {
-              obj.add(parse(child));
+              obj.add(parse(child)); // Parse each child and add it to the main object's list of children
             });
           }
 
           return obj;
         }
 
+        // Check if the JSON needs parsing
         if(typeof(json) === "string") {
           json = JSON.parse(json);
         }
 
         if(_.isArray(json)) {
-          var _ret = [];
-          _(json).each(function(obj) {
-            _ret.push(parse(obj));
-          });
-          return _ret;
+          // If we have an array of objects, we need to parse each of them
+          var ret = [];
+          _(json).each(function(obj) { ret.push(parse(obj)); });
+          return ret;
         } else {
+          // Otherwise, we just parse what we have
           return parse(json);
         }
       }
@@ -64,6 +81,8 @@ var strap = new (function() {
  *
  * The only modification made to this function is to add 'parent' as an argument instead
  *  of having the function be added to an object.
+ *
+ * @function
  *
  * @param parent [Object] the object to be extended
  * @param protoProps [Object] the properties to add to the new object's prototype
