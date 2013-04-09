@@ -1,0 +1,69 @@
+#header {
+  text-align: center; }
+
+#header-nav {
+  margin: 20px -60px -60px;
+  border-radius: 0px; }
+  #header-nav .navbar-inner {
+    border-radius: 0px; }
+  #header-nav .divider-vertical {
+    padding: 5px 0px;
+    margin: 0; }
+
+#navbar-format {
+  width: 900px;
+  margin: 0 auto; }
+
+#todo-list {
+  list-style: none;
+  margin-left: 0px; }
+
+#api .table th {
+  text-align: center; }
+
+#object-list h3, #utilities h3 {
+  margin: 0px; }
+#object-list .accordion-heading, #utilities .accordion-heading {
+  background-color: #fafafa;
+  background-image: -moz-linear-gradient(top, white, #f2f2f2);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(#f2f2f2));
+  background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+  background-image: -o-linear-gradient(top, white, #f2f2f2);
+  background-image: linear-gradient(to bottom, white, #f2f2f2); }
+#object-list a.accordion-toggle, #utilities a.accordion-toggle {
+  color: #333; }
+  #object-list a.accordion-toggle:hover, #utilities a.accordion-toggle:hover {
+    text-decoration: none; }
+#object-list .accordion-body, #utilities .accordion-body {
+  box-shadow: 0px 0px 20px 5px #eeeeee inset; }
+
+#example-carousel {
+  width: 350px;
+  height: 250px;
+  margin: 0 auto; }
+
+.main {
+  width: 900px;
+  margin: 0 auto; }
+
+/*.content {
+  max-height: 100%;
+  overflow: auto;
+}*/
+.well {
+  color: #333; }
+
+.function-declaration {
+  background: #fff;
+  padding: 5px 20px;
+  border: 1px solid #dedede;
+  margin: 0 -20px 21px;
+  font-size: 18px;
+  color: darkgreen; }
+  .function-declaration strong {
+    color: darkblue; }
+  .function-declaration small {
+    display: block;
+    color: black; }
+  .function-declaration span {
+    color: red; }

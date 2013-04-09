@@ -1,0 +1,101 @@
+#header {
+  text-align: center;
+}
+
+#header-nav {
+  margin: 20px -60px -60px;
+  border-radius: 0px;
+
+  .navbar-inner {
+    border-radius: 0px;
+  }
+
+  .divider-vertical {
+    padding: 5px 0px;
+    margin: 0;
+  }
+}
+
+#navbar-format {
+  width: 900px;
+  margin: 0 auto;
+}
+
+#todo-list {
+  list-style: none;
+  margin-left: 0px;
+}
+
+#api .table th {
+  text-align: center;
+}
+
+#object-list, #utilities {
+
+  h3 {
+    margin: 0px;
+  }
+
+  .accordion-heading {
+    background-color: #fafafa;
+    background-image: -moz-linear-gradient(top, #ffffff, #f2f2f2);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f2f2f2));
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+  }
+
+  a.accordion-toggle {
+    color: #333;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .accordion-body {
+    box-shadow: 0px 0px 20px 5px #eee inset;
+  }
+}
+
+#example-carousel {
+  width: 350px;
+  height: 250px;
+  margin: 0 auto;
+}
+
+.main {
+  width: 900px;
+  margin: 0 auto;
+}
+
+/*.content {
+  max-height: 100%;
+  overflow: auto;
+}*/
+
+.well {
+  color: #333;
+}
+
+.function-declaration {
+  background: #fff;
+  padding: 5px 20px;
+  border: 1px solid #dedede;
+  margin: 0 -20px 21px;
+  font-size: 18px;
+  color: darkgreen;
+
+  strong {
+    color: darkblue;
+  }
+
+  small {
+    display: block;
+    color: black;
+  }
+
+  span {
+    color: red;
+  }
+}
