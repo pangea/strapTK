@@ -1,6 +1,5 @@
 /**
- * The strap object contains a set of global functions that apply to the
- *  entire page (e.g. setting all elements as draggable)
+ * The strap object contains a set of global functions that apply to the entire page
  */
 var strap = new (function() {
       /**#nocode+
@@ -15,14 +14,23 @@ var strap = new (function() {
       }
       /**#nocode- */
 
-      // Constructs Strap'd Objects from JSON
+      /**
+       * Constructs Strap'd objects from JSON.
+       * While it is possible to pass a Strap'd object into this function and receive a
+       * fully functional object out, the original object will be altered.
+       *
+       * @param {String|Object|Array} json The JSON string or object to be converted
+       *
+       * @returns {Object|Object[]} The result of building the Strap'd objects
+       */
       this.build = function(json) {
 
         /**
          * Parses the JSON and produces Strap'd classes
-         * Some Magic happens here
          *
          * @private
+         *
+         * @oaram {String|Object|Array} json The JSON string or Object to be parsed
          *
          * @returns {Object} A Strap'd object
          */
@@ -60,7 +68,7 @@ var strap = new (function() {
         if(_.isArray(json)) {
           // If we have an array of objects, we need to parse each of them
           var ret = [];
-          _(json).each(function(obj) { ret.push(parse(obj)); });
+          _.each(json, function(obj) { ret.push(parse(obj)); });
           return ret;
         } else {
           // Otherwise, we just parse what we have
@@ -68,7 +76,13 @@ var strap = new (function() {
         }
       }
 
-      // Generate a simple Lo-Dash template
+      /**
+       * Generates a simple template with the given tag
+       *
+       * @param {String} tag The HTML tag to use
+       *
+       * @returns {Function} A function that can be used to compile the template
+       */
       this.generateSimpleTemplate = function(tag) {
         return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
       }
@@ -170,6 +184,7 @@ function Typify(component, options) {
   }
 }
 
+/** @constant */
 Typify.defaults = {
   types: [""],
   base: "",
