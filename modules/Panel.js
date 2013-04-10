@@ -109,7 +109,9 @@ var Panel = Component.extend(
        * If supplied string keys as arguments, it will attempt to add these keys to the attribute output in the following form:
        * key='value_of_key'
        *
-       * If the key has no value or is not defined, it is not added to the list
+       * If the key has no value or is not defined, it is not added to the list.
+       * A key is considered to have no value if it is === "".
+       * If you need an attribute to have this value, you should manually add it to the list of attributes.
        *
        * @param {String} [addAttr]  Additional attribute to be added to the compiled list of attributes
        *
@@ -119,6 +121,7 @@ var Panel = Component.extend(
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
+            classes = this.listClasses(),
             addAttrs = _.map(args, function(key) {
               // remove empty values
               if(this[key] === "" || typeof(this[key]) === "undefined") {
@@ -126,8 +129,7 @@ var Panel = Component.extend(
               }
 
               return key + "='" + this[key] + "'";
-            }, this),
-            classes = this.listClasses();
+            }, this);
 
         // Add the classes, if any
         if(classes !== "") {
@@ -140,7 +142,7 @@ var Panel = Component.extend(
 
       /**
        * Panels and their subclasses all define HTML markup templates.
-       * Panel templates are very simple, and are built using the {@link Strap#generateSimpleTemplate} method
+       * The Panel template is very simple, and is built using the {@link Strap#generateSimpleTemplate} method
        *
        * @param {Object} args           The data used to construct the template
        * @param {Object} args.yield     The main body of the template
