@@ -1,6 +1,6 @@
 var DropdownMenu = List.extend({
       initialize : function(args) {
-        Dropdown.__super__.initialize.call(this, args);
+        DropdownMenu.__super__.initialize.call(this, args);
 
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
