@@ -620,14 +620,14 @@ var Panel = Component.extend(
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
             classes = this.listClasses(),
-            addAttrs = _.map(args, function(key) {
+            addAttrs = _(args).map(function(key) {
               // remove empty values
               if(this[key] === "" || typeof(this[key]) === "undefined") {
                 return false;
               }
 
               return key + "='" + this[key] + "'";
-            }, this);
+            }, this).compact().value();
 
         // Add the classes, if any
         if(classes !== "") {
@@ -1398,12 +1398,12 @@ var ProgressBar = Panel.extend({
     });
 function Raw(attrs) {
   // the idea here is you can send in an object with the field body or just a string for the body
-  this.text = attrs.body || attrs;
+  this.body = attrs.body || attrs;
   this.klass = "Raw"
 }
 
 Raw.prototype.render = function() {
-  return this.text;
+  return this.body;
 }
 ;
 var SelectOption = Panel.extend({
