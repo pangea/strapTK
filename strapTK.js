@@ -491,7 +491,7 @@ var Viewport = Component.extend({
         this.setDefaultValue("body", "root");
       },
       render : function() {
-        return $(this.root).empty().append(this.renderChildren());
+        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"
