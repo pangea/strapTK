@@ -1,4 +1,4 @@
-var Dropdown = List.extend({
+var DropdownMenu = List.extend({
       initialize : function(args) {
         Dropdown.__super__.initialize.call(this, args);
 
@@ -8,5 +8,5 @@ var Dropdown = List.extend({
         this.addClass("dropdown-menu");
       }
     },{
-      klass: "Dropdown"
+      klass: "DropdownMenu"
     });
