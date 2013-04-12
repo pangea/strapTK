@@ -13,7 +13,7 @@ var Modal = Panel.extend({
                                 "<% if(closable) { %>" +
                                   "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
                                 "<% } %>" +
-                                "<h3><%= header %></h3>"+
+                                "<%= header %>"+
                               "</div>"+
                               "<div class='modal-body'><%= yield%></div>"+
                               "<div class='modal-footer'><%= actions %></div>"+
