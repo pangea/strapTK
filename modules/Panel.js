@@ -122,14 +122,14 @@ var Panel = Component.extend(
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
             classes = this.listClasses(),
-            addAttrs = _.map(args, function(key) {
+            addAttrs = _(args).map(function(key) {
               // remove empty values
               if(this[key] === "" || typeof(this[key]) === "undefined") {
                 return false;
               }
 
               return key + "='" + this[key] + "'";
-            }, this);
+            }, this).compact().value();
 
         // Add the classes, if any
         if(classes !== "") {

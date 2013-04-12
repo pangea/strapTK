@@ -491,7 +491,7 @@ var Viewport = Component.extend({
         this.setDefaultValue("body", "root");
       },
       render : function() {
-        return $(this.root).empty().append(this.renderChildren());
+        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"
@@ -620,14 +620,14 @@ var Panel = Component.extend(
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
             classes = this.listClasses(),
-            addAttrs = _.map(args, function(key) {
+            addAttrs = _(args).map(function(key) {
               // remove empty values
               if(this[key] === "" || typeof(this[key]) === "undefined") {
                 return false;
               }
 
               return key + "='" + this[key] + "'";
-            }, this);
+            }, this).compact().value();
 
         // Add the classes, if any
         if(classes !== "") {
@@ -960,13 +960,18 @@ var ContentRow = Panel.extend({
 
         _.each(this.children, function(child) {
           rowWidth -= (child.span || 0);
-          fluidChildren -= (child.span ? 1 : 0);
+          fluidChildren -= (isNaN(child.span) ? 0 : 1);
         });
 
         var span = Math.floor(rowWidth/fluidChildren),
             markup = "";
         _.each(this.children, function(child) {
-          markup += "<div class='span"+(child.span || span)+"'>" + prefix + child.render() + suffix + "</div>";
+          var childMarkup = prefix + child.render() + suffix;
+          if(child.span !== 0) {
+            childMarkup = "<div class='span"+(child.span || span)+"'>" + childMarkup + "</div>";
+          }
+
+          markup += childMarkup;
         });
         return markup;
       },
@@ -978,9 +983,9 @@ var ContentRow = Panel.extend({
     },{
       klass: "ContentRow"
     });
-var Dropdown = List.extend({
+var DropdownMenu = List.extend({
       initialize : function(args) {
-        Dropdown.__super__.initialize.call(this, args);
+        DropdownMenu.__super__.initialize.call(this, args);
 
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
@@ -988,7 +993,7 @@ var Dropdown = List.extend({
         this.addClass("dropdown-menu");
       }
     },{
-      klass: "Dropdown"
+      klass: "DropdownMenu"
     });
 var Form = Panel.extend({
       initialize : function(args) {
@@ -1415,12 +1420,12 @@ var ProgressBar = Panel.extend({
     });
 function Raw(attrs) {
   // the idea here is you can send in an object with the field body or just a string for the body
-  this.text = attrs.body || attrs;
+  this.body = attrs.body || attrs;
   this.klass = "Raw"
 }
 
 Raw.prototype.render = function() {
-  return this.text;
+  return this.body;
 }
 ;
 var SelectOption = Panel.extend({
