@@ -1038,6 +1038,24 @@ var FormSelect = Panel.extend({
     },{
       klass : "FormSelect"
     });
+var Header = Panel.extend({
+      initialize: function(args) {
+        Header.__super__.initialize.call(this, args);
+        this.setDefaultValue(1, "level");
+      },
+      template : strap.generateSimpleTemplate("h<%= level %>"),
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "level": this.level,
+          "rootAttrs": this.listAttributes()
+        });
+      }
+    },{
+      klass: "Header"
+    });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
@@ -1286,15 +1304,14 @@ var OptGroup = Panel.extend({
     },{
       klass: "OptGroup"
     });
-var PageHeader = Panel.extend({
+var PageHeader = Header.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
         this.setDefaultValue("", "header");
-        this.setDefaultValue(1, "level");
       },
       template : _.template("<div <%= rootAttrs %>>"+
     													"<h<%= level %>>"+
-    														"<%= header%> "+
+    														"<%= header %> "+
     														"<small><%= yield%></small>"+
     													"</h<%= level %>>"+
     												"</div>"),
