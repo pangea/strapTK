@@ -1,3 +1,39 @@
+/**
+ * Defines the base constructor for all Strap'd Components (except Raw, HorizontalRule, and LineBreak).
+ * If attributes is an Array, it will be used as the list of children for the resulting Component.
+ *
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class
+ * Generic Class that can apply arbitrary fields to itself and is extendable.
+ * Base objects cannot be created directly as they lack an #initialize function.
+ *
+ * @param {Object|Array}  [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+ * @param {Object}        [options={}]     Passed to the initialize function (currently unused by any default component)
+ */
+
+function Base(attributes, options)  {
+  var attrs = attributes || {},
+      opts = options || {};
+
+  if(_.isArray(attrs)) {
+    attrs = {children: attrs};
+  }
+
+  for(attr in attrs) {
+    this[attr] = attrs[attr];
+  }
+
+  this.initialize(opts);
+};
+
+/**
+ * Wrapper for the Extend function to provide this as the parent of the new object
+ *
+ * @see Extend
+ */
+Base.extend = function(protoProps, staticProps) {
+  return Extend(this, protoProps, staticProps);
+};
 /*
  * Strap'd ToolKit v 0.1.1 Copyright 2013 to Chris Hall
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -9,7 +45,7 @@
  */
 
 var strap = new (function() {
-      /**
+      /**#nocode+
        * @WIP
        */
       this.allDraggable = function(draggable) {
@@ -19,10 +55,19 @@ var strap = new (function() {
           $("body").find("*").removeAttr("draggable")
         }
       }
+      /**#nocode- */
 
       // Constructs Strap'd Objects from JSON
       this.build = function(json) {
 
+        /**
+         * Parses the JSON and produces Strap'd classes
+         * Some Magic happens here
+         *
+         * @private
+         *
+         * @returns {Object} A Strap'd object
+         */
         function parse(json) {
           var obj,
               name = json.klass,
@@ -31,28 +76,36 @@ var strap = new (function() {
           delete json.klass;
           delete json.children;
 
+          // Create the base strap'd class
           obj = new window[name](json);
 
+          // Check if the object was manually typified
+          if(obj.type && !obj.setType) {
+            Typify(obj);  // and typify it
+          }
+
+          // Parse the list of children
           if(children && _.isArray(children) && children.length) {
             _(children).each(function(child) {
-              obj.add(parse(child));
+              obj.add(parse(child)); // Parse each child and add it to the main object's list of children
             });
           }
 
           return obj;
         }
 
+        // Check if the JSON needs parsing
         if(typeof(json) === "string") {
           json = JSON.parse(json);
         }
 
         if(_.isArray(json)) {
-          var _ret = [];
-          _(json).each(function(obj) {
-            _ret.push(parse(obj));
-          });
-          return _ret;
+          // If we have an array of objects, we need to parse each of them
+          var ret = [];
+          _(json).each(function(obj) { ret.push(parse(obj)); });
+          return ret;
         } else {
+          // Otherwise, we just parse what we have
           return parse(json);
         }
       }
@@ -70,6 +123,8 @@ var strap = new (function() {
  *
  * The only modification made to this function is to add 'parent' as an argument instead
  *  of having the function be added to an object.
+ *
+ * @function
  *
  * @param parent [Object] the object to be extended
  * @param protoProps [Object] the properties to add to the new object's prototype
@@ -164,43 +219,14 @@ Typify.defaults = {
 }
 ;
 /**
- * @author Chris Hall (chall8908@gmail.com)
- * @class
- * Generic Class that can apply arbitrary fields to itself and is extendable.
- * Base objects cannot be created directly as they lack an #initialize function.
- *
- * @param {Object|Array}  [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
- * @param {Object}        [options={}]     Passed to the initialize function (currently unused by any default component)
- */
-
-function Base(attributes, options)  {
-  var attrs = attributes || {},
-      opts = options || {};
-
-  if(_.isArray(attrs)) {
-    attrs = {children: attrs};
-  }
-
-  for(attr in attrs) {
-    this[attr] = attrs[attr];
-  }
-
-  this.initialize(opts);
-};
-
-/**
- * Wrapper for the Extend function to provide this as the parent of the new object
- *
- * @see Extend
- */
-Base.extend = function(protoProps, staticProps) {
-  return Extend(this, protoProps, staticProps);
-};
-
-/**
  * @class Components are generic objects that can add and remove children and render themselves
  * @extends Base
+ *
+ * @property {String[]} children    This component's children.
+ * @property {String}   childPrefix The string to prepend to each child's rendered markup.
+ * @property {String}   childSuffix The string to append to each child's rendered markup.
  */
+
 var Component = Base.extend(
     /**
      * @lends Component#
@@ -212,29 +238,13 @@ var Component = Base.extend(
        * @param {Object} [args] Additional arguments (currently unused)
        */
       initialize : function(args) {
-        /**
-         * The child components of this component
-         *
-         * @name children
-         * @field
-         * @default []
-         */
+
         this.setDefaultValue([], "children");
 
-        _.each(this.children, function(child) {
-          this.checkIfRenderable(child);
-        }, this);
+        _.each(this.children, this.checkIfRenderable);
 
-        /**
-         * The string to prefix to each child's rendered markup
-         *
-         * @name childPrefix
-         * @field
-         * @default []
-         */
         this.setDefaultValue("", "childPrefix", "childSuffix");
 
-        /** used for deserialization from JSON */
         this.klass = this.constructor.klass;
       },
 
@@ -263,37 +273,79 @@ var Component = Base.extend(
         }, this);
       },
 
-      //Default template function
-      //Subcomponents should override this method to provide proper markup
+      /**
+       * Used to compile the markup for this Component.
+       *  By default, Components only return the yield field in the supplied args
+       *
+       * Subclasses of Component should override template to provide proper markup
+       *
+       * @param {Object} args       The arguments used to build this Component's markup
+       * @param {String} args.yield The body and compiled children of this Component
+       *
+       * @returns {String} Returns args.yield
+       */
       template : function(args) {
         return args.yield;
       },
 
-      //Append a child
+      /**
+       * Adds a child object to the end of the list of children
+       * This function is chainable
+       *
+       * @param {Component} component The component to add to this Component's list of children
+       *
+       * @returns {Component} returns this
+       *
+       * @throws {TypeError} if the supplied component doesn't respond to #render
+       */
       push : function(component) {
         this.checkIfRenderable(component);
         this.children.push(component);
         return this;
       },
 
-      //Remove the last child
+      /**
+       * Removes the last child from the list of children
+       *
+       * @returns {Component} The removed child
+       */
       pop : function() {
         return this.children.pop();
       },
 
-      //Prepend a child
+      /**
+       * Adds a child to the beginning of the list of children
+       * This function is chainable
+       *
+       * @param {Component} component The component to add to this Component's list of children
+       *
+       * @returns {Component} returns this
+       *
+       * @throws {TypeError} If the supplied component doesn't respond to #render
+       */
       unshift : function(component) {
         this.checkIfRenderable(component);
         this.children.unshift(component);
         return this;
       },
 
-      //Remove the first child
+      /**
+       * Removes the first child from the list of children
+       *
+       * @returns {Component} The removed child
+       */
       shift : function() {
         return this.children.shift();
       },
 
-      //Add a child at the specified index (or the last index)
+      /**
+       * Adds a child at the specified index to the list of children
+       * If no index is given, functions as {@link Component#push}
+       * This function is chainable
+       *
+       * @param {Component} component The component to add to this Component's list of children
+       * @param {Integer}   [index]   The index at which to add the child
+       */
       insert : function(component, index) {
         this.checkIfRenderable(component);
         if(index) {
@@ -305,7 +357,15 @@ var Component = Base.extend(
         return this;
       },
 
-      // Gets the child at the selected index
+      /**
+       * Gets the child at the given index or the field with the given key
+       *
+       * @param {String|Integer} index  The index of the child or key of the field to return
+       *
+       * @returns The child at the given index or the value of the given key
+       *
+       * @throws {TypeError} If index is not a string or integer
+       */
       get : function(index) {
         switch(typeof(index)) {
           case "string":
@@ -318,7 +378,14 @@ var Component = Base.extend(
         throw TypeError("index must be a string or number.");
       },
 
-      //Removes the child at index
+      /**
+       * Removes the child at the given index
+       * if no index is given, functions as {@link Component#pop}
+       *
+       * @param {Integer} [index] The index of the child to be removed
+       *
+       * @returns {Component} The component at the given index
+       */
       remove : function(index) {
         if(index) {
           return this.children.splice(index, 1)[0];
@@ -326,6 +393,14 @@ var Component = Base.extend(
         return this.pop();
       },
 
+      /**
+       * Checks if the given object is renderable
+       * That is, if it has a method named render.
+       *
+       * @param {Object} renderable The object to check
+       *
+       * @throws {TypeError} If the given object is not renderable
+       */
       checkIfRenderable : function(renderable) {
         if(typeof(renderable.render) === "function") {
           return;
@@ -334,6 +409,14 @@ var Component = Base.extend(
         throw TypeError("Object does not respond to render.")
       },
 
+      /**
+       * Renders this components children
+       *
+       * @param {String} [prefix=this.childPrefix] the string to prepend to each child's markup
+       * @param {String} [suffix=this.childSuffix] the string to append to each child's markup
+       *
+       * @returns {String} The compiled markup of this Component's children
+       */
       renderChildren : function(prefix, suffix) {
         prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
 
@@ -344,13 +427,22 @@ var Component = Base.extend(
         return markup;
       },
 
-      //Compiles the markup for this component
+      /**
+       * Compiles all the markup for this component.
+       *
+       * @returns {String} The compiled markup for this component
+       * @see Component#renderChildren
+       */
       render : function() {
         return this.template({"yield": this.renderChildren()});
       },
 
       /**
-       * Provide a useful toString method
+       * Calls Component#render or stringifies to JSON
+       *
+       * @param {Boolean} asJSON  If this method should return the output of render or JSON#stringify
+       *
+       * @returns {String}
        */
       toString : function(asJSON) {
         return asJSON ? JSON.stringify(this) : this.render();
@@ -358,16 +450,25 @@ var Component = Base.extend(
 
       /**
        * Create a deep clone of this Component
+       *
+       * @returns {Component} a deep clone of this component
        */
       clone : function() {
         return strap.build(this.toString(true));
       }
 
-    },{
+    },
+    /** @lends Component */
+    {
+      /** Used in serialization and deserialization */
       klass : "Component"
     });
 
 //aliases
+/**
+ * @function
+ * @see Component#push
+ */
 Component.prototype.add = Component.prototype.push;
 var Viewport = Component.extend({
       initialize: function(args) {
@@ -380,15 +481,41 @@ var Viewport = Component.extend({
     },{
       klass: "Viewport"
     });
-var Panel = Component.extend({
+var Panel = Component.extend(
+    /** @lends Panel# */
+    {
+      /**
+       * Extends the functionality of the Base contstructor to also allow a String to be passed as attributes.
+       * If attributes is a String, it's used as the body of the resulting Panel.
+       *
+       * @class
+       * Panels are components designed to work with the DOM.
+       * They have templates that return HTML and fields and methods for working with HTML markup.
+       * Aliased as Div
+       *
+       * @extends Component
+       *
+       * @property {String[]} classes     The list of classes for this Panel
+       * @property {String[]} attributes  The list of attributes for this Panel (can be any valid XML attribute)
+       * @property {String}   id          The CSS ID of this Panel
+       * @property {String}   body        The text and/or markup that makes up this Panel
+       *
+       * @constructs
+       *
+       * @param {Object|Array|String} [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+       * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
+       *
+       * @see Base
+       */
       constructor: function(attributes, options) {
         if(typeof(attributes) == "string") {
           attributes = {body: attributes};
         }
 
-        Panel.__super__.constructor.apply(this, arguments);
+        Panel.__super__.constructor.call(this, attributes, options);
       },
 
+      /** @see Component#initialize */
       initialize: function(args) {
         Panel.__super__.initialize.call(this, args);
 
@@ -396,6 +523,14 @@ var Panel = Component.extend({
         this.setDefaultValue("", "id", "body");
       },
 
+      /**
+       * Adds classes to the list of classes
+       * This function accepts a variable number of arguments
+       * this function is chainable
+       *
+       * @param {String} newClass The new class to be added
+       * @returns {Panel} this
+       */
       addClass : function() {
         // gather up the classes to be added
         var newClasses = Array.prototype.slice.call(arguments, 0);
@@ -404,6 +539,14 @@ var Panel = Component.extend({
         return this;
       },
 
+      /**
+       * Removes classes to the list of classes
+       * This function accepts a variable number of arguments
+       * this function is chainable
+       *
+       * @param {String} oldClass The new class to be removed
+       * @returns {Panel} this
+       */
       removeClass : function() {
         // gather up the classes to be removed, and add them to an array
         // the final result is [[list, of, current, classes], list, of, classes, to, be, removed]
@@ -414,47 +557,97 @@ var Panel = Component.extend({
         return this;
       },
 
+      /**
+       * Adds or removes classes from the list of classes
+       * This function accepts a variable number of arguments
+       * this function is chainable
+       *
+       * @param {String} theClass The class to be toggled
+       * @returns {Panel} this
+       */
       toggleClass : function() {
-        var theClasses = Array.prototype.slice.call(arguments, 0);
-        _.each(theClasses, function(theClass) {
-          if(_.include(this.classes, theClass)) {
-            this.removeClass(theClass);
-          } else {
-            this.addClass(theClass);
-          }
-        }, this);
+        var theClasses = Array.prototype.slice.call(arguments, 0),
+            existingClasses = _.intersection(this.classes, theClasses);
+
+        // Essentially, what we're doing here is combining the classes to be toggled
+        //  with the current list of classes to add any new ones.
+        // Then, we're removing the ones that existed in both lists prior to the union
+        this.classes = _.without(_.union(this.classes, theClasses), existingClasses);
+
         return this;
       },
 
+      /**
+       * Helper method to stringify the class array for DOM insertion
+       *
+       * @returns {String} The list of classes, space separated.
+       */
       listClasses : function() {
         return this.classes.join(" ");
       },
 
-      // this function can be called with a list of additional attributes that will be included in the output
+      /**
+       * Compiles all the HTML attributes and returns them in a manner acceptable for DOM insertion
+       * This method always tries to attach the ID and classes of the Panel
+       * If supplied string keys as arguments, it will attempt to add these keys to the attribute output in the following form:
+       * key='value_of_key'
+       *
+       * If the key has no value or is not defined, it is not added to the list
+       *
+       * @param {String} [addAttr]  Additional attribute to be added to the compiled list of attributes
+       *
+       * @returns {String} A space separated list of attributes ready for use in the DOM
+       */
       listAttributes : function() {
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
-            addAttrs = _.map(args, function(val) {
+            addAttrs = _.map(args, function(key) {
               // remove empty values
-              if(this[val] === "") {
+              if(this[key] === "" || typeof(this[key]) === "undefined") {
                 return false;
               }
 
-              return val + "='" + this[val] + "'";
+              return key + "='" + this[key] + "'";
             }, this),
             classes = this.listClasses();
 
+        // Add the classes, if any
         if(classes !== "") {
           addAttrs.push("class='"+classes+"'");
         }
 
         // return the combined list
-        return this.attributes.join(" ") + " " + _.compact(addAttrs).join(" ");
+        return _.union(this.attributes, addAttrs).join(" ");
       },
 
+      /**
+       * Panels and their subclasses all define HTML markup templates.
+       * Panel templates are very simple, and are built using the {@link Strap#generateSimpleTemplate} method
+       *
+       * @param {Object} args           The data used to construct the template
+       * @param {Object} args.yield     The main body of the template
+       * @param {Object} args.rootAttrs The HTML attributes of the root HTML element of the template
+       *
+       * @returns {String} the HTML markup for this Panel
+       *
+       * @see Panel#render
+       * @see Strap#generateSimpleTemplate
+       * @see <a href='http://lodash.com/docs#template' target='_dash'>Lo-Dash's Template Docs</a>
+       */
       template : strap.generateSimpleTemplate("div"),
 
+      /**
+       * Panel#render, much like Component#render, compiles the markup of all child Components.
+       * However, it prepends the body field to the markup returned by #renderChildren.
+       * It then passes this combined markup as the yield property of the object passed into #template
+       * It also passes the result of #listAttributes as the rootAttrs property of the object passed into the template
+       *
+       * @returns {String} the HTML markup for this Panel
+       *
+       * @see Panel#template
+       * @see Component#renderChildren
+       */
       render : function() {
         var markup = this.body + this.renderChildren();
         return this.template({
@@ -462,17 +655,34 @@ var Panel = Component.extend({
           "rootAttrs" : this.listAttributes()
         });
       }
-    },{
+    },
+    /** @lends Panel */
+    {
       klass: "Panel"
     }),
+    /** @ignore */
     Div = Panel;
-var AbstractBadge = Panel.extend({
+/**
+ * @class As the name suggests, AbstractBadge is an abstract class used to keep the Badge and Label classes DRY.  This is a type aware class.
+ * @extends Panel
+ *
+ * @see Typify
+ */
+
+var AbstractBadge = Panel.extend(
+    /** @lends AbstractBadge# */
+    {
+      /** @see Panel#initialize */
       initialize : function(args) {
         AbstractBadge.__super__.initialize.call(this, args);
         Typify(this);
       },
+
+      /** @see Panel#template */
       template : strap.generateSimpleTemplate("span")
-    },{
+    },
+    /** @lends AbstractBadge */
+    {
       klass: "AbstractBadge",
       types : ["success", "warning", "important", "info", "inverse"]
     });
@@ -811,6 +1021,24 @@ var FormSelect = Panel.extend({
     },{
       klass : "FormSelect"
     });
+var Header = Panel.extend({
+      initialize: function(args) {
+        Header.__super__.initialize.call(this, args);
+        this.setDefaultValue(1, "level");
+      },
+      template : strap.generateSimpleTemplate("h<%= level %>"),
+
+      render : function() {
+        var markup = this.body + this.renderChildren();
+        return this.template({
+          "yield": markup,
+          "level": this.level,
+          "rootAttrs": this.listAttributes()
+        });
+      }
+    },{
+      klass: "Header"
+    });
 var HeroUnit = Panel.extend({
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
@@ -881,15 +1109,29 @@ var Icon = Panel.extend({
               "plus-sign-alt", "stethoscope", "user-md"
             ]
     });
+/**
+ * @class Provides a method of creating images simply
+ * @extends Panel
+ *
+ * @property {String} src The URI of the source image
+ */
+
 var Image = Panel.extend({
+      /** @see Panel#initialize */
       initialize : function(args) {
         Image.__super__.initialize.call(this, args);
 
         this.setDefaultValue(this.body, "src");
       },
 
+      /** @see Panel#template */
       template : _.template("<img <%= rootAttrs %> />"),
 
+      /**
+       * Override of listAttributes to add src to the attributes returned
+       *
+       * @see Panel#listAttributes
+       */
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "src");
       }
@@ -1045,15 +1287,14 @@ var OptGroup = Panel.extend({
     },{
       klass: "OptGroup"
     });
-var PageHeader = Panel.extend({
+var PageHeader = Header.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
         this.setDefaultValue("", "header");
-        this.setDefaultValue(1, "level");
       },
       template : _.template("<div <%= rootAttrs %>>"+
     													"<h<%= level %>>"+
-    														"<%= header%> "+
+    														"<%= header %> "+
     														"<small><%= yield%></small>"+
     													"</h<%= level %>>"+
     												"</div>"),
@@ -1180,18 +1421,39 @@ var SelectOption = Panel.extend({
     }, {
       klass : "SelectOption"
     });
-var Source = Panel.extend({
+/**
+ * @class Sources are Components that know how to gather and use data gathered from a 3rd party API
+ * @extends Panel
+ *
+ * @property {String} src   The URL to the data source of this component
+ * @property {Object} data  The data for this Source
+ */
+
+var Source = Panel.extend(
+    /** @lends Source# */
+    {
+      /** @see Component#initialize */
       initialize : function(args) {
         Source.__super__.initialize.call(this, args);
 
         this.setDefaultValue("", "src");
         this.setDefaultValue({}, "data");
 
-        //set up Fetching here, if src exists
+        //set up Fetching here, if src is not blank
       },
 
-      template : function() { throw "Not Implemented"; },
+      /**
+       * Source objects must define their templates at instanciation.
+       *
+       * @throws Not Defined
+       */
+      template : function() { throw "Not Defined"; },
 
+      /**
+       * Overrides render to pass in the Source#data field
+       *
+       * @see Panel#render
+       */
       render : function() {
         var markup = this.body + this.renderChildren();
         return this.template({
@@ -1200,6 +1462,10 @@ var Source = Panel.extend({
           "rootAttrs" : this.listAttributes()
         });
       }
+    },
+    /** @lends Source */
+    {
+      klass: "Source"
     });
 var Span = Panel.extend({
       template: strap.generateSimpleTemplate("span")
@@ -1297,6 +1563,7 @@ var TooManyChildrenError  = Extend(Error, {message: "Too many children.", name: 
     WebsocketConnectError = Extend(Error, {message: "Unable to connect via websocket.", name: "WebsocketConnectError"});
 /* Manifest file for compiling assets with Sprockets
  *
+
 
 
 
