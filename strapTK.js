@@ -40,8 +40,7 @@ Base.extend = function(protoProps, staticProps) {
  */
 ;
 /**
- * The strap object contains a set of global functions that apply to the
- *  entire page (e.g. setting all elements as draggable)
+ * The strap object contains a set of global functions that apply to the entire page
  */
 
 var strap = new (function() {
@@ -57,14 +56,23 @@ var strap = new (function() {
       }
       /**#nocode- */
 
-      // Constructs Strap'd Objects from JSON
+      /**
+       * Constructs Strap'd objects from JSON.
+       * While it is possible to pass a Strap'd object into this function and receive a
+       * fully functional object out, the original object will be altered.
+       *
+       * @param {String|Object|Array} json The JSON string or object to be converted
+       *
+       * @returns {Object|Object[]} The result of building the Strap'd objects
+       */
       this.build = function(json) {
 
         /**
          * Parses the JSON and produces Strap'd classes
-         * Some Magic happens here
          *
          * @private
+         *
+         * @oaram {String|Object|Array} json The JSON string or Object to be parsed
          *
          * @returns {Object} A Strap'd object
          */
@@ -102,7 +110,7 @@ var strap = new (function() {
         if(_.isArray(json)) {
           // If we have an array of objects, we need to parse each of them
           var ret = [];
-          _(json).each(function(obj) { ret.push(parse(obj)); });
+          _.each(json, function(obj) { ret.push(parse(obj)); });
           return ret;
         } else {
           // Otherwise, we just parse what we have
@@ -110,7 +118,13 @@ var strap = new (function() {
         }
       }
 
-      // Generate a simple Lo-Dash template
+      /**
+       * Generates a simple template with the given tag
+       *
+       * @param {String} tag The HTML tag to use
+       *
+       * @returns {Function} A function that can be used to compile the template
+       */
       this.generateSimpleTemplate = function(tag) {
         return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
       }
@@ -212,6 +226,7 @@ function Typify(component, options) {
   }
 }
 
+/** @constant */
 Typify.defaults = {
   types: [""],
   base: "",
@@ -476,7 +491,7 @@ var Viewport = Component.extend({
         this.setDefaultValue("body", "root");
       },
       render : function() {
-        return $(this.root).empty().append(this.renderChildren());
+        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"
@@ -592,7 +607,9 @@ var Panel = Component.extend(
        * If supplied string keys as arguments, it will attempt to add these keys to the attribute output in the following form:
        * key='value_of_key'
        *
-       * If the key has no value or is not defined, it is not added to the list
+       * If the key has no value or is not defined, it is not added to the list.
+       * A key is considered to have no value if it is === "".
+       * If you need an attribute to have this value, you should manually add it to the list of attributes.
        *
        * @param {String} [addAttr]  Additional attribute to be added to the compiled list of attributes
        *
@@ -602,15 +619,15 @@ var Panel = Component.extend(
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
-            addAttrs = _.map(args, function(key) {
+            classes = this.listClasses(),
+            addAttrs = _(args).map(function(key) {
               // remove empty values
               if(this[key] === "" || typeof(this[key]) === "undefined") {
                 return false;
               }
 
               return key + "='" + this[key] + "'";
-            }, this),
-            classes = this.listClasses();
+            }, this).compact().value();
 
         // Add the classes, if any
         if(classes !== "") {
@@ -623,7 +640,7 @@ var Panel = Component.extend(
 
       /**
        * Panels and their subclasses all define HTML markup templates.
-       * Panel templates are very simple, and are built using the {@link Strap#generateSimpleTemplate} method
+       * The Panel template is very simple, and is built using the {@link Strap#generateSimpleTemplate} method
        *
        * @param {Object} args           The data used to construct the template
        * @param {Object} args.yield     The main body of the template
@@ -835,7 +852,7 @@ var Button = Link.extend({
       }
     },{
       klass: "Button",
-      types: ["primary", "info", "success", "warning", "danger", "inverse", "link"]
+      types: ["primary", "secondary", "info", "success", "warning", "danger", "inverse", "link"]
     });
 var ButtonGroup = Panel.extend({
       initialize: function(args) {
@@ -943,13 +960,18 @@ var ContentRow = Panel.extend({
 
         _.each(this.children, function(child) {
           rowWidth -= (child.span || 0);
-          fluidChildren -= (child.span ? 1 : 0);
+          fluidChildren -= (isNaN(child.span) ? 0 : 1);
         });
 
         var span = Math.floor(rowWidth/fluidChildren),
             markup = "";
         _.each(this.children, function(child) {
-          markup += "<div class='span"+(child.span || span)+"'>" + prefix + child.render() + suffix + "</div>";
+          var childMarkup = prefix + child.render() + suffix;
+          if(child.span !== 0) {
+            childMarkup = "<div class='span"+(child.span || span)+"'>" + childMarkup + "</div>";
+          }
+
+          markup += childMarkup;
         });
         return markup;
       },
@@ -961,9 +983,9 @@ var ContentRow = Panel.extend({
     },{
       klass: "ContentRow"
     });
-var Dropdown = List.extend({
+var DropdownMenu = List.extend({
       initialize : function(args) {
-        Dropdown.__super__.initialize.call(this, args);
+        DropdownMenu.__super__.initialize.call(this, args);
 
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
@@ -971,7 +993,7 @@ var Dropdown = List.extend({
         this.addClass("dropdown-menu");
       }
     },{
-      klass: "Dropdown"
+      klass: "DropdownMenu"
     });
 var Form = Panel.extend({
       initialize : function(args) {
@@ -1398,12 +1420,12 @@ var ProgressBar = Panel.extend({
     });
 function Raw(attrs) {
   // the idea here is you can send in an object with the field body or just a string for the body
-  this.text = attrs.body || attrs;
+  this.body = attrs.body || attrs;
   this.klass = "Raw"
 }
 
 Raw.prototype.render = function() {
-  return this.text;
+  return this.body;
 }
 ;
 var SelectOption = Panel.extend({

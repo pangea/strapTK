@@ -10,5 +10,5 @@ var Button = Link.extend({
       }
     },{
       klass: "Button",
-      types: ["primary", "info", "success", "warning", "danger", "inverse", "link"]
+      types: ["primary", "secondary", "info", "success", "warning", "danger", "inverse", "link"]
     });

@@ -24,13 +24,18 @@ var ContentRow = Panel.extend({
 
         _.each(this.children, function(child) {
           rowWidth -= (child.span || 0);
-          fluidChildren -= (child.span ? 1 : 0);
+          fluidChildren -= (isNaN(child.span) ? 0 : 1);
         });
 
         var span = Math.floor(rowWidth/fluidChildren),
             markup = "";
         _.each(this.children, function(child) {
-          markup += "<div class='span"+(child.span || span)+"'>" + prefix + child.render() + suffix + "</div>";
+          var childMarkup = prefix + child.render() + suffix;
+          if(child.span !== 0) {
+            childMarkup = "<div class='span"+(child.span || span)+"'>" + childMarkup + "</div>";
+          }
+
+          markup += childMarkup;
         });
         return markup;
       },
