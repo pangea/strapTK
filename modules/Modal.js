@@ -4,7 +4,7 @@ var Modal = Panel.extend({
 
         this.setDefaultValue([], "actions");
         this.setDefaultValue("", "header");
-
+        this.setDefaultValue(false, "closable");
         this.addClass("modal");
       },
 
@@ -47,6 +47,7 @@ var Modal = Panel.extend({
           "yield": markup,
           "header":this.header,
           "actions": actionMarkup,
+          "closable": this.closable,
           "rootAttrs": this.listAttributes()
         });
       }
