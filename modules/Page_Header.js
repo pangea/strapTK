@@ -1,12 +1,11 @@
-var PageHeader = Panel.extend({
+var PageHeader = Header.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
         this.setDefaultValue("", "header");
-        this.setDefaultValue(1, "level");
       },
       template : _.template("<div <%= rootAttrs %>>"+
     													"<h<%= level %>>"+
-    														"<%= header%> "+
+    														"<%= header %> "+
     														"<small><%= yield%></small>"+
     													"</h<%= level %>>"+
     												"</div>"),
