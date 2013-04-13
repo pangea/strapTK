@@ -9,7 +9,6 @@ var Carousel = Panel.extend({
         this.addClass("carousel", "slide");
       },
 
-      //Gunna have to come back to this one
       template : _.template("<div <%= rootAttrs %>>" +
                               "<% if(controls) { %>" +
                                 "<ol class='carousel-indicators'>" +
@@ -30,9 +29,11 @@ var Carousel = Panel.extend({
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
-          markup += "<div class='item" + (i == 0 ? " active" : "") + "'>" +
-                      child.render() +
-                    "</div>";
+          child.addClass("item");
+          if(i === 0) {
+            child.addClass("active");
+          }
+          markup += child.render();
         });
         return markup;
       },
