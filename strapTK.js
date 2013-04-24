@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.1.1
+ * Strap'd ToolKit v 0.1.5
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -1363,11 +1363,11 @@ var PageHeader = Header.extend({
         this.addClass("page-header");
       },
       template : _.template("<div <%= rootAttrs %>>"+
-    													"<h<%= level %>>"+
-    														"<%= header %> "+
-    														"<small><%= yield %></small>"+
-    													"</h<%= level %>>"+
-    												"</div>"),
+                              "<h<%= level %>>"+
+                                "<%= header %> "+
+                                "<small><%= yield %></small>"+
+                              "</h<%= level %>>"+
+                            "</div>"),
 
       render : function() {
         var markup = this.body + this.renderChildren();
@@ -1388,7 +1388,7 @@ var Pagination = Panel.extend({
         }
         Pagination.__super__.initialize.call(this, args);
 
-        this.setDefaultValue(0, "pages");
+        this.setDefaultValue(1, "pages");
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
@@ -1411,13 +1411,17 @@ var Pagination = Panel.extend({
       buildPages: function() {
         this.children = [];
         if(this.pages < 1) {
+
           throw new SyntaxError("You must supply a number of pages greater than 0");
+
         } else if(this.pages > 1) {
+
           this.add(new Link({body: "&laquo;", classes: ["prev"]}));
           _.times(this.pages, function(i) {
-            this.add(new Link((i+1).toString()));
+            this.add(new Link((i+1)+""));
           }, this);
           this.add(new Link({body: "&raquo;", classes: ["next"]}));
+
         } else {
           console.warn("Paginator instanciated with only 1 page."); //paginators with only 1 page don't display
         }
