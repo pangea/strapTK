@@ -1,3 +1,10 @@
+/*
+ * Strap'd ToolKit v 0.1.1
+ * Authored by Chris Hall
+ * Copyright 2013 to Pangea Real Estate
+ * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
+ */
+;
 /**
  * Defines the base constructor for all Strap'd Components (except Raw, HorizontalRule, and LineBreak).
  * If attributes is an Array, it will be used as the list of children for the resulting Component.
@@ -34,11 +41,6 @@ function Base(attributes, options)  {
 Base.extend = function(protoProps, staticProps) {
   return Extend(this, protoProps, staticProps);
 };
-/*
- * Strap'd ToolKit v 0.1.1 Copyright 2013 to Chris Hall
- * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
- */
-;
 /**
  * The strap object contains a set of global functions that apply to the entire page
  */
@@ -409,6 +411,17 @@ var Component = Base.extend(
       },
 
       /**
+       * Removes all the children from this Component
+       *
+       * @returns {Array} the list of children
+       */
+      flush : function() {
+        var children = this.children;
+        this.children = [];
+        return children;
+      },
+
+      /**
        * Checks if the given object is renderable
        * That is, if it has a method named render.
        *
@@ -490,8 +503,18 @@ var Viewport = Component.extend({
         Viewport.__super__.initialize.call(this, args);
         this.setDefaultValue("body", "root");
       },
+
       render : function() {
         return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
+      },
+
+      flush : function() {
+        Viewport.__super__.flush.call(this);
+        this.render();
+      },
+
+      el : function() {
+        return $(this.root);
       }
     },{
       klass: "Viewport"
@@ -1085,11 +1108,22 @@ var HeroUnit = Panel.extend({
     },{
       klass: "HeroUnit"
     });
+/**
+ * @author Chris Hall (chall8908@gmail.com)\
+ * @class Provides a simple wrapper around a hroizontal rule tag that can be used as the child to a Component
+ */
+
 function HorizontalRule() { this.klass = "HorizontalRule"; }
+/**
+ * Returns a horizontal rule
+ *
+ * @returns {String} the string "&lt;hr/&gt;"
+ */
 HorizontalRule.prototype.render = function() {
   return "<hr/>";
 }
 
+/** @borrows HorizontalRule# as HR# */
 var HR = HorizontalRule;
 var Icon = Panel.extend({
       initialize : function(args) {
@@ -1175,11 +1209,22 @@ var Legend = Panel.extend({
     }, {
       klass: "Legend"
     });
+/**
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class Provides a simple wrapper around the line break tag that can be used as the child to a Component
+ */
+
 function LineBreak() { this.klass = "LineBreak"; }
+/**
+ * Returns a line break
+ *
+ * @returns {String} the string "&lt;br/&gt;"
+ */
 LineBreak.prototype.render = function() {
   return "<br/>";
 }
 
+/** @borrows LineBreak# as BR# */
 var BR = LineBreak;
 var Modal = Panel.extend({
       initialize : function(args) {
@@ -1320,7 +1365,7 @@ var PageHeader = Header.extend({
       template : _.template("<div <%= rootAttrs %>>"+
     													"<h<%= level %>>"+
     														"<%= header %> "+
-    														"<small><%= yield%></small>"+
+    														"<small><%= yield %></small>"+
     													"</h<%= level %>>"+
     												"</div>"),
 
@@ -1421,12 +1466,29 @@ var ProgressBar = Panel.extend({
       klass: "ProgressBar",
       types: ["info", "success", "warning", "danger"]
     });
+/**
+ * Generates a renderable entity that acts as a simple passthrough for the attributes it's given.
+ *
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class
+ * A simple wrapper class providing render capability to an artibrary string of text.
+ * Raws function as Components with the notable exception of only retaining or rendering its body field.
+ *
+ * @param {Object|String} attrs the attributes to provide this Raw.
+ * @param {String} attrs.body if attrs is not a string, this field is applied to Raw#body
+ */
+
 function Raw(attrs) {
   // the idea here is you can send in an object with the field body or just a string for the body
   this.body = attrs.body || attrs;
   this.klass = "Raw"
 }
 
+/**
+ * Provides render functionality to Raws and allows them to be used as children for Components
+ *
+ * @returns {String} the body field of this Raw
+ */
 Raw.prototype.render = function() {
   return this.body;
 }
@@ -1579,7 +1641,17 @@ var TableRow = Panel.extend({
 // aliases
 TableRow.prototype.add = TableRow.prototype.push;
 var Textarea = Panel.extend({
-      template : strap.generateSimpleTemplate("textarea")
+      initialize : function(args) {
+        Textarea.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("", "placeholder");
+      },
+
+      template : strap.generateSimpleTemplate("textarea"),
+
+      listAttributes : function() {
+        return Textarea.__super__.listAttributes.call(this, "placeholder");
+      }
     }, {
       klass : "Textarea"
     });

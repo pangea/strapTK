@@ -173,6 +173,17 @@ var Component = Base.extend(
       },
 
       /**
+       * Removes all the children from this Component
+       *
+       * @returns {Array} the list of children
+       */
+      flush : function() {
+        var children = this.children;
+        this.children = [];
+        return children;
+      },
+
+      /**
        * Checks if the given object is renderable
        * That is, if it has a method named render.
        *

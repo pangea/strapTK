@@ -1,7 +1,7 @@
 /* Manifest file for compiling assets with Sprockets
  *
- *= require Base
  *= require Copyright
+ *= require Base
  *= require utils
  *= require Component
  *= require Viewport

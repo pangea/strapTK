@@ -5,11 +5,11 @@ var PageHeader = Header.extend({
         this.addClass("page-header");
       },
       template : _.template("<div <%= rootAttrs %>>"+
-    													"<h<%= level %>>"+
-    														"<%= header %> "+
-    														"<small><%= yield%></small>"+
-    													"</h<%= level %>>"+
-    												"</div>"),
+                              "<h<%= level %>>"+
+                                "<%= header %> "+
+                                "<small><%= yield %></small>"+
+                              "</h<%= level %>>"+
+                            "</div>"),
 
       render : function() {
         var markup = this.body + this.renderChildren();
