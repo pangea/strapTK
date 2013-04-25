@@ -1237,14 +1237,18 @@ var Modal = Panel.extend({
       },
 
       template : _.template("<div <%= rootAttrs %>>"+
-                              "<div class='modal-header'>"+
-                                "<% if(closable) { %>" +
-                                  "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
-                                "<% } %>" +
-                                "<%= header %>"+
-                              "</div>"+
+                              "<% if(closable || header) { %>" +
+                                "<div class='modal-header'>"+
+                                  "<% if(closable) { %>" +
+                                    "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
+                                  "<% } %>" +
+                                  "<%= header %>"+
+                                "</div>"+
+                              "<% } %>" +
                               "<div class='modal-body'><%= yield%></div>"+
-                              "<div class='modal-footer'><%= actions %></div>"+
+                              "<% if(actions) { %>" +
+                                "<div class='modal-footer'><%= actions %></div>"+
+                              "<% } %>" +
                             "</div>"),
 
       pushAction : function(action) {
