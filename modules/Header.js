@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Header = Panel.extend({
       initialize: function(args) {
         Header.__super__.initialize.call(this, args);

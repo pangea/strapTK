@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require List
+ *= require Typify
+ */
 var Nav = List.extend({
       initialize: function(args) {
         this.childPrefix = "<li>";

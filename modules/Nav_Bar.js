@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var NavBar = Panel.extend({
       initialize : function(args) {
         NavBar.__super__.initialize.call(this, args);

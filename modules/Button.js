@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Link
+ *= require Typify
+ */
 var Button = Link.extend({
       initialize : function(args) {
         Button.__super__.initialize.call(this, args);

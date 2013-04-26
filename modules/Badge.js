@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Abstract_Badge
+ */
 var Badge = AbstractBadge.extend({
       initialize : function(args) {
         this.base = "badge";

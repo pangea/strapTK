@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Extend
+ */
+
 /**
  * Defines the base constructor for all Strap'd Components (except Raw, HorizontalRule, and LineBreak).
  * If attributes is an Array, it will be used as the list of children for the resulting Component.

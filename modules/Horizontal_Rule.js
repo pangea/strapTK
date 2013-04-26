@@ -1,5 +1,5 @@
 /**
- * @author Chris Hall (chall8908@gmail.com)\
+ * @author Chris Hall (chall8908@gmail.com)
  * @class Provides a simple wrapper around a hroizontal rule tag that can be used as the child to a Component
  */
 function HorizontalRule() { this.klass = "HorizontalRule"; }

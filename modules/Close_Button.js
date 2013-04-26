@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Link
+ */
 var CloseButton = Link.extend({
       initialize : function(args) {
         CloseButton.__super__.initialize.call(this, args);

@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Component
+ */
 var Viewport = Component.extend({
       initialize: function(args) {
         Viewport.__super__.initialize.call(this, args);

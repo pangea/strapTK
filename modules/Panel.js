@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Component
+ */
 var Panel = Component.extend(
     /** @lends Panel# */
     {
@@ -38,6 +41,13 @@ var Panel = Component.extend(
 
         this.setDefaultValue([], "classes", "attributes");
         this.setDefaultValue("", "id", "body");
+
+        // Convert a list of space separated classes/attributes into a proper array
+        _.each(["classes", "attributes"], function(attr) {
+          if(typeof(this[attr]) === "string") {
+            this[attr] = _.uniq(this[attr].split(" "));
+          }
+        }, this);
       },
 
       /**

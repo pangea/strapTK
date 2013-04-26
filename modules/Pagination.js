@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Pagination = Panel.extend({
       initialize: function(args) {
         if(this.children && this.pages) {

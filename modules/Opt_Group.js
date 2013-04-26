@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var OptGroup = Panel.extend({
       initialize : function(args) {
         OptGroup.__super__.initialize.call(this, args);

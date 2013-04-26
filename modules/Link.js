@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Link = Panel.extend({
       initialize : function(args) {
         Link.__super__.initialize.call(this, args);

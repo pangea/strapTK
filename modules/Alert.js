@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Panel
+ *= require Typify
+ */
 var Alert = Panel.extend({
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);

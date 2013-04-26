@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Breadcrumbs = Panel.extend({
       initialize : function(args) {
         Breadcrumbs.__super__.initialize.call(this, args);

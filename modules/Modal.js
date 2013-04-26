@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Modal = Panel.extend({
       initialize : function(args) {
         Modal.__super__.initialize.call(this, args);

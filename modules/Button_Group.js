@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var ButtonGroup = Panel.extend({
       initialize: function(args) {
         ButtonGroup.__super__.initialize.call(this, args);

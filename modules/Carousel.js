@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Carousel = Panel.extend({
       initialize: function(args) {
         Carousel.__super__.initialize.call(this, args);

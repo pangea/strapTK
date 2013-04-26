@@ -1,3 +1,8 @@
+/* Sprocket Manifest
+ *= require Strap
+ *= require Base
+ */
+
 /**
  * @class Components are generic objects that can add and remove children and render themselves
  * @extends Base
@@ -192,6 +197,11 @@ var Component = Base.extend(
        * @throws {TypeError} If the given object is not renderable
        */
       checkIfRenderable : function(renderable) {
+        // renderable might be buildable
+        if(renderable.klass && !renderable.render) {
+          renderable = strap.build(renderable);
+        }
+
         if(typeof(renderable.render) === "function") {
           return;
         }

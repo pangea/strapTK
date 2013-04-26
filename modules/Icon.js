@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Panel
+ *= require Typify
+ */
 var Icon = Panel.extend({
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);

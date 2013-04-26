@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
+
 /**
  * @class Sources are Components that know how to gather and use data gathered from a 3rd party API
  * @extends Panel
@@ -19,7 +23,7 @@ var Source = Panel.extend(
       },
 
       /**
-       * Source objects must define their templates at instanciation.
+       * Source objects must define their templates at instantiation.
        *
        * @throws Not Defined
        */
