@@ -41,17 +41,17 @@ var Carousel = Panel.extend({
         return markup;
       },
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield"       : markup,
-          "rootID"      : this.id,
-          "rootAttrs"   : this.listAttributes(),
-          "controls"    : this.controls,
-          "slides"      : this.children.length,
-          "prevSymbol"  : this.prevSymbol,
-          "nextSymbol"  : this.nextSymbol
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Carousel.__super__.renderHash.call(this),
+                  {
+                    rootID    : this.id,
+                    controls  : this.controls,
+                    slides    : this.children.length,
+                    prevSymbol: this.prevSymbol,
+                    nextSymbol: this.nextSymbol
+                  }
+                );
       }
 
     },{
