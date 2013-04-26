@@ -1,9 +1,17 @@
-/**
- * The strap object contains a set of global functions that apply to the entire page
- */
 var strap = (function() {
+      /**
+       * Attempts to generate a Component from a given hash
+       *
+       * @param {Object} obj        The object to strap
+       * @param {String} [obj.tag]  The HTML tag the new Component should have
+       *
+       * @return {Component|Panel} A strap'd object
+       *
+       * @see Component
+       * @see Panel
+       */
       var strap = function(obj) {
-        var tagged = typeof(obj.tag) !== "undefined",
+        var tagged = typeof(obj.tag) != "undefined" && typeof(obj.tag) == "string",
             gen = tagged ? new Panel(obj) : new Component(obj);
 
         if(tagged) {
