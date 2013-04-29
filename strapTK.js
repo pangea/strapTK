@@ -5,13 +5,20 @@
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
 ;
-/**
- * The strap object contains a set of global functions that apply to the entire page
- */
-
 var strap = (function() {
+      /**
+       * Attempts to generate a Component from a given hash
+       *
+       * @param {Object} obj        The object to strap
+       * @param {String} [obj.tag]  The HTML tag the new Component should have
+       *
+       * @return {Component|Panel} A strap'd object
+       *
+       * @see Component
+       * @see Panel
+       */
       var strap = function(obj) {
-        var tagged = typeof(obj.tag) !== "undefined",
+        var tagged = typeof(obj.tag) != "undefined" && typeof(obj.tag) == "string",
             gen = tagged ? new Panel(obj) : new Component(obj);
 
         if(tagged) {
@@ -418,13 +425,22 @@ var Component = Base.extend(
       },
 
       /**
+       * Constructs the hash of attributes to send into the template function
+       *
+       * @returns {Object} the render hash
+       */
+      renderHash : function() {
+        return { yield: this.renderChildren() };
+      }
+
+      /**
        * Compiles all the markup for this component.
        *
        * @returns {String} The compiled markup for this component
        * @see Component#renderChildren
        */
       render : function() {
-        return this.template({"yield": this.renderChildren()});
+        return this.template(this.renderHash());
       },
 
       /**
@@ -630,22 +646,15 @@ var Panel = Component.extend(
       template : strap.generateSimpleTemplate("div"),
 
       /**
-       * Panel#render, much like Component#render, compiles the markup of all child Components.
-       * However, it prepends the body field to the markup returned by #renderChildren.
-       * It then passes this combined markup as the yield property of the object passed into #template
-       * It also passes the result of #listAttributes as the rootAttrs property of the object passed into the template
+       * @see Component#renderHash
        *
-       * @returns {String} the HTML markup for this Panel
-       *
-       * @see Panel#template
-       * @see Component#renderChildren
+       * Overrides Component#renderHash to add body and attributes
        */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "rootAttrs" : this.listAttributes()
-        });
+      renderHash : function() {
+        return  {
+                  yield: this.body + this.renderChildren(),
+                  rootAttrs : this.listAttributes()
+                };
       }
     },
     /** @lends Panel */
@@ -805,6 +814,7 @@ var Alert = Panel.extend({
       setClosable : function(closable) {
         var hasCloseButton = false,
             closeButtonIndex = -1;
+
         _.each(this.children, function(child, i) {
           if(child instanceof CloseButton) {
             hasCloseButton = true;
@@ -812,6 +822,7 @@ var Alert = Panel.extend({
             return false;
           }
         });
+
         if(closable === true || typeof(closable) != "boolean") {
           if(hasCloseButton === false) {
             this.unshift(new CloseButton({
@@ -969,17 +980,17 @@ var Carousel = Panel.extend({
         return markup;
       },
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield"       : markup,
-          "rootID"      : this.id,
-          "rootAttrs"   : this.listAttributes(),
-          "controls"    : this.controls,
-          "slides"      : this.children.length,
-          "prevSymbol"  : this.prevSymbol,
-          "nextSymbol"  : this.nextSymbol
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Carousel.__super__.renderHash.call(this),
+                  {
+                    rootID    : this.id,
+                    controls  : this.controls,
+                    slides    : this.children.length,
+                    prevSymbol: this.prevSymbol,
+                    nextSymbol: this.nextSymbol
+                  }
+                );
       }
 
     },{
@@ -1158,14 +1169,13 @@ var Header = Panel.extend({
       },
       template : strap.generateSimpleTemplate("h<%= level %>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Header.__super__.renderHash.call(this),
+                  { level: this.level }
+                );
       }
+
     },{
       klass: "Header"
     });
@@ -1185,14 +1195,14 @@ var HeroUnit = Panel.extend({
                               "<h1><%= title %></h1>"+
                               "<%= yield %>"+
                             "</div>"),
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "title": this.title,
-          "rootAttrs": this.listAttributes()
-        });
+
+      renderHash : function() {
+        return  _.extend(
+                  HeroUnit.__super__.renderHash.call(this),
+                  { title: this.title }
+                );
       }
+
     },{
       klass: "HeroUnit"
     });
@@ -1374,23 +1384,25 @@ var Modal = Panel.extend({
         this.actions.unshift(action);
         return this;
       },
-      render : function() {
-        var markup = this.body,
-            actionMarkup = "";
-        _.each(this.children, function(child) {
-          markup += child.render();
-        });
+
+      renderActions : function() {
+        var markup = "";
         _.each(this.actions, function(action) {
-          actionMarkup += action.render();
+          markup += action.render();
         });
 
-        return this.template({
-          "yield": markup,
-          "header":this.header,
-          "actions": actionMarkup,
-          "closable": this.closable,
-          "rootAttrs": this.listAttributes()
-        });
+        return markup;
+      },
+
+      renderHash : function() {
+        return  _.extend(
+                  Modal.__super__.renderHash.call(this),
+                  {
+                    header  : this.header,
+                    actions : this.renderActions(),
+                    closable: this.closable
+                  }
+                );
       }
     },{
       klass: "Modal"
@@ -1499,15 +1511,16 @@ var PageHeader = Header.extend({
                               "</h<%= level %>>"+
                             "</div>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "header": this.header,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  PageHeader.__super__.renderHash.call(this),
+                  {
+                    header: this.header,
+                    level: this.level
+                  }
+                )
       }
+
     },{
       klass: "PageHeader"
     });
@@ -1557,7 +1570,7 @@ var Pagination = Panel.extend({
           this.add(new Link({body: "&raquo;", classes: ["next"]}));
 
         } else {
-          console.warn("Paginator instanciated with only 1 page."); //paginators with only 1 page don't display
+          console.warn("Paginator instantiated with only 1 page."); //paginators with only 1 page don't display
         }
       }
 
@@ -1681,6 +1694,11 @@ var Source = Panel.extend(
         this.setDefaultValue("", "src");
         this.setDefaultValue({}, "data");
 
+        // convert template from string to function
+        if(typeof(this.template) === "string") {
+          this.template = _.template(this.template);
+        }
+
         //set up Fetching here, if src is not blank
       },
 
@@ -1691,18 +1709,11 @@ var Source = Panel.extend(
        */
       template : function() { throw "Not Defined"; },
 
-      /**
-       * Overrides render to pass in the Source#data field
-       *
-       * @see Panel#render
-       */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "data" : this.data,
-          "rootAttrs" : this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Source.__super__.renderHash.call(this),
+                  { data: this.data }
+                );
       }
     },
     /** @lends Source */
@@ -1844,10 +1855,6 @@ var Viewport = Component.extend({
         this.setDefaultValue("body", "root");
       },
 
-      render : function() {
-        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
-      },
-
       flush : function() {
         Viewport.__super__.flush.call(this);
         this.render();
@@ -1855,6 +1862,10 @@ var Viewport = Component.extend({
 
       el : function() {
         return $(this.root);
+      },
+
+      render : function() {
+        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"
