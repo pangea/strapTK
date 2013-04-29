@@ -228,13 +228,22 @@ var Component = Base.extend(
       },
 
       /**
+       * Constructs the hash of attributes to send into the template function
+       *
+       * @returns {Object} the render hash
+       */
+      renderHash : function() {
+        return { yield: this.renderChildren() };
+      }
+
+      /**
        * Compiles all the markup for this component.
        *
        * @returns {String} The compiled markup for this component
        * @see Component#renderChildren
        */
       render : function() {
-        return this.template({"yield": this.renderChildren()});
+        return this.template(this.renderHash());
       },
 
       /**
