@@ -43,7 +43,7 @@ var Pagination = Panel.extend({
           this.add(new Link({body: "&raquo;", classes: ["next"]}));
 
         } else {
-          console.warn("Paginator instanciated with only 1 page."); //paginators with only 1 page don't display
+          console.warn("Paginator instantiated with only 1 page."); //paginators with only 1 page don't display
         }
       }
 

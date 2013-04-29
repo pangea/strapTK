@@ -40,23 +40,25 @@ var Modal = Panel.extend({
         this.actions.unshift(action);
         return this;
       },
-      render : function() {
-        var markup = this.body,
-            actionMarkup = "";
-        _.each(this.children, function(child) {
-          markup += child.render();
-        });
+
+      renderActions : function() {
+        var markup = "";
         _.each(this.actions, function(action) {
-          actionMarkup += action.render();
+          markup += action.render();
         });
 
-        return this.template({
-          "yield": markup,
-          "header":this.header,
-          "actions": actionMarkup,
-          "closable": this.closable,
-          "rootAttrs": this.listAttributes()
-        });
+        return markup;
+      },
+
+      renderHash : function() {
+        return  _.extend(
+                  Modal.__super__.renderHash.call(this),
+                  {
+                    header  : this.header,
+                    actions : this.renderActions(),
+                    closable: this.closable
+                  }
+                );
       }
     },{
       klass: "Modal"

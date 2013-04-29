@@ -167,22 +167,15 @@ var Panel = Component.extend(
       template : strap.generateSimpleTemplate("div"),
 
       /**
-       * Panel#render, much like Component#render, compiles the markup of all child Components.
-       * However, it prepends the body field to the markup returned by #renderChildren.
-       * It then passes this combined markup as the yield property of the object passed into #template
-       * It also passes the result of #listAttributes as the rootAttrs property of the object passed into the template
+       * @see Component#renderHash
        *
-       * @returns {String} the HTML markup for this Panel
-       *
-       * @see Panel#template
-       * @see Component#renderChildren
+       * Overrides Component#renderHash to add body and attributes
        */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "rootAttrs" : this.listAttributes()
-        });
+      renderHash : function() {
+        return  {
+                  yield: this.body + this.renderChildren(),
+                  rootAttrs : this.listAttributes()
+                };
       }
     },
     /** @lends Panel */

@@ -14,15 +14,16 @@ var PageHeader = Header.extend({
                               "</h<%= level %>>"+
                             "</div>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "header": this.header,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  PageHeader.__super__.renderHash.call(this),
+                  {
+                    header: this.header,
+                    level: this.level
+                  }
+                )
       }
+
     },{
       klass: "PageHeader"
     });

@@ -19,6 +19,11 @@ var Source = Panel.extend(
         this.setDefaultValue("", "src");
         this.setDefaultValue({}, "data");
 
+        // convert template from string to function
+        if(typeof(this.template) === "string") {
+          this.template = _.template(this.template);
+        }
+
         //set up Fetching here, if src is not blank
       },
 
@@ -29,18 +34,11 @@ var Source = Panel.extend(
        */
       template : function() { throw "Not Defined"; },
 
-      /**
-       * Overrides render to pass in the Source#data field
-       *
-       * @see Panel#render
-       */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "data" : this.data,
-          "rootAttrs" : this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Source.__super__.renderHash.call(this),
+                  { data: this.data }
+                );
       }
     },
     /** @lends Source */

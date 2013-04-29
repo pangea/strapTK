@@ -32,6 +32,7 @@ var Alert = Panel.extend({
       setClosable : function(closable) {
         var hasCloseButton = false,
             closeButtonIndex = -1;
+
         _.each(this.children, function(child, i) {
           if(child instanceof CloseButton) {
             hasCloseButton = true;
@@ -39,6 +40,7 @@ var Alert = Panel.extend({
             return false;
           }
         });
+
         if(closable === true || typeof(closable) != "boolean") {
           if(hasCloseButton === false) {
             this.unshift(new CloseButton({

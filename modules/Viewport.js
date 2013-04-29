@@ -7,10 +7,6 @@ var Viewport = Component.extend({
         this.setDefaultValue("body", "root");
       },
 
-      render : function() {
-        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
-      },
-
       flush : function() {
         Viewport.__super__.flush.call(this);
         this.render();
@@ -18,6 +14,10 @@ var Viewport = Component.extend({
 
       el : function() {
         return $(this.root);
+      },
+
+      render : function() {
+        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"
