@@ -178,11 +178,20 @@ var Panel = Component.extend(
                 };
       }
 
+      /**
+       * Compiles all the markup for this Panel
+       * If the optional intoDom argument is truthy and the Panel has an ID
+       *  the generated markup is inserted directly into the DOM.
+       *
+       * @param {Boolean} intoDOM Specifies that the markup should be inserted into the DOM
+       *
+       * @returns {String} The compiled markup
+       */
       render : function(intoDOM) {
         var markup = Panel.__super__.render.call(this);
 
         if(intoDom && this.id) {
-          $(this.id).html(markup);
+          $(this.id).html(markup).add(this).trigger("after-render", [this]);
         }
 
         return markup;
