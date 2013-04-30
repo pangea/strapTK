@@ -176,7 +176,7 @@ var Panel = Component.extend(
                   yield: this.body + this.renderChildren(),
                   rootAttrs : this.listAttributes()
                 };
-      }
+      },
 
       /**
        * Compiles all the markup for this Panel

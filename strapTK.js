@@ -431,7 +431,7 @@ var Component = Base.extend(
        */
       renderHash : function() {
         return { yield: this.renderChildren() };
-      }
+      },
 
       /**
        * Compiles all the markup for this component.
@@ -655,6 +655,25 @@ var Panel = Component.extend(
                   yield: this.body + this.renderChildren(),
                   rootAttrs : this.listAttributes()
                 };
+      },
+
+      /**
+       * Compiles all the markup for this Panel
+       * If the optional intoDom argument is truthy and the Panel has an ID
+       *  the generated markup is inserted directly into the DOM.
+       *
+       * @param {Boolean} intoDOM Specifies that the markup should be inserted into the DOM
+       *
+       * @returns {String} The compiled markup
+       */
+      render : function(intoDOM) {
+        var markup = Panel.__super__.render.call(this);
+
+        if(intoDom && this.id) {
+          $(this.id).html(markup).add(this).trigger("after-render", [this]);
+        }
+
+        return markup;
       }
     },
     /** @lends Panel */
@@ -866,10 +885,17 @@ var Breadcrumbs = Panel.extend({
 
       template : strap.generateSimpleTemplate("ul"),
 
-      render : function() {
+      render : function(intoDOM) {
         var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
             last = markup.pop();
-        return markup.join(this.childSuffix) + last;
+
+        markup = markup.join(this.childSuffix) + last;
+
+        if(intoDOM && this.id) {
+          $(this.id).html(markup);
+        }
+
+        return markup;
       }
     },{
       klass: "Breadcrumbs"
@@ -1438,11 +1464,16 @@ var Nav = List.extend({
         return markup;
       },
 
-      render : function() {
+      render : function(intoDOM) {
         var markup = Nav.__super__.render.call(this);
         if(this.divided) {
           markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
         }
+
+        if(intoDOM && this.id) {
+          $(this.id).html(markup);
+        }
+
         return markup
       },
 
@@ -1709,11 +1740,36 @@ var Source = Panel.extend(
        */
       template : function() { throw "Not Defined"; },
 
-      renderHash : function() {
-        return  _.extend(
-                  Source.__super__.renderHash.call(this),
-                  { data: this.data }
-                );
+      /**
+       * Overrides render to pass in the Source#data field
+       *
+       * @see Panel#render
+       */
+      render : function(intoDOM) {
+            // if data is a function, use the return from that function, else data
+        var markup,
+            _data = (data.call ? data.call(this) : data),
+            innerHTML = this.body + this.renderChildren();
+
+        // make data an array to make this easier
+        if(!_.isArray(_data)) {
+          _data = [_data];
+        }
+
+        // iterate over the contents of data and produce the templates
+        markup = _.each(_data, function(entry) {
+          return this.template({
+            "yield": innerHTML,
+            "data" : entry,
+            "rootAttrs" : this.listAttributes()
+          });
+        }, this).join("");
+
+        if(intoDOM && this.id) {
+          $(this.id).html(markup);
+        }
+
+        return markup;
       }
     },
     /** @lends Source */
@@ -1865,7 +1921,7 @@ var Viewport = Component.extend({
       },
 
       render : function() {
-        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
+        return $(this.root).html(this.renderChildren()).add(this).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"

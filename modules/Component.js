@@ -234,7 +234,7 @@ var Component = Base.extend(
        */
       renderHash : function() {
         return { yield: this.renderChildren() };
-      }
+      },
 
       /**
        * Compiles all the markup for this component.
