@@ -34,11 +34,29 @@ var Source = Panel.extend(
        */
       template : function() { throw "Not Defined"; },
 
-      renderHash : function() {
-        return  _.extend(
-                  Source.__super__.renderHash.call(this),
-                  { data: this.data }
-                );
+      /**
+       * Overrides render to pass in the Source#data field
+       *
+       * @see Panel#render
+       */
+      render : function() {
+            // if data is a function, use the return from that function, else data
+        var _data = (data.call ? data.call(this) : data),
+            markup = this.body + this.renderChildren();
+        
+        // make data an array to make this easier
+        if(!_.isArray(_data)) {
+          _data = [_data];
+        }
+        
+        // iterate over the contents of data and produce the templates
+        return _.each(_data, function(entry) {
+          return this.template({
+            "yield": markup,
+            "data" : entry,
+            "rootAttrs" : this.listAttributes()
+          });
+        }, this).join("");
       }
     },
     /** @lends Source */
