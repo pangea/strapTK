@@ -32,7 +32,7 @@ var Nav = List.extend({
         }
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup);
+          $("#"+this.id).html(markup);
         }
 
         return markup

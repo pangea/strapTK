@@ -670,7 +670,7 @@ var Panel = Component.extend(
         var markup = Panel.__super__.render.call(this);
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup).add(this).trigger("after-render", [this]);
+          $("#"+this.id).html(markup).add(this).trigger("after-render", [this]);
         }
 
         return markup;
@@ -892,7 +892,7 @@ var Breadcrumbs = Panel.extend({
         markup = markup.join(this.childSuffix) + last;
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup);
+          $("#"+this.id).html(markup);
         }
 
         return markup;
@@ -1471,7 +1471,7 @@ var Nav = List.extend({
         }
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup);
+          $("#"+this.id).html(markup);
         }
 
         return markup
@@ -1766,7 +1766,7 @@ var Source = Panel.extend(
         }, this).join("");
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup);
+          $("#"+this.id).html(markup);
         }
 
         return markup;

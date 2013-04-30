@@ -18,7 +18,7 @@ var Breadcrumbs = Panel.extend({
         markup = markup.join(this.childSuffix) + last;
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup);
+          $("#"+this.id).html(markup);
         }
 
         return markup;

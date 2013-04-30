@@ -60,7 +60,7 @@ var Source = Panel.extend(
         }, this).join("");
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup);
+          $("#"+this.id).html(markup);
         }
 
         return markup;

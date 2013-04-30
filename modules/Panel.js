@@ -191,7 +191,7 @@ var Panel = Component.extend(
         var markup = Panel.__super__.render.call(this);
 
         if(intoDOM && this.id) {
-          $(this.id).html(markup).add(this).trigger("after-render", [this]);
+          $("#"+this.id).html(markup).add(this).trigger("after-render", [this]);
         }
 
         return markup;
