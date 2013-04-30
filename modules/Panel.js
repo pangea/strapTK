@@ -190,7 +190,7 @@ var Panel = Component.extend(
       render : function(intoDOM) {
         var markup = Panel.__super__.render.call(this);
 
-        if(intoDom && this.id) {
+        if(intoDOM && this.id) {
           $(this.id).html(markup).add(this).trigger("after-render", [this]);
         }
 
