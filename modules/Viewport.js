@@ -17,7 +17,7 @@ var Viewport = Component.extend({
       },
 
       render : function() {
-        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
+        return $(this.root).html(this.renderChildren()).add(this).trigger("after-render", [this]);
       }
     },{
       klass: "Viewport"

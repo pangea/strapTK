@@ -39,24 +39,31 @@ var Source = Panel.extend(
        *
        * @see Panel#render
        */
-      render : function() {
+      render : function(intoDOM) {
             // if data is a function, use the return from that function, else data
-        var _data = (data.call ? data.call(this) : data),
-            markup = this.body + this.renderChildren();
-        
+        var markup,
+            _data = (data.call ? data.call(this) : data),
+            innerHTML = this.body + this.renderChildren();
+
         // make data an array to make this easier
         if(!_.isArray(_data)) {
           _data = [_data];
         }
-        
+
         // iterate over the contents of data and produce the templates
-        return _.each(_data, function(entry) {
+        markup = _.each(_data, function(entry) {
           return this.template({
-            "yield": markup,
+            "yield": innerHTML,
             "data" : entry,
             "rootAttrs" : this.listAttributes()
           });
         }, this).join("");
+
+        if(intoDOM && this.id) {
+          $(this.id).html(markup);
+        }
+
+        return markup;
       }
     },
     /** @lends Source */
