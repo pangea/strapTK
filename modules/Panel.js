@@ -177,6 +177,16 @@ var Panel = Component.extend(
                   rootAttrs : this.listAttributes()
                 };
       }
+
+      render : function(intoDOM) {
+        var markup = Panel.__super__.render.call(this);
+
+        if(intoDom && this.id) {
+          $(this.id).html(markup);
+        }
+
+        return markup;
+      }
     },
     /** @lends Panel */
     {
