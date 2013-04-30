@@ -1,13 +1,32 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
+
+/**
+ * @class Provides a method of creating images simply
+ * @extends Panel
+ *
+ * @property {String} src The URI of the source image
+ */
 var Image = Panel.extend({
-  initialize : function(args) {
-    Image.__super__.initialize.call(this, args);
+      /** @see Panel#initialize */
+      initialize : function(args) {
+        Image.__super__.initialize.call(this, args);
 
-    this.setDefaultValue("", "src");
-  },
+        this.setDefaultValue(this.body, "src");
+      },
 
-  template : _.template("<img id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %> />"),
+      /** @see Panel#template */
+      template : _.template("<img <%= rootAttrs %> />"),
 
-  listAttributes : function() {
-    return this.attributes.join(" ")+" src="+this.src;
-  }
-})
+      /**
+       * Override of listAttributes to add src to the attributes returned
+       *
+       * @see Panel#listAttributes
+       */
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "src");
+      }
+    },{
+      klass: "Image"
+    })

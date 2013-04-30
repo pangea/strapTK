@@ -1,25 +1,29 @@
-var PageHeader = Panel.extend({
+/* Sprocket Manifest
+ *= require Panel
+ */
+var PageHeader = Header.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
         this.setDefaultValue("", "header");
-        this.setDefaultValue(1, "level");
+        this.addClass("page-header");
       },
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-    													"<h<%= level %>>"+
-    														"<%= header%> "+
-    														"<small><%= yield%></small>"+
-    													"</h<%= level %>>"+
-    												"</div>"),
+      template : _.template("<div <%= rootAttrs %>>"+
+                              "<h<%= level %>>"+
+                                "<%= header %> "+
+                                "<small><%= yield %></small>"+
+                              "</h<%= level %>>"+
+                            "</div>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "header": this.header,
-          "level": this.level,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  PageHeader.__super__.renderHash.call(this),
+                  {
+                    header: this.header,
+                    level: this.level
+                  }
+                )
       }
+
+    },{
+      klass: "PageHeader"
     });

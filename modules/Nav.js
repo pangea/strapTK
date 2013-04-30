@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require List
+ *= require Typify
+ */
 var Nav = List.extend({
       initialize: function(args) {
         this.childPrefix = "<li>";
@@ -8,7 +12,6 @@ var Nav = List.extend({
         this.setDefaultValue(false, "divided");
 
         this.base = "nav";
-        this.types = ["tabs", "pills", "list"];
         Typify(this);
       },
 
@@ -39,4 +42,7 @@ var Nav = List.extend({
 
         return this.divided;
       }
+    },{
+      klass: "Nav",
+      types: ["tabs", "pills", "list"]
     });

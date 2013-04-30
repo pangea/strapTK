@@ -1,4 +1,9 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Paragraph = Panel.extend({
-      template : _.template("<p id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>><%= yield %></p>")
+      template : strap.generateSimpleTemplate("p")
+    },{
+      klass: "Paragraph"
     }),
     P = Paragraph;

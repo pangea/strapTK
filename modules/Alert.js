@@ -1,8 +1,11 @@
+/* Sprocket Manifest
+ *= require Panel
+ *= require Typify
+ */
 var Alert = Panel.extend({
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);
         this.base = "alert";
-        this.types =["error", "success", "info"]
         Typify(this);
       },
 
@@ -29,6 +32,7 @@ var Alert = Panel.extend({
       setClosable : function(closable) {
         var hasCloseButton = false,
             closeButtonIndex = -1;
+
         _.each(this.children, function(child, i) {
           if(child instanceof CloseButton) {
             hasCloseButton = true;
@@ -36,6 +40,7 @@ var Alert = Panel.extend({
             return false;
           }
         });
+
         if(closable === true || typeof(closable) != "boolean") {
           if(hasCloseButton === false) {
             this.unshift(new CloseButton({
@@ -49,4 +54,7 @@ var Alert = Panel.extend({
           }
         }
       }
+    },{
+      klass: "Alert",
+      types: ["error", "success", "info"]
     });

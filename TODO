@@ -1,0 +1,2 @@
+Panels should be able to render themselves to the page without calling render on a viewport
+Sources with data arrays should loop over the array and call its template with each item

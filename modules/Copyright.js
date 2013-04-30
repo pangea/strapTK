@@ -1,4 +1,6 @@
 /*
- * Strap'd ToolKit v 0.1.0 Copyright 2013 to Chris Hall
+ * Strap'd ToolKit v 0.2.0
+ * Authored by Chris Hall
+ * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */

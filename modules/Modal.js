@@ -1,22 +1,29 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Modal = Panel.extend({
       initialize : function(args) {
         Modal.__super__.initialize.call(this, args);
 
         this.setDefaultValue([], "actions");
         this.setDefaultValue("", "header");
-
+        this.setDefaultValue(false, "closable");
         this.addClass("modal");
       },
 
-      template : _.template("<div id='<%= rootID %>' class='<%= rootClasses %>' <%= rootAttrs %>>"+
-                              "<div class='modal-header'>"+
-                                "<% if(closable) { %>" +
-                                  "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
-                                "<% } %>" +
-                                "<h3><%= header %></h3>"+
-                              "</div>"+
+      template : _.template("<div <%= rootAttrs %>>"+
+                              "<% if(closable || header) { %>" +
+                                "<div class='modal-header'>"+
+                                  "<% if(closable) { %>" +
+                                    "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
+                                  "<% } %>" +
+                                  "<%= header %>"+
+                                "</div>"+
+                              "<% } %>" +
                               "<div class='modal-body'><%= yield%></div>"+
-                              "<div class='modal-footer'><%= actions %></div>"+
+                              "<% if(actions) { %>" +
+                                "<div class='modal-footer'><%= actions %></div>"+
+                              "<% } %>" +
                             "</div>"),
 
       pushAction : function(action) {
@@ -33,25 +40,28 @@ var Modal = Panel.extend({
         this.actions.unshift(action);
         return this;
       },
-      render : function() {
-        var markup = this.body,
-            actionMarkup = "";
-        _.each(this.children, function(child) {
-          markup += child.render();
-        });
+
+      renderActions : function() {
+        var markup = "";
         _.each(this.actions, function(action) {
-          actionMarkup += action.render();
+          markup += action.render();
         });
 
-        return this.template({
-          "yield": markup,
-          "header":this.header,
-          "actions": actionMarkup,
-          "rootID": this.id,
-          "rootClasses": this.listClasses(),
-          "rootAttrs": this.listAttributes()
-        });
+        return markup;
+      },
+
+      renderHash : function() {
+        return  _.extend(
+                  Modal.__super__.renderHash.call(this),
+                  {
+                    header  : this.header,
+                    actions : this.renderActions(),
+                    closable: this.closable
+                  }
+                );
       }
+    },{
+      klass: "Modal"
     });
 
 //aliases
