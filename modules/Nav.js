@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require List
+ *= require Typify
+ */
 var Nav = List.extend({
       initialize: function(args) {
         this.childPrefix = "<li>";
@@ -21,11 +25,16 @@ var Nav = List.extend({
         return markup;
       },
 
-      render : function() {
+      render : function(intoDOM) {
         var markup = Nav.__super__.render.call(this);
         if(this.divided) {
           markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
         }
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup);
+        }
+
         return markup
       },
 

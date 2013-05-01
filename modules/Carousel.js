@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Carousel = Panel.extend({
       initialize: function(args) {
         Carousel.__super__.initialize.call(this, args);
@@ -9,7 +12,6 @@ var Carousel = Panel.extend({
         this.addClass("carousel", "slide");
       },
 
-      //Gunna have to come back to this one
       template : _.template("<div <%= rootAttrs %>>" +
                               "<% if(controls) { %>" +
                                 "<ol class='carousel-indicators'>" +
@@ -30,24 +32,26 @@ var Carousel = Panel.extend({
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
-          markup += "<div class='item" + (i == 0 ? " active" : "") + "'>" +
-                      child.render() +
-                    "</div>";
+          child.addClass("item");
+          if(i === 0) {
+            child.addClass("active");
+          }
+          markup += child.render();
         });
         return markup;
       },
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield"       : markup,
-          "rootID"      : this.id,
-          "rootAttrs"   : this.listAttributes(),
-          "controls"    : this.controls,
-          "slides"      : this.children.length,
-          "prevSymbol"  : this.prevSymbol,
-          "nextSymbol"  : this.nextSymbol
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Carousel.__super__.renderHash.call(this),
+                  {
+                    rootID    : this.id,
+                    controls  : this.controls,
+                    slides    : this.children.length,
+                    prevSymbol: this.prevSymbol,
+                    nextSymbol: this.nextSymbol
+                  }
+                );
       }
 
     },{

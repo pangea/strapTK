@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Form = Panel.extend({
       initialize : function(args) {
         Form.__super__.initialize.call(this, args);

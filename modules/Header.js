@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Header = Panel.extend({
       initialize: function(args) {
         Header.__super__.initialize.call(this, args);
@@ -5,14 +8,13 @@ var Header = Panel.extend({
       },
       template : strap.generateSimpleTemplate("h<%= level %>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Header.__super__.renderHash.call(this),
+                  { level: this.level }
+                );
       }
+
     },{
       klass: "Header"
     });

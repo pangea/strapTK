@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var SelectOption = Panel.extend({
       initialize : function(args) {
         SelectOption.__super__.initialize.call(this, args);

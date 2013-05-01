@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
+
 /**
  * @class Provides a method of creating images simply
  * @extends Panel

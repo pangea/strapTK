@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Paragraph = Panel.extend({
       template : strap.generateSimpleTemplate("p")
     },{

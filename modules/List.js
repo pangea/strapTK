@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var List = Panel.extend({
       initialize: function(args) {
         List.__super__.initialize.call(this, args);

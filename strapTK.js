@@ -1,60 +1,32 @@
-/**
- * Defines the base constructor for all Strap'd Components (except Raw, HorizontalRule, and LineBreak).
- * If attributes is an Array, it will be used as the list of children for the resulting Component.
- *
- * @author Chris Hall (chall8908@gmail.com)
- * @class
- * Generic Class that can apply arbitrary fields to itself and is extendable.
- * Base objects cannot be created directly as they lack an #initialize function.
- *
- * @param {Object|Array}  [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
- * @param {Object}        [options={}]     Passed to the initialize function (currently unused by any default component)
- */
-
-function Base(attributes, options)  {
-  var attrs = attributes || {},
-      opts = options || {};
-
-  if(_.isArray(attrs)) {
-    attrs = {children: attrs};
-  }
-
-  for(attr in attrs) {
-    this[attr] = attrs[attr];
-  }
-
-  this.initialize(opts);
-};
-
-/**
- * Wrapper for the Extend function to provide this as the parent of the new object
- *
- * @see Extend
- */
-Base.extend = function(protoProps, staticProps) {
-  return Extend(this, protoProps, staticProps);
-};
 /*
- * Strap'd ToolKit v 0.1.1 Copyright 2013 to Chris Hall
+ * Strap'd ToolKit v 0.2.2
+ * Authored by Chris Hall
+ * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
 ;
-/**
- * The strap object contains a set of global functions that apply to the entire page
- */
-
-var strap = new (function() {
-      /**#nocode+
-       * @WIP
+var strap = (function() {
+      /**
+       * Attempts to generate a Component from a given hash
+       *
+       * @param {Object} obj        The object to strap
+       * @param {String} [obj.tag]  The HTML tag the new Component should have
+       *
+       * @return {Component|Panel} A strap'd object
+       *
+       * @see Component
+       * @see Panel
        */
-      this.allDraggable = function(draggable) {
-        if(draggable === true) {
-          $("body").find("*").attr("draggable", "true")
-        } else if(draggable === false) {
-          $("body").find("*").removeAttr("draggable")
+      var strap = function(obj) {
+        var tagged = typeof(obj.tag) != "undefined" && typeof(obj.tag) == "string",
+            gen = tagged ? new Panel(obj) : new Component(obj);
+
+        if(tagged) {
+          gen.template = strap.generateSimpleTemplate(obj.tag);
         }
+
+        return gen;
       }
-      /**#nocode- */
 
       /**
        * Constructs Strap'd objects from JSON.
@@ -65,14 +37,14 @@ var strap = new (function() {
        *
        * @returns {Object|Object[]} The result of building the Strap'd objects
        */
-      this.build = function(json) {
+      strap.build = function(json) {
 
         /**
          * Parses the JSON and produces Strap'd classes
          *
          * @private
          *
-         * @oaram {String|Object|Array} json The JSON string or Object to be parsed
+         * @param {Object} json The object to be parsed
          *
          * @returns {Object} A Strap'd object
          */
@@ -125,11 +97,12 @@ var strap = new (function() {
        *
        * @returns {Function} A function that can be used to compile the template
        */
-      this.generateSimpleTemplate = function(tag) {
+      strap.generateSimpleTemplate = function(tag) {
         return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
       }
-    })();
 
+      return strap;
+    })();
 /**
  * Global Extend function for creating subclasses
  * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.
@@ -180,59 +153,52 @@ function Extend(parent, protoProps, staticProps) {
 
   return child;
 }
+;
+/* Sprocket Manifest
+
+ */
 
 /**
- * Decorates the given component with the necessary variables and methods to handle being typed.
- *  A typed object is one that has a "base" and is then further modified with a "type".
- *  E.G. An alert can be an "error" message (and have a "type" of "error")
+ * Defines the base constructor for all Strap'd Components (except Raw, HorizontalRule, and LineBreak).
+ * If attributes is an Array, it will be used as the list of children for the resulting Component.
  *
- * This method does not overwrite any variables set on the decorated component unless it
- *  already has a setType property (which it shouldn't >:[)
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class
+ * Generic Class that can apply arbitrary fields to itself and is extendable.
+ * Base objects cannot be created directly as they lack an #initialize function.
  *
- * @param component [Component] the component to be decorated,
- * @param options   [Object]    the default values of type, base, and types can be defined in this object
+ * @param {Object|Array}  [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+ * @param {Object}        [options={}]     Passed to the initialize function (currently unused by any default component)
  */
-function Typify(component, options) {
-  options = _.extend({}, Typify.defaults, options);
 
-  component.setType = function(type) {
-    if(this.type) {
-      this.removeClass(this.base+"-"+this.type);
-      delete this.type;
-    }
-    if(type) {
-      if(!_.include(this.constructor.types, type)) {
-        throw new RangeError("Invalid type - "+type);
-      }
-      this.type = type;
-      this.addClass(this.base+"-"+type);
-    }
-  };
-    // call is used here to force the value of this to be the
-    //  component's constructor instead of the component itself
-  component.setDefaultValue.call(component.constructor, options.types, "types");  // set the types, if not already set
-                                                                                  // types are defined on the constructor because only instance of
-                                                                                  //  the list of types is needed for each instance of this component
-                                                                                  //  In most cases, this function will do nothing
-  component.setDefaultValue(options.base, "base");  // set the base, if not already set
-  component.setDefaultValue(options.type, "type");  // set the type, if not already set
+function Base(attributes, options)  {
+  var attrs = attributes || {},
+      opts = options || {};
 
-  if(component.base) {
-    component.addClass(component.base);
+  if(_.isArray(attrs)) {
+    attrs = {children: attrs};
   }
 
-  if(component.type) {
-    component.setType(component.type);
+  for(attr in attrs) {
+    this[attr] = attrs[attr];
   }
-}
 
-/** @constant */
-Typify.defaults = {
-  types: [""],
-  base: "",
-  type: ""
-}
-;
+  this.initialize(opts);
+};
+
+/**
+ * Wrapper for the Extend function to provide this as the parent of the new object
+ *
+ * @see Extend
+ */
+Base.extend = function(protoProps, staticProps) {
+  return Extend(this, protoProps, staticProps);
+};
+/* Sprocket Manifest
+
+
+ */
+
 /**
  * @class Components are generic objects that can add and remove children and render themselves
  * @extends Base
@@ -409,6 +375,17 @@ var Component = Base.extend(
       },
 
       /**
+       * Removes all the children from this Component
+       *
+       * @returns {Array} the list of children
+       */
+      flush : function() {
+        var children = this.children;
+        this.children = [];
+        return children;
+      },
+
+      /**
        * Checks if the given object is renderable
        * That is, if it has a method named render.
        *
@@ -417,6 +394,11 @@ var Component = Base.extend(
        * @throws {TypeError} If the given object is not renderable
        */
       checkIfRenderable : function(renderable) {
+        // renderable might be buildable
+        if(renderable.klass && !renderable.render) {
+          renderable = strap.build(renderable);
+        }
+
         if(typeof(renderable.render) === "function") {
           return;
         }
@@ -443,13 +425,22 @@ var Component = Base.extend(
       },
 
       /**
+       * Constructs the hash of attributes to send into the template function
+       *
+       * @returns {Object} the render hash
+       */
+      renderHash : function() {
+        return { yield: this.renderChildren() };
+      },
+
+      /**
        * Compiles all the markup for this component.
        *
        * @returns {String} The compiled markup for this component
        * @see Component#renderChildren
        */
       render : function() {
-        return this.template({"yield": this.renderChildren()});
+        return this.template(this.renderHash());
       },
 
       /**
@@ -485,17 +476,10 @@ var Component = Base.extend(
  * @see Component#push
  */
 Component.prototype.add = Component.prototype.push;
-var Viewport = Component.extend({
-      initialize: function(args) {
-        Viewport.__super__.initialize.call(this, args);
-        this.setDefaultValue("body", "root");
-      },
-      render : function() {
-        return $(this.root).empty().append(this.renderChildren()).trigger("after-render", [this]);
-      }
-    },{
-      klass: "Viewport"
-    });
+/* Sprocket Manifest
+
+ */
+
 var Panel = Component.extend(
     /** @lends Panel# */
     {
@@ -536,6 +520,13 @@ var Panel = Component.extend(
 
         this.setDefaultValue([], "classes", "attributes");
         this.setDefaultValue("", "id", "body");
+
+        // Convert a list of space separated classes/attributes into a proper array
+        _.each(["classes", "attributes"], function(attr) {
+          if(typeof(this[attr]) === "string") {
+            this[attr] = _.uniq(this[attr].split(" "));
+          }
+        }, this);
       },
 
       /**
@@ -655,22 +646,34 @@ var Panel = Component.extend(
       template : strap.generateSimpleTemplate("div"),
 
       /**
-       * Panel#render, much like Component#render, compiles the markup of all child Components.
-       * However, it prepends the body field to the markup returned by #renderChildren.
-       * It then passes this combined markup as the yield property of the object passed into #template
-       * It also passes the result of #listAttributes as the rootAttrs property of the object passed into the template
+       * @see Component#renderHash
        *
-       * @returns {String} the HTML markup for this Panel
-       *
-       * @see Panel#template
-       * @see Component#renderChildren
+       * Overrides Component#renderHash to add body and attributes
        */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "rootAttrs" : this.listAttributes()
-        });
+      renderHash : function() {
+        return  {
+                  yield: this.body + this.renderChildren(),
+                  rootAttrs : this.listAttributes()
+                };
+      },
+
+      /**
+       * Compiles all the markup for this Panel
+       * If the optional intoDom argument is truthy and the Panel has an ID
+       *  the generated markup is inserted directly into the DOM.
+       *
+       * @param {Boolean} intoDOM Specifies that the markup should be inserted into the DOM
+       *
+       * @returns {String} The compiled markup
+       */
+      render : function(intoDOM) {
+        var markup = Panel.__super__.render.call(this);
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup).add(this).trigger("after-render", [this]);
+        }
+
+        return markup;
       }
     },
     /** @lends Panel */
@@ -679,6 +682,64 @@ var Panel = Component.extend(
     }),
     /** @ignore */
     Div = Panel;
+/**
+ * Decorates the given component with the necessary variables and methods to handle being typed.
+ *  A typed object is one that has a "base" and is then further modified with a "type".
+ *  E.G. An alert can be an "error" message (and have a "type" of "error")
+ *
+ * This method does not overwrite any variables set on the decorated component unless it
+ *  already has a setType property (which it shouldn't >:[)
+ *
+ * @param component [Component] the component to be decorated,
+ * @param options   [Object]    the default values of type, base, and types can be defined in this object
+ */
+
+function Typify(component, options) {
+  options = _.extend({}, Typify.defaults, options);
+
+  component.setType = function(type) {
+    if(this.type) {
+      this.removeClass(this.base+"-"+this.type);
+      delete this.type;
+    }
+    if(type) {
+      if(!_.include(this.constructor.types, type)) {
+        throw new RangeError("Invalid type - "+type);
+      }
+      this.type = type;
+      this.addClass(this.base+"-"+type);
+    }
+  };
+    // call is used here to force the value of this to be the
+    //  component's constructor instead of the component itself
+  component.setDefaultValue.call(component.constructor, options.types, "types");  // set the types, if not already set
+                                                                                  // types are defined on the constructor because only instance of
+                                                                                  //  the list of types is needed for each instance of this component
+                                                                                  //  In most cases, this function will do nothing
+  component.setDefaultValue(options.base, "base");  // set the base, if not already set
+  component.setDefaultValue(options.type, "type");  // set the type, if not already set
+
+  if(component.base) {
+    component.addClass(component.base);
+  }
+
+  if(component.type) {
+    component.setType(component.type);
+  }
+}
+
+/** @constant */
+Typify.defaults = {
+  types: [""],
+  base: "",
+  type: ""
+}
+;
+/* Sprocket Manifest
+
+
+ */
+
 /**
  * @class As the name suggests, AbstractBadge is an abstract class used to keep the Badge and Label classes DRY.  This is a type aware class.
  * @extends Panel
@@ -703,33 +764,10 @@ var AbstractBadge = Panel.extend(
       klass: "AbstractBadge",
       types : ["success", "warning", "important", "info", "inverse"]
     });
-var Link = Panel.extend({
-      initialize : function(args) {
-        Link.__super__.initialize.call(this, args);
+/* Sprocket Manifest
 
-        this.setDefaultValue("#", "href");
-      },
+ */
 
-      listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "href");
-      },
-
-      template : strap.generateSimpleTemplate("a")
-    },{
-      klass: "Link"
-    });
-var List = Panel.extend({
-      initialize: function(args) {
-        List.__super__.initialize.call(this, args);
-
-        this.childPrefix || (this.childPrefix = "<li>");
-        this.childSuffix || (this.childSuffix = "</li>");
-      },
-
-      template: strap.generateSimpleTemplate("ul")
-    },{
-      klass: "List"
-    });
 var Accordion = Panel.extend({
       initialize: function(args) {
         Accordion.__super__.initialize.call(this, args);
@@ -760,6 +798,11 @@ var Accordion = Panel.extend({
     },{
       klass: "Accordion"
     });
+/* Sprocket Manifest
+
+
+ */
+
 var Alert = Panel.extend({
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);
@@ -790,6 +833,7 @@ var Alert = Panel.extend({
       setClosable : function(closable) {
         var hasCloseButton = false,
             closeButtonIndex = -1;
+
         _.each(this.children, function(child, i) {
           if(child instanceof CloseButton) {
             hasCloseButton = true;
@@ -797,6 +841,7 @@ var Alert = Panel.extend({
             return false;
           }
         });
+
         if(closable === true || typeof(closable) != "boolean") {
           if(hasCloseButton === false) {
             this.unshift(new CloseButton({
@@ -814,6 +859,10 @@ var Alert = Panel.extend({
       klass: "Alert",
       types: ["error", "success", "info"]
     });
+/* Sprocket Manifest
+
+ */
+
 var Badge = AbstractBadge.extend({
       initialize : function(args) {
         this.base = "badge";
@@ -822,6 +871,10 @@ var Badge = AbstractBadge.extend({
     },{
       klass: "Badge"
     });
+/* Sprocket Manifest
+
+ */
+
 var Breadcrumbs = Panel.extend({
       initialize : function(args) {
         Breadcrumbs.__super__.initialize.call(this, args);
@@ -832,14 +885,45 @@ var Breadcrumbs = Panel.extend({
 
       template : strap.generateSimpleTemplate("ul"),
 
-      render : function() {
+      render : function(intoDOM) {
         var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
             last = markup.pop();
-        return markup.join(this.childSuffix) + last;
+
+        markup = markup.join(this.childSuffix) + last;
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup);
+        }
+
+        return markup;
       }
     },{
       klass: "Breadcrumbs"
     });
+/* Sprocket Manifest
+
+ */
+
+var Link = Panel.extend({
+      initialize : function(args) {
+        Link.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("#", "href");
+      },
+
+      listAttributes : function() {
+        return FormSelect.__super__.listAttributes.call(this, "href");
+      },
+
+      template : strap.generateSimpleTemplate("a")
+    },{
+      klass: "Link"
+    });
+/* Sprocket Manifest
+
+
+ */
+
 var Button = Link.extend({
       initialize : function(args) {
         Button.__super__.initialize.call(this, args);
@@ -854,6 +938,10 @@ var Button = Link.extend({
       klass: "Button",
       types: ["primary", "secondary", "info", "success", "warning", "danger", "inverse", "link"]
     });
+/* Sprocket Manifest
+
+ */
+
 var ButtonGroup = Panel.extend({
       initialize: function(args) {
         ButtonGroup.__super__.initialize.call(this, args);
@@ -862,6 +950,10 @@ var ButtonGroup = Panel.extend({
     },{
       klass: "ButtonGroup"
     });
+/* Sprocket Manifest
+
+ */
+
 var ButtonToolbar = Panel.extend({
       initialize: function(args) {
         ButtonToolbar.__super__.initialize.call(this, args);
@@ -870,6 +962,10 @@ var ButtonToolbar = Panel.extend({
     },{
       klass: "ButtonToolbar"
     });
+/* Sprocket Manifest
+
+ */
+
 var Carousel = Panel.extend({
       initialize: function(args) {
         Carousel.__super__.initialize.call(this, args);
@@ -881,7 +977,6 @@ var Carousel = Panel.extend({
         this.addClass("carousel", "slide");
       },
 
-      //Gunna have to come back to this one
       template : _.template("<div <%= rootAttrs %>>" +
                               "<% if(controls) { %>" +
                                 "<ol class='carousel-indicators'>" +
@@ -902,29 +997,35 @@ var Carousel = Panel.extend({
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
-          markup += "<div class='item" + (i == 0 ? " active" : "") + "'>" +
-                      child.render() +
-                    "</div>";
+          child.addClass("item");
+          if(i === 0) {
+            child.addClass("active");
+          }
+          markup += child.render();
         });
         return markup;
       },
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield"       : markup,
-          "rootID"      : this.id,
-          "rootAttrs"   : this.listAttributes(),
-          "controls"    : this.controls,
-          "slides"      : this.children.length,
-          "prevSymbol"  : this.prevSymbol,
-          "nextSymbol"  : this.nextSymbol
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Carousel.__super__.renderHash.call(this),
+                  {
+                    rootID    : this.id,
+                    controls  : this.controls,
+                    slides    : this.children.length,
+                    prevSymbol: this.prevSymbol,
+                    nextSymbol: this.nextSymbol
+                  }
+                );
       }
 
     },{
       klass: "Carousel"
     });
+/* Sprocket Manifest
+
+ */
+
 var CloseButton = Link.extend({
       initialize : function(args) {
         CloseButton.__super__.initialize.call(this, args);
@@ -934,6 +1035,10 @@ var CloseButton = Link.extend({
     },{
       klass: "CloseButton"
     });
+/* Sprocket Manifest
+
+ */
+
 var ContentRow = Panel.extend({
       initialize: function(args) {
         ContentRow.__super__.initialize.call(this, args);
@@ -983,6 +1088,26 @@ var ContentRow = Panel.extend({
     },{
       klass: "ContentRow"
     });
+/* Sprocket Manifest
+
+ */
+
+var List = Panel.extend({
+      initialize: function(args) {
+        List.__super__.initialize.call(this, args);
+
+        this.childPrefix || (this.childPrefix = "<li>");
+        this.childSuffix || (this.childSuffix = "</li>");
+      },
+
+      template: strap.generateSimpleTemplate("ul")
+    },{
+      klass: "List"
+    });
+/* Sprocket Manifest
+
+ */
+
 var DropdownMenu = List.extend({
       initialize : function(args) {
         DropdownMenu.__super__.initialize.call(this, args);
@@ -995,6 +1120,10 @@ var DropdownMenu = List.extend({
     },{
       klass: "DropdownMenu"
     });
+/* Sprocket Manifest
+
+ */
+
 var Form = Panel.extend({
       initialize : function(args) {
         Form.__super__.initialize.call(this, args);
@@ -1011,6 +1140,10 @@ var Form = Panel.extend({
     },{
       klass: "Form"
     });
+/* Sprocket Manifest
+
+ */
+
 var FormInput = Panel.extend({
       initialize : function(args) {
         FormInput.__super__.initialize.call(this, args);
@@ -1033,16 +1166,28 @@ var FormInput = Panel.extend({
                 "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week"
               ]
     });
+/* Sprocket Manifest
+
+ */
+
 var FormLabel = Panel.extend({
       template : strap.generateSimpleTemplate("label")
     },{
       klass : "FormLabel"
     });
+/* Sprocket Manifest
+
+ */
+
 var FormSelect = Panel.extend({
       template : strap.generateSimpleTemplate("select")
     },{
       klass : "FormSelect"
     });
+/* Sprocket Manifest
+
+ */
+
 var Header = Panel.extend({
       initialize: function(args) {
         Header.__super__.initialize.call(this, args);
@@ -1050,17 +1195,20 @@ var Header = Panel.extend({
       },
       template : strap.generateSimpleTemplate("h<%= level %>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  Header.__super__.renderHash.call(this),
+                  { level: this.level }
+                );
       }
+
     },{
       klass: "Header"
     });
+/* Sprocket Manifest
+
+ */
+
 var HeroUnit = Panel.extend({
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
@@ -1073,23 +1221,39 @@ var HeroUnit = Panel.extend({
                               "<h1><%= title %></h1>"+
                               "<%= yield %>"+
                             "</div>"),
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "title": this.title,
-          "rootAttrs": this.listAttributes()
-        });
+
+      renderHash : function() {
+        return  _.extend(
+                  HeroUnit.__super__.renderHash.call(this),
+                  { title: this.title }
+                );
       }
+
     },{
       klass: "HeroUnit"
     });
+/**
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class Provides a simple wrapper around a hroizontal rule tag that can be used as the child to a Component
+ */
+
 function HorizontalRule() { this.klass = "HorizontalRule"; }
+/**
+ * Returns a horizontal rule
+ *
+ * @returns {String} the string "&lt;hr/&gt;"
+ */
 HorizontalRule.prototype.render = function() {
   return "<hr/>";
 }
 
+/** @borrows HorizontalRule# as HR# */
 var HR = HorizontalRule;
+/* Sprocket Manifest
+
+
+ */
+
 var Icon = Panel.extend({
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);
@@ -1131,6 +1295,10 @@ var Icon = Panel.extend({
               "plus-sign-alt", "stethoscope", "user-md"
             ]
     });
+/* Sprocket Manifest
+
+ */
+
 /**
  * @class Provides a method of creating images simply
  * @extends Panel
@@ -1161,6 +1329,10 @@ var Image = Panel.extend({
       klass: "Image"
     })
 ;
+/* Sprocket Manifest
+
+ */
+
 var Label = AbstractBadge.extend({
       initialize : function(args) {
         this.base = "label";
@@ -1169,17 +1341,36 @@ var Label = AbstractBadge.extend({
     },{
       klass: "Label"
     });
+/* Sprocket Manifest
+
+ */
+
 var Legend = Panel.extend({
       template: strap.generateSimpleTemplate("legend")
     }, {
       klass: "Legend"
     });
+/**
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class Provides a simple wrapper around the line break tag that can be used as the child to a Component
+ */
+
 function LineBreak() { this.klass = "LineBreak"; }
+/**
+ * Returns a line break
+ *
+ * @returns {String} the string "&lt;br/&gt;"
+ */
 LineBreak.prototype.render = function() {
   return "<br/>";
 }
 
+/** @borrows LineBreak# as BR# */
 var BR = LineBreak;
+/* Sprocket Manifest
+
+ */
+
 var Modal = Panel.extend({
       initialize : function(args) {
         Modal.__super__.initialize.call(this, args);
@@ -1191,14 +1382,18 @@ var Modal = Panel.extend({
       },
 
       template : _.template("<div <%= rootAttrs %>>"+
-                              "<div class='modal-header'>"+
-                                "<% if(closable) { %>" +
-                                  "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
-                                "<% } %>" +
-                                "<%= header %>"+
-                              "</div>"+
+                              "<% if(closable || header) { %>" +
+                                "<div class='modal-header'>"+
+                                  "<% if(closable) { %>" +
+                                    "<button aria-hidden='true' class='close' data-dismiss='modal' type='button'>&times;</button>"+
+                                  "<% } %>" +
+                                  "<%= header %>"+
+                                "</div>"+
+                              "<% } %>" +
                               "<div class='modal-body'><%= yield%></div>"+
-                              "<div class='modal-footer'><%= actions %></div>"+
+                              "<% if(actions) { %>" +
+                                "<div class='modal-footer'><%= actions %></div>"+
+                              "<% } %>" +
                             "</div>"),
 
       pushAction : function(action) {
@@ -1215,23 +1410,25 @@ var Modal = Panel.extend({
         this.actions.unshift(action);
         return this;
       },
-      render : function() {
-        var markup = this.body,
-            actionMarkup = "";
-        _.each(this.children, function(child) {
-          markup += child.render();
-        });
+
+      renderActions : function() {
+        var markup = "";
         _.each(this.actions, function(action) {
-          actionMarkup += action.render();
+          markup += action.render();
         });
 
-        return this.template({
-          "yield": markup,
-          "header":this.header,
-          "actions": actionMarkup,
-          "closable": this.closable,
-          "rootAttrs": this.listAttributes()
-        });
+        return markup;
+      },
+
+      renderHash : function() {
+        return  _.extend(
+                  Modal.__super__.renderHash.call(this),
+                  {
+                    header  : this.header,
+                    actions : this.renderActions(),
+                    closable: this.closable
+                  }
+                );
       }
     },{
       klass: "Modal"
@@ -1239,6 +1436,11 @@ var Modal = Panel.extend({
 
 //aliases
 Modal.prototype.addAction = Modal.prototype.pushAction;
+/* Sprocket Manifest
+
+
+ */
+
 var Nav = List.extend({
       initialize: function(args) {
         this.childPrefix = "<li>";
@@ -1262,11 +1464,16 @@ var Nav = List.extend({
         return markup;
       },
 
-      render : function() {
+      render : function(intoDOM) {
         var markup = Nav.__super__.render.call(this);
         if(this.divided) {
           markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
         }
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup);
+        }
+
         return markup
       },
 
@@ -1283,6 +1490,10 @@ var Nav = List.extend({
       klass: "Nav",
       types: ["tabs", "pills", "list"]
     });
+/* Sprocket Manifest
+
+ */
+
 var NavBar = Panel.extend({
       initialize : function(args) {
         NavBar.__super__.initialize.call(this, args);
@@ -1295,6 +1506,10 @@ var NavBar = Panel.extend({
     },{
       klass: "NavBar"
     });
+/* Sprocket Manifest
+
+ */
+
 var OptGroup = Panel.extend({
       initialize : function(args) {
         OptGroup.__super__.initialize.call(this, args);
@@ -1310,6 +1525,10 @@ var OptGroup = Panel.extend({
     },{
       klass: "OptGroup"
     });
+/* Sprocket Manifest
+
+ */
+
 var PageHeader = Header.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
@@ -1317,24 +1536,29 @@ var PageHeader = Header.extend({
         this.addClass("page-header");
       },
       template : _.template("<div <%= rootAttrs %>>"+
-    													"<h<%= level %>>"+
-    														"<%= header %> "+
-    														"<small><%= yield%></small>"+
-    													"</h<%= level %>>"+
-    												"</div>"),
+                              "<h<%= level %>>"+
+                                "<%= header %> "+
+                                "<small><%= yield %></small>"+
+                              "</h<%= level %>>"+
+                            "</div>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "header": this.header,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  PageHeader.__super__.renderHash.call(this),
+                  {
+                    header: this.header,
+                    level: this.level
+                  }
+                )
       }
+
     },{
       klass: "PageHeader"
     });
+/* Sprocket Manifest
+
+ */
+
 var Pagination = Panel.extend({
       initialize: function(args) {
         if(this.children && this.pages) {
@@ -1342,7 +1566,7 @@ var Pagination = Panel.extend({
         }
         Pagination.__super__.initialize.call(this, args);
 
-        this.setDefaultValue(0, "pages");
+        this.setDefaultValue(1, "pages");
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
@@ -1365,27 +1589,40 @@ var Pagination = Panel.extend({
       buildPages: function() {
         this.children = [];
         if(this.pages < 1) {
+
           throw new SyntaxError("You must supply a number of pages greater than 0");
+
         } else if(this.pages > 1) {
+
           this.add(new Link({body: "&laquo;", classes: ["prev"]}));
           _.times(this.pages, function(i) {
-            this.add(new Link((i+1).toString()));
+            this.add(new Link((i+1)+""));
           }, this);
           this.add(new Link({body: "&raquo;", classes: ["next"]}));
+
         } else {
-          console.warn("Paginator instanciated with only 1 page."); //paginators with only 1 page don't display
+          console.warn("Paginator instantiated with only 1 page."); //paginators with only 1 page don't display
         }
       }
 
     },{
       klass: "Pagination"
     });
+/* Sprocket Manifest
+
+ */
+
 var Paragraph = Panel.extend({
       template : strap.generateSimpleTemplate("p")
     },{
       klass: "Paragraph"
     }),
     P = Paragraph;
+/* Sprocket Manifest
+
+
+ */
+
 var ProgressBar = Panel.extend({
       initialize: function(args) {
         ProgressBar.__super__.initialize.call(this, args);
@@ -1420,16 +1657,37 @@ var ProgressBar = Panel.extend({
       klass: "ProgressBar",
       types: ["info", "success", "warning", "danger"]
     });
+/**
+ * Generates a renderable entity that acts as a simple passthrough for the attributes it's given.
+ *
+ * @author Chris Hall (chall8908@gmail.com)
+ * @class
+ * A simple wrapper class providing render capability to an artibrary string of text.
+ * Raws function as Components with the notable exception of only retaining or rendering its body field.
+ *
+ * @param {Object|String} attrs the attributes to provide this Raw.
+ * @param {String} attrs.body if attrs is not a string, this field is applied to Raw#body
+ */
+
 function Raw(attrs) {
   // the idea here is you can send in an object with the field body or just a string for the body
   this.body = attrs.body || attrs;
   this.klass = "Raw"
 }
 
+/**
+ * Provides render functionality to Raws and allows them to be used as children for Components
+ *
+ * @returns {String} the body field of this Raw
+ */
 Raw.prototype.render = function() {
   return this.body;
 }
 ;
+/* Sprocket Manifest
+
+ */
+
 var SelectOption = Panel.extend({
       initialize : function(args) {
         SelectOption.__super__.initialize.call(this, args);
@@ -1445,6 +1703,10 @@ var SelectOption = Panel.extend({
     }, {
       klass : "SelectOption"
     });
+/* Sprocket Manifest
+
+ */
+
 /**
  * @class Sources are Components that know how to gather and use data gathered from a 3rd party API
  * @extends Panel
@@ -1463,11 +1725,16 @@ var Source = Panel.extend(
         this.setDefaultValue("", "src");
         this.setDefaultValue({}, "data");
 
+        // convert template from string to function
+        if(typeof(this.template) === "string") {
+          this.template = _.template(this.template);
+        }
+
         //set up Fetching here, if src is not blank
       },
 
       /**
-       * Source objects must define their templates at instanciation.
+       * Source objects must define their templates at instantiation.
        *
        * @throws Not Defined
        */
@@ -1478,24 +1745,50 @@ var Source = Panel.extend(
        *
        * @see Panel#render
        */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "data" : this.data,
-          "rootAttrs" : this.listAttributes()
-        });
+      render : function(intoDOM) {
+            // if data is a function, use the return from that function, else data
+        var markup,
+            _data = (data.call ? data.call(this) : data),
+            innerHTML = this.body + this.renderChildren();
+
+        // make data an array to make this easier
+        if(!_.isArray(_data)) {
+          _data = [_data];
+        }
+
+        // iterate over the contents of data and produce the templates
+        markup = _.each(_data, function(entry) {
+          return this.template({
+            "yield": innerHTML,
+            "data" : entry,
+            "rootAttrs" : this.listAttributes()
+          });
+        }, this).join("");
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup);
+        }
+
+        return markup;
       }
     },
     /** @lends Source */
     {
       klass: "Source"
     });
+/* Sprocket Manifest
+
+ */
+
 var Span = Panel.extend({
       template: strap.generateSimpleTemplate("span")
     }, {
       klass: "Span"
     });
+/* Sprocket Manifest
+
+ */
+
 var Table = Panel.extend({
       initialize: function(args) {
         Table.__super__.initialize.call(this, args);
@@ -1532,16 +1825,28 @@ var Table = Panel.extend({
 
     //aliases
 Table.prototype.add = Table.prototype.push;
+/* Sprocket Manifest
+
+ */
+
 var TableCell = Panel.extend({
       template : strap.generateSimpleTemplate("td")
     },{
       klass: "TableCell"
     });
+/* Sprocket Manifest
+
+ */
+
 var TableHeader = Panel.extend({
       template : strap.generateSimpleTemplate("th")
     },{
       klass: "TableHeader"
     });
+/* Sprocket Manifest
+
+ */
+
 var TableRow = Panel.extend({
       initialize: function(args) {
         TableRow.__super__.initialize.call(this, args);
@@ -1577,24 +1882,59 @@ var TableRow = Panel.extend({
 
 // aliases
 TableRow.prototype.add = TableRow.prototype.push;
+/* Sprocket Manifest
+
+ */
+
 var Textarea = Panel.extend({
-      template : strap.generateSimpleTemplate("textarea")
+      initialize : function(args) {
+        Textarea.__super__.initialize.call(this, args);
+
+        this.setDefaultValue("", "placeholder");
+      },
+
+      template : strap.generateSimpleTemplate("textarea"),
+
+      listAttributes : function() {
+        return Textarea.__super__.listAttributes.call(this, "placeholder");
+      }
     }, {
       klass : "Textarea"
     });
+/* Sprocket Manifest
+
+ */
+
+var Viewport = Component.extend({
+      initialize: function(args) {
+        Viewport.__super__.initialize.call(this, args);
+        this.setDefaultValue("body", "root");
+      },
+
+      flush : function() {
+        Viewport.__super__.flush.call(this);
+        this.render();
+      },
+
+      el : function() {
+        return $(this.root);
+      },
+
+      render : function() {
+        return $(this.root).html(this.renderChildren()).add(this).trigger("after-render", [this]);
+      }
+    },{
+      klass: "Viewport"
+    });
+/* Sprocket Manifest
+
+ */
+
 var TooManyChildrenError  = Extend(Error, {message: "Too many children.", name: "TooManyChildrenError"}),
 
     WebsocketConnectError = Extend(Error, {message: "Unable to connect via websocket.", name: "WebsocketConnectError"});
 /* Manifest file for compiling assets with Sprockets
  *
-
-
-
-
-
-
-
-
 
 
  */

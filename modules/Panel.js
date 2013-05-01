@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Component
+ */
 var Panel = Component.extend(
     /** @lends Panel# */
     {
@@ -38,6 +41,13 @@ var Panel = Component.extend(
 
         this.setDefaultValue([], "classes", "attributes");
         this.setDefaultValue("", "id", "body");
+
+        // Convert a list of space separated classes/attributes into a proper array
+        _.each(["classes", "attributes"], function(attr) {
+          if(typeof(this[attr]) === "string") {
+            this[attr] = _.uniq(this[attr].split(" "));
+          }
+        }, this);
       },
 
       /**
@@ -157,22 +167,34 @@ var Panel = Component.extend(
       template : strap.generateSimpleTemplate("div"),
 
       /**
-       * Panel#render, much like Component#render, compiles the markup of all child Components.
-       * However, it prepends the body field to the markup returned by #renderChildren.
-       * It then passes this combined markup as the yield property of the object passed into #template
-       * It also passes the result of #listAttributes as the rootAttrs property of the object passed into the template
+       * @see Component#renderHash
        *
-       * @returns {String} the HTML markup for this Panel
-       *
-       * @see Panel#template
-       * @see Component#renderChildren
+       * Overrides Component#renderHash to add body and attributes
        */
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "rootAttrs" : this.listAttributes()
-        });
+      renderHash : function() {
+        return  {
+                  yield: this.body + this.renderChildren(),
+                  rootAttrs : this.listAttributes()
+                };
+      },
+
+      /**
+       * Compiles all the markup for this Panel
+       * If the optional intoDom argument is truthy and the Panel has an ID
+       *  the generated markup is inserted directly into the DOM.
+       *
+       * @param {Boolean} intoDOM Specifies that the markup should be inserted into the DOM
+       *
+       * @returns {String} The compiled markup
+       */
+      render : function(intoDOM) {
+        var markup = Panel.__super__.render.call(this);
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup).add(this).trigger("after-render", [this]);
+        }
+
+        return markup;
       }
     },
     /** @lends Panel */

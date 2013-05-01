@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var PageHeader = Header.extend({
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
@@ -5,21 +8,22 @@ var PageHeader = Header.extend({
         this.addClass("page-header");
       },
       template : _.template("<div <%= rootAttrs %>>"+
-    													"<h<%= level %>>"+
-    														"<%= header %> "+
-    														"<small><%= yield%></small>"+
-    													"</h<%= level %>>"+
-    												"</div>"),
+                              "<h<%= level %>>"+
+                                "<%= header %> "+
+                                "<small><%= yield %></small>"+
+                              "</h<%= level %>>"+
+                            "</div>"),
 
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "header": this.header,
-          "level": this.level,
-          "rootAttrs": this.listAttributes()
-        });
+      renderHash : function() {
+        return  _.extend(
+                  PageHeader.__super__.renderHash.call(this),
+                  {
+                    header: this.header,
+                    level: this.level
+                  }
+                )
       }
+
     },{
       klass: "PageHeader"
     });

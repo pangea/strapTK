@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var ContentRow = Panel.extend({
       initialize: function(args) {
         ContentRow.__super__.initialize.call(this, args);

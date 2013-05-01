@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var HeroUnit = Panel.extend({
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
@@ -10,14 +13,14 @@ var HeroUnit = Panel.extend({
                               "<h1><%= title %></h1>"+
                               "<%= yield %>"+
                             "</div>"),
-      render : function() {
-        var markup = this.body + this.renderChildren();
-        return this.template({
-          "yield": markup,
-          "title": this.title,
-          "rootAttrs": this.listAttributes()
-        });
+
+      renderHash : function() {
+        return  _.extend(
+                  HeroUnit.__super__.renderHash.call(this),
+                  { title: this.title }
+                );
       }
+
     },{
       klass: "HeroUnit"
     });

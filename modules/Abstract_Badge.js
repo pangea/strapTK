@@ -1,3 +1,8 @@
+/* Sprocket Manifest
+ *= require Panel
+ *= require Typify
+ */
+
 /**
  * @class As the name suggests, AbstractBadge is an abstract class used to keep the Badge and Label classes DRY.  This is a type aware class.
  * @extends Panel

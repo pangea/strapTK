@@ -1,3 +1,8 @@
+/* Sprocket Manifest
+ *= require Strap
+ *= require Base
+ */
+
 /**
  * @class Components are generic objects that can add and remove children and render themselves
  * @extends Base
@@ -173,6 +178,17 @@ var Component = Base.extend(
       },
 
       /**
+       * Removes all the children from this Component
+       *
+       * @returns {Array} the list of children
+       */
+      flush : function() {
+        var children = this.children;
+        this.children = [];
+        return children;
+      },
+
+      /**
        * Checks if the given object is renderable
        * That is, if it has a method named render.
        *
@@ -181,6 +197,11 @@ var Component = Base.extend(
        * @throws {TypeError} If the given object is not renderable
        */
       checkIfRenderable : function(renderable) {
+        // renderable might be buildable
+        if(renderable.klass && !renderable.render) {
+          renderable = strap.build(renderable);
+        }
+
         if(typeof(renderable.render) === "function") {
           return;
         }
@@ -207,13 +228,22 @@ var Component = Base.extend(
       },
 
       /**
+       * Constructs the hash of attributes to send into the template function
+       *
+       * @returns {Object} the render hash
+       */
+      renderHash : function() {
+        return { yield: this.renderChildren() };
+      },
+
+      /**
        * Compiles all the markup for this component.
        *
        * @returns {String} The compiled markup for this component
        * @see Component#renderChildren
        */
       render : function() {
-        return this.template({"yield": this.renderChildren()});
+        return this.template(this.renderHash());
       },
 
       /**

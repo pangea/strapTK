@@ -1,3 +1,7 @@
+/* Sprocket Manifest
+ *= require Panel
+ *= require Typify
+ */
 var ProgressBar = Panel.extend({
       initialize: function(args) {
         ProgressBar.__super__.initialize.call(this, args);

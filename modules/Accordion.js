@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Accordion = Panel.extend({
       initialize: function(args) {
         Accordion.__super__.initialize.call(this, args);

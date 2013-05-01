@@ -1,3 +1,6 @@
+/* Sprocket Manifest
+ *= require Panel
+ */
 var Breadcrumbs = Panel.extend({
       initialize : function(args) {
         Breadcrumbs.__super__.initialize.call(this, args);
@@ -8,10 +11,17 @@ var Breadcrumbs = Panel.extend({
 
       template : strap.generateSimpleTemplate("ul"),
 
-      render : function() {
+      render : function(intoDOM) {
         var markup = Breadcrumbs.__super__.render.call(this).split(this.childSuffix),
             last = markup.pop();
-        return markup.join(this.childSuffix) + last;
+
+        markup = markup.join(this.childSuffix) + last;
+
+        if(intoDOM && this.id) {
+          $("#"+this.id).html(markup);
+        }
+
+        return markup;
       }
     },{
       klass: "Breadcrumbs"
