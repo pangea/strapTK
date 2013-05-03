@@ -1,0 +1,11 @@
+{
+  "source"  : {
+    "include" : ["./modules/"],
+    "exclude" : ["./modules/unused/"]
+  },
+
+  "opts"    : {
+    "template"    : "default",
+    "destination" : "./docs/"
+  }
+}

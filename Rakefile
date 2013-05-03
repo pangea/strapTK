@@ -30,7 +30,7 @@ namespace :assets do
 
   desc "use JSDoc to generate our documentation"
   task :document do
-    `jsdoc #{Dir.pwd}/modules/`
+    `../jsdoc/jsdoc -c ./docs/conf.json`
   end
 end
 
