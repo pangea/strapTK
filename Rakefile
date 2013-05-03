@@ -6,7 +6,7 @@ task :configure_sprockets do
 end
 
 desc "Compiles, minifies, and constructs the documentation for StrapTK"
-multitask :build => ["assets:compile", "assets:minify", "assets:document"] do
+multitask :build => ["assets:compile", "assets:minify"] do
 end
 
 namespace :assets do
@@ -26,11 +26,6 @@ namespace :assets do
 
     @sprok_env.js_compressor = Uglifier.new
     @sprok_env["manifest.js"].write_to "strapTK.min.js"
-  end
-
-  desc "use JSDoc to generate our documentation"
-  task :document do
-    `jsdoc #{Dir.pwd}/modules/`
   end
 end
 
