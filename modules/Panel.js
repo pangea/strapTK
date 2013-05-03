@@ -22,7 +22,7 @@ var Panel = Component.extend(
        *
        * @constructs
        *
-       * @param {Object|Array|String} [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+       * @param {Object|Array|String} [attributes={}]  Values to apply to this Panel.  All values supplied are applied to the created Panel
        * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
        *
        * @see Base
@@ -131,6 +131,7 @@ var Panel = Component.extend(
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
+            attrs = this.attributes,
             classes = this.listClasses(),
             addAttrs = _(args).map(function(key) {
               // remove empty values
@@ -146,13 +147,28 @@ var Panel = Component.extend(
           addAttrs.push("class='"+classes+"'");
         }
 
+        // if attributes isn't an array, we need to make it one
+        if(_.isObject(attrs) && !_.isArray(attrs)) {
+          // parse the data object, if it exists
+          if(attrs.data && _.isObject(attrs)) {
+            _.each(attrs.data, function(val, key) {
+              attrs["data-"+key] = val;
+            });
+          }
+
+          attrs = _.map(attrs, function(val, key) {
+            return key + "='" + val + "'";
+          });
+        }
+
         // return the combined list
-        return _.union(this.attributes, addAttrs).join(" ");
+        return _.union(attrs, addAttrs).join(" ");
       },
 
       /**
        * Panels and their subclasses all define HTML markup templates.
        * The Panel template is very simple, and is built using the {@link Strap#generateSimpleTemplate} method
+       * For more information on templates, see <a href='http://lodash.com/docs#template' target='_dash'>Lo-Dash's Template Docs</a>.
        *
        * @param {Object} args           The data used to construct the template
        * @param {Object} args.yield     The main body of the template
@@ -162,7 +178,6 @@ var Panel = Component.extend(
        *
        * @see Panel#render
        * @see Strap#generateSimpleTemplate
-       * @see <a href='http://lodash.com/docs#template' target='_dash'>Lo-Dash's Template Docs</a>
        */
       template : strap.generateSimpleTemplate("div"),
 

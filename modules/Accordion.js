@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Accordion = Panel.extend({
+var Accordion = Panel.extend(
+    /** @lends Accordion# */
+    {
       initialize: function(args) {
         Accordion.__super__.initialize.call(this, args);
 
@@ -28,6 +30,8 @@ var Accordion = Panel.extend({
 
         return markup;
       }
-    },{
+    },
+    /** @lends Accordion */
+    {
       klass: "Accordion"
     });

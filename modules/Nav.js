@@ -2,7 +2,9 @@
  *= require List
  *= require Typify
  */
-var Nav = List.extend({
+var Nav = List.extend(
+    /** @lends Nav# */
+    {
       initialize: function(args) {
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
@@ -47,7 +49,9 @@ var Nav = List.extend({
 
         return this.divided;
       }
-    },{
+    },
+    /** @lends Nav */
+    {
       klass: "Nav",
       types: ["tabs", "pills", "list"]
     });
