@@ -154,6 +154,7 @@ var Panel = Component.extend(
             _.each(attrs.data, function(val, key) {
               attrs["data-"+key] = val;
             });
+            delete attrs.data;
           }
 
           attrs = _.map(attrs, function(val, key) {
