@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var PageHeader = Header.extend({
+var PageHeader = Header.extend(
+    /** @lends PageHeader# */
+    {
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
         this.setDefaultValue("", "header");
@@ -24,6 +26,8 @@ var PageHeader = Header.extend({
                 )
       }
 
-    },{
+    },
+    /** @lends PageHeader */
+    {
       klass: "PageHeader"
     });

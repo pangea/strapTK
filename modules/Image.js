@@ -8,7 +8,9 @@
  *
  * @property {String} src The URI of the source image
  */
-var Image = Panel.extend({
+var Image = Panel.extend(
+    /** @lends Image# */
+    {
       /** @see Panel#initialize */
       initialize : function(args) {
         Image.__super__.initialize.call(this, args);
@@ -27,6 +29,8 @@ var Image = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "src");
       }
-    },{
+    },
+    /** @lends Image */
+    {
       klass: "Image"
     })

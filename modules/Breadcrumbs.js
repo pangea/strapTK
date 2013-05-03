@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Breadcrumbs = Panel.extend({
+var Breadcrumbs = Panel.extend(
+    /** @lends Breadcrumbs# */
+    {
       initialize : function(args) {
         Breadcrumbs.__super__.initialize.call(this, args);
         this.childPrefix || (this.childPrefix = "<li>");
@@ -23,6 +25,8 @@ var Breadcrumbs = Panel.extend({
 
         return markup;
       }
-    },{
+    },
+    /** @lends Breadcrumbs */
+    {
       klass: "Breadcrumbs"
     });

@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Carousel = Panel.extend({
+var Carousel = Panel.extend(
+    /** @lends Carousel# */
+    {
       initialize: function(args) {
         Carousel.__super__.initialize.call(this, args);
 
@@ -54,6 +56,8 @@ var Carousel = Panel.extend({
                 );
       }
 
-    },{
+    },
+    /** @lends Carousel */
+    {
       klass: "Carousel"
     });

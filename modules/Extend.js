@@ -1,7 +1,7 @@
 /**
  * Global Extend function for creating subclasses
  * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.
- * You should go check out their work too: http://backbonejs.org
+ * You should go check out their work too: <a href='http://backbonejs.org' target='_new'>http://backbonejs.org</a>
  *
  * The only modification made to this function is to add 'parent' as an argument instead
  *  of having the function be added to an object.

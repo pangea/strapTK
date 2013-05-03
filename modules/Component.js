@@ -2,20 +2,35 @@
  *= require Strap
  *= require Base
  */
-
-/**
- * @class Components are generic objects that can add and remove children and render themselves
- * @extends Base
- *
- * @property {String[]} children    This component's children.
- * @property {String}   childPrefix The string to prepend to each child's rendered markup.
- * @property {String}   childSuffix The string to append to each child's rendered markup.
- */
 var Component = Base.extend(
     /**
      * @lends Component#
      */
     {
+      /**
+       * Extends the Base constructor to allow an array to be passed as attributes
+       * If attributes is an Array, it will be used as the list of children for the resulting Component.
+       * @class Components are generic objects that can add and remove children and render themselves
+       * @extends Base
+       *
+       * @constructs
+       *
+       * @property {String[]} children    This component's children.
+       * @property {String}   childPrefix The string to prepend to each child's rendered markup.
+       * @property {String}   childSuffix The string to append to each child's rendered markup.
+       *
+       * @param {Object} [attributes={}]  Values to apply to this object.  All values supplied are applied to the created object
+       * @param {Object} [options={}]     Passed to the initialize function (currently unused by any default component)
+       *
+       * @see Base
+       */
+      constructor : function(attributes, options) {
+        if(_.isArray(attributes)) {
+          attributes = {children: attributes};
+        }
+
+        Component.__super__.constructor.call(this, attributes, options);
+      },
       /**
        * Initializes Components with default values and performs sanity checks
        *

@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Link = Panel.extend({
+var Link = Panel.extend(
+    /** @lends Link# */
+    {
       initialize : function(args) {
         Link.__super__.initialize.call(this, args);
 
@@ -13,6 +15,8 @@ var Link = Panel.extend({
       },
 
       template : strap.generateSimpleTemplate("a")
-    },{
+    },
+    /** @lends Link */
+    {
       klass: "Link"
     });

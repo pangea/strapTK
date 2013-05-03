@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Form = Panel.extend({
+var Form = Panel.extend(
+    /** @lends Form# */
+    {
       initialize : function(args) {
         Form.__super__.initialize.call(this, args);
 
@@ -14,6 +16,8 @@ var Form = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "method", "action");
       }
-    },{
+    },
+    /** @lends Form */
+    {
       klass: "Form"
     });

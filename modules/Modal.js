@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Modal = Panel.extend({
+var Modal = Panel.extend(
+    /** @lends Modal# */
+    {
       initialize : function(args) {
         Modal.__super__.initialize.call(this, args);
 
@@ -60,7 +62,9 @@ var Modal = Panel.extend({
                   }
                 );
       }
-    },{
+    },
+    /** @lends Modal */
+    {
       klass: "Modal"
     });
 

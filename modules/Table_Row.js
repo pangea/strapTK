@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var TableRow = Panel.extend({
+var TableRow = Panel.extend(
+    /** @lends TableRow# */
+    {
       initialize: function(args) {
         TableRow.__super__.initialize.call(this, args);
 
@@ -30,7 +32,9 @@ var TableRow = Panel.extend({
       },
 
       template: strap.generateSimpleTemplate("tr")
-    },{
+    },
+    /** @lends TableRow */
+    {
       klass: "TableRow"
     });
 

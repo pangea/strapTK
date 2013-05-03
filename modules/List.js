@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var List = Panel.extend({
+var List = Panel.extend(
+    /** @lends List# */
+    {
       initialize: function(args) {
         List.__super__.initialize.call(this, args);
 
@@ -10,6 +12,8 @@ var List = Panel.extend({
       },
 
       template: strap.generateSimpleTemplate("ul")
-    },{
+    },
+    /** @lends List */
+    {
       klass: "List"
     });

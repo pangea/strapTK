@@ -2,7 +2,9 @@
  *= require Panel
  *= require Typify
  */
-var Icon = Panel.extend({
+var Icon = Panel.extend(
+    /** @lends Icon# */
+    {
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);
 
@@ -12,7 +14,9 @@ var Icon = Panel.extend({
       },
 
       template : _.template("<i <%= rootAttrs %>></i> <%= yield %>")
-    },{
+    },
+    /** @lends Icon */
+    {
       klass: "Icon",
       types: [
               "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md",

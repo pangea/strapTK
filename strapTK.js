@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.2.2
+ * Strap'd ToolKit v 0.2.3
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -106,7 +106,7 @@ var strap = (function() {
 /**
  * Global Extend function for creating subclasses
  * Unceremoniously ripped out of Backbone.js.  Those guys are way smarter than I am.
- * You should go check out their work too: http://backbonejs.org
+ * You should go check out their work too: <a href='http://backbonejs.org' target='_new'>http://backbonejs.org</a>
  *
  * The only modification made to this function is to add 'parent' as an argument instead
  *  of having the function be added to an object.
@@ -160,24 +160,19 @@ function Extend(parent, protoProps, staticProps) {
 
 /**
  * Defines the base constructor for all Strap'd Components (except Raw, HorizontalRule, and LineBreak).
- * If attributes is an Array, it will be used as the list of children for the resulting Component.
  *
  * @author Chris Hall (chall8908@gmail.com)
  * @class
  * Generic Class that can apply arbitrary fields to itself and is extendable.
  * Base objects cannot be created directly as they lack an #initialize function.
  *
- * @param {Object|Array}  [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
- * @param {Object}        [options={}]     Passed to the initialize function (currently unused by any default component)
+ * @param {Object} [attributes={}]  Values to apply to this object.  All values supplied are applied to the created object
+ * @param {Object} [options={}]     Passed to the initialize function (currently unused by any default component)
  */
 
 function Base(attributes, options)  {
   var attrs = attributes || {},
       opts = options || {};
-
-  if(_.isArray(attrs)) {
-    attrs = {children: attrs};
-  }
 
   for(attr in attrs) {
     this[attr] = attrs[attr];
@@ -199,20 +194,35 @@ Base.extend = function(protoProps, staticProps) {
 
  */
 
-/**
- * @class Components are generic objects that can add and remove children and render themselves
- * @extends Base
- *
- * @property {String[]} children    This component's children.
- * @property {String}   childPrefix The string to prepend to each child's rendered markup.
- * @property {String}   childSuffix The string to append to each child's rendered markup.
- */
-
 var Component = Base.extend(
     /**
      * @lends Component#
      */
     {
+      /**
+       * Extends the Base constructor to allow an array to be passed as attributes
+       * If attributes is an Array, it will be used as the list of children for the resulting Component.
+       * @class Components are generic objects that can add and remove children and render themselves
+       * @extends Base
+       *
+       * @constructs
+       *
+       * @property {String[]} children    This component's children.
+       * @property {String}   childPrefix The string to prepend to each child's rendered markup.
+       * @property {String}   childSuffix The string to append to each child's rendered markup.
+       *
+       * @param {Object} [attributes={}]  Values to apply to this object.  All values supplied are applied to the created object
+       * @param {Object} [options={}]     Passed to the initialize function (currently unused by any default component)
+       *
+       * @see Base
+       */
+      constructor : function(attributes, options) {
+        if(_.isArray(attributes)) {
+          attributes = {children: attributes};
+        }
+
+        Component.__super__.constructor.call(this, attributes, options);
+      },
       /**
        * Initializes Components with default values and performs sanity checks
        *
@@ -501,7 +511,7 @@ var Panel = Component.extend(
        *
        * @constructs
        *
-       * @param {Object|Array|String} [attributes={}]  Values to apply to this Component.  All values supplied are applied to the created Component
+       * @param {Object|Array|String} [attributes={}]  Values to apply to this Panel.  All values supplied are applied to the created Panel
        * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
        *
        * @see Base
@@ -610,6 +620,7 @@ var Panel = Component.extend(
         // convert arguments into an actual array and map the values to the ones attached to this Panel
         // the HTML ID is always added to this list
         var args = Array.prototype.slice.call(arguments, 0).concat(["id"]),
+            attrs = this.attributes,
             classes = this.listClasses(),
             addAttrs = _(args).map(function(key) {
               // remove empty values
@@ -625,13 +636,28 @@ var Panel = Component.extend(
           addAttrs.push("class='"+classes+"'");
         }
 
+        // if attributes isn't an array, we need to make it one
+        if(_.isObject(attrs) && !_.isArray(attrs)) {
+          // parse the data object, if it exists
+          if(attrs.data && _.isObject(attrs)) {
+            _.each(attrs.data, function(val, key) {
+              attrs["data-"+key] = val;
+            });
+          }
+
+          attrs = _.map(attrs, function(val, key) {
+            return key + "='" + val + "'";
+          });
+        }
+
         // return the combined list
-        return _.union(this.attributes, addAttrs).join(" ");
+        return _.union(attrs, addAttrs).join(" ");
       },
 
       /**
        * Panels and their subclasses all define HTML markup templates.
        * The Panel template is very simple, and is built using the {@link Strap#generateSimpleTemplate} method
+       * For more information on templates, see <a href='http://lodash.com/docs#template' target='_dash'>Lo-Dash's Template Docs</a>.
        *
        * @param {Object} args           The data used to construct the template
        * @param {Object} args.yield     The main body of the template
@@ -641,7 +667,6 @@ var Panel = Component.extend(
        *
        * @see Panel#render
        * @see Strap#generateSimpleTemplate
-       * @see <a href='http://lodash.com/docs#template' target='_dash'>Lo-Dash's Template Docs</a>
        */
       template : strap.generateSimpleTemplate("div"),
 
@@ -768,7 +793,9 @@ var AbstractBadge = Panel.extend(
 
  */
 
-var Accordion = Panel.extend({
+var Accordion = Panel.extend(
+    /** @lends Accordion# */
+    {
       initialize: function(args) {
         Accordion.__super__.initialize.call(this, args);
 
@@ -795,7 +822,9 @@ var Accordion = Panel.extend({
 
         return markup;
       }
-    },{
+    },
+    /** @lends Accordion */
+    {
       klass: "Accordion"
     });
 /* Sprocket Manifest
@@ -803,7 +832,9 @@ var Accordion = Panel.extend({
 
  */
 
-var Alert = Panel.extend({
+var Alert = Panel.extend(
+    /** @lends Alert# */
+    {
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);
         this.base = "alert";
@@ -855,7 +886,9 @@ var Alert = Panel.extend({
           }
         }
       }
-    },{
+    },
+    /** @lends Alert */
+    {
       klass: "Alert",
       types: ["error", "success", "info"]
     });
@@ -863,19 +896,25 @@ var Alert = Panel.extend({
 
  */
 
-var Badge = AbstractBadge.extend({
+var Badge = AbstractBadge.extend(
+    /** @lends Badge# */
+    {
       initialize : function(args) {
         this.base = "badge";
         Badge.__super__.initialize.call(this, args);
       }
-    },{
+    },
+    /** @lends Badge */
+    {
       klass: "Badge"
     });
 /* Sprocket Manifest
 
  */
 
-var Breadcrumbs = Panel.extend({
+var Breadcrumbs = Panel.extend(
+    /** @lends Breadcrumbs# */
+    {
       initialize : function(args) {
         Breadcrumbs.__super__.initialize.call(this, args);
         this.childPrefix || (this.childPrefix = "<li>");
@@ -897,14 +936,18 @@ var Breadcrumbs = Panel.extend({
 
         return markup;
       }
-    },{
+    },
+    /** @lends Breadcrumbs */
+    {
       klass: "Breadcrumbs"
     });
 /* Sprocket Manifest
 
  */
 
-var Link = Panel.extend({
+var Link = Panel.extend(
+    /** @lends Link# */
+    {
       initialize : function(args) {
         Link.__super__.initialize.call(this, args);
 
@@ -916,7 +959,9 @@ var Link = Panel.extend({
       },
 
       template : strap.generateSimpleTemplate("a")
-    },{
+    },
+    /** @lends Link */
+    {
       klass: "Link"
     });
 /* Sprocket Manifest
@@ -924,7 +969,9 @@ var Link = Panel.extend({
 
  */
 
-var Button = Link.extend({
+var Button = Link.extend(
+    /** @lends Button# */
+    {
       initialize : function(args) {
         Button.__super__.initialize.call(this, args);
 
@@ -934,7 +981,9 @@ var Button = Link.extend({
 
         Typify(this);
       }
-    },{
+    },
+    /** @lends Button */
+    {
       klass: "Button",
       types: ["primary", "secondary", "info", "success", "warning", "danger", "inverse", "link"]
     });
@@ -942,31 +991,41 @@ var Button = Link.extend({
 
  */
 
-var ButtonGroup = Panel.extend({
+var ButtonGroup = Panel.extend(
+    /** @lends ButtonGroup# */
+    {
       initialize: function(args) {
         ButtonGroup.__super__.initialize.call(this, args);
         this.addClass("btn-group");
       }
-    },{
+    },
+    /** @lends ButtonGroup */
+    {
       klass: "ButtonGroup"
     });
 /* Sprocket Manifest
 
  */
 
-var ButtonToolbar = Panel.extend({
+var ButtonToolbar = Panel.extend(
+    /** @lends ButtonToolbar */
+    {
       initialize: function(args) {
         ButtonToolbar.__super__.initialize.call(this, args);
         this.addClass("btn-toolbar");
       }
-    },{
+    },
+    /** @lends ButtonToolbar */
+    {
       klass: "ButtonToolbar"
     });
 /* Sprocket Manifest
 
  */
 
-var Carousel = Panel.extend({
+var Carousel = Panel.extend(
+    /** @lends Carousel# */
+    {
       initialize: function(args) {
         Carousel.__super__.initialize.call(this, args);
 
@@ -1019,7 +1078,9 @@ var Carousel = Panel.extend({
                 );
       }
 
-    },{
+    },
+    /** @lends Carousel */
+    {
       klass: "Carousel"
     });
 /* Sprocket Manifest
@@ -1092,7 +1153,9 @@ var ContentRow = Panel.extend({
 
  */
 
-var List = Panel.extend({
+var List = Panel.extend(
+    /** @lends List# */
+    {
       initialize: function(args) {
         List.__super__.initialize.call(this, args);
 
@@ -1101,14 +1164,18 @@ var List = Panel.extend({
       },
 
       template: strap.generateSimpleTemplate("ul")
-    },{
+    },
+    /** @lends List */
+    {
       klass: "List"
     });
 /* Sprocket Manifest
 
  */
 
-var DropdownMenu = List.extend({
+var DropdownMenu = List.extend(
+    /** @lends DropdownMenu# */
+    {
       initialize : function(args) {
         DropdownMenu.__super__.initialize.call(this, args);
 
@@ -1117,14 +1184,18 @@ var DropdownMenu = List.extend({
 
         this.addClass("dropdown-menu");
       }
-    },{
+    },
+    /** @lends DropdownMenu */
+    {
       klass: "DropdownMenu"
     });
 /* Sprocket Manifest
 
  */
 
-var Form = Panel.extend({
+var Form = Panel.extend(
+    /** @lends Form# */
+    {
       initialize : function(args) {
         Form.__super__.initialize.call(this, args);
 
@@ -1137,14 +1208,18 @@ var Form = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "method", "action");
       }
-    },{
+    },
+    /** @lends Form */
+    {
       klass: "Form"
     });
 /* Sprocket Manifest
 
  */
 
-var FormInput = Panel.extend({
+var FormInput = Panel.extend(
+    /** @lends FormInput# */
+    {
       initialize : function(args) {
         FormInput.__super__.initialize.call(this, args);
 
@@ -1159,7 +1234,9 @@ var FormInput = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name", "value");
       }
-    },{
+    },
+    /** @lends FormInput */
+    {
       klass: "FormInput",
       types:  [
                 "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",
@@ -1170,25 +1247,35 @@ var FormInput = Panel.extend({
 
  */
 
-var FormLabel = Panel.extend({
+var FormLabel = Panel.extend(
+    /** @lends FormLabel# */
+    {
       template : strap.generateSimpleTemplate("label")
-    },{
+    },
+    /** @lends FormLabel */
+    {
       klass : "FormLabel"
     });
 /* Sprocket Manifest
 
  */
 
-var FormSelect = Panel.extend({
+var FormSelect = Panel.extend(
+    /** @lends FormSelect# */
+    {
       template : strap.generateSimpleTemplate("select")
-    },{
+    },
+    /** @lends FormSelect */
+    {
       klass : "FormSelect"
     });
 /* Sprocket Manifest
 
  */
 
-var Header = Panel.extend({
+var Header = Panel.extend(
+    /** @lends Header# */
+    {
       initialize: function(args) {
         Header.__super__.initialize.call(this, args);
         this.setDefaultValue(1, "level");
@@ -1202,14 +1289,18 @@ var Header = Panel.extend({
                 );
       }
 
-    },{
+    },
+    /** @lends Header */
+    {
       klass: "Header"
     });
 /* Sprocket Manifest
 
  */
 
-var HeroUnit = Panel.extend({
+var HeroUnit = Panel.extend(
+    /** @lends HeroUnit */
+    {
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
 
@@ -1229,12 +1320,14 @@ var HeroUnit = Panel.extend({
                 );
       }
 
-    },{
+    },
+    /** @lends HeroUnit */
+    {
       klass: "HeroUnit"
     });
 /**
  * @author Chris Hall (chall8908@gmail.com)
- * @class Provides a simple wrapper around a hroizontal rule tag that can be used as the child to a Component
+ * @class Provides a simple wrapper around a hroizontal rule tag that can be used as the child to a Component.  Aliased as HR.
  */
 
 function HorizontalRule() { this.klass = "HorizontalRule"; }
@@ -1247,14 +1340,16 @@ HorizontalRule.prototype.render = function() {
   return "<hr/>";
 }
 
-/** @borrows HorizontalRule# as HR# */
+/** @ignore */
 var HR = HorizontalRule;
 /* Sprocket Manifest
 
 
  */
 
-var Icon = Panel.extend({
+var Icon = Panel.extend(
+    /** @lends Icon# */
+    {
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);
 
@@ -1264,7 +1359,9 @@ var Icon = Panel.extend({
       },
 
       template : _.template("<i <%= rootAttrs %>></i> <%= yield %>")
-    },{
+    },
+    /** @lends Icon */
+    {
       klass: "Icon",
       types: [
               "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md",
@@ -1306,7 +1403,9 @@ var Icon = Panel.extend({
  * @property {String} src The URI of the source image
  */
 
-var Image = Panel.extend({
+var Image = Panel.extend(
+    /** @lends Image# */
+    {
       /** @see Panel#initialize */
       initialize : function(args) {
         Image.__super__.initialize.call(this, args);
@@ -1325,7 +1424,9 @@ var Image = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "src");
       }
-    },{
+    },
+    /** @lends Image */
+    {
       klass: "Image"
     })
 ;
@@ -1333,26 +1434,34 @@ var Image = Panel.extend({
 
  */
 
-var Label = AbstractBadge.extend({
+var Label = AbstractBadge.extend(
+    /** @lends Label# */
+    {
       initialize : function(args) {
         this.base = "label";
         Label.__super__.initialize.call(this, args);
       }
-    },{
+    },
+    /** @lends Label */
+    {
       klass: "Label"
     });
 /* Sprocket Manifest
 
  */
 
-var Legend = Panel.extend({
+var Legend = Panel.extend(
+    /** @lends Legend# */
+    {
       template: strap.generateSimpleTemplate("legend")
-    }, {
+    },
+    /** @lends Legend */
+    {
       klass: "Legend"
     });
 /**
  * @author Chris Hall (chall8908@gmail.com)
- * @class Provides a simple wrapper around the line break tag that can be used as the child to a Component
+ * @class Provides a simple wrapper around the line break tag that can be used as the child to a Component.  Aliased as BR.
  */
 
 function LineBreak() { this.klass = "LineBreak"; }
@@ -1365,13 +1474,15 @@ LineBreak.prototype.render = function() {
   return "<br/>";
 }
 
-/** @borrows LineBreak# as BR# */
+/** @ignore */
 var BR = LineBreak;
 /* Sprocket Manifest
 
  */
 
-var Modal = Panel.extend({
+var Modal = Panel.extend(
+    /** @lends Modal# */
+    {
       initialize : function(args) {
         Modal.__super__.initialize.call(this, args);
 
@@ -1430,7 +1541,9 @@ var Modal = Panel.extend({
                   }
                 );
       }
-    },{
+    },
+    /** @lends Modal */
+    {
       klass: "Modal"
     });
 
@@ -1441,7 +1554,9 @@ Modal.prototype.addAction = Modal.prototype.pushAction;
 
  */
 
-var Nav = List.extend({
+var Nav = List.extend(
+    /** @lends Nav# */
+    {
       initialize: function(args) {
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
@@ -1486,7 +1601,9 @@ var Nav = List.extend({
 
         return this.divided;
       }
-    },{
+    },
+    /** @lends Nav */
+    {
       klass: "Nav",
       types: ["tabs", "pills", "list"]
     });
@@ -1494,7 +1611,9 @@ var Nav = List.extend({
 
  */
 
-var NavBar = Panel.extend({
+var NavBar = Panel.extend(
+    /** @lends NavBar# */
+    {
       initialize : function(args) {
         NavBar.__super__.initialize.call(this, args);
         this.addClass("navbar");
@@ -1503,14 +1622,18 @@ var NavBar = Panel.extend({
       renderChildren : function() {
         return "<div class='navbar-inner'>" + NavBar.__super__.renderChildren.call(this) + "</div>";
       }
-    },{
+    },
+    /** @lends NavBar */
+    {
       klass: "NavBar"
     });
 /* Sprocket Manifest
 
  */
 
-var OptGroup = Panel.extend({
+var OptGroup = Panel.extend(
+    /** @lends OptGroup# */
+    {
       initialize : function(args) {
         OptGroup.__super__.initialize.call(this, args);
 
@@ -1522,14 +1645,18 @@ var OptGroup = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "label");
       }
-    },{
+    },
+    /** @lends OptGroup */
+    {
       klass: "OptGroup"
     });
 /* Sprocket Manifest
 
  */
 
-var PageHeader = Header.extend({
+var PageHeader = Header.extend(
+    /** @lends PageHeader# */
+    {
       initialize: function(args) {
         PageHeader.__super__.initialize.call(this, args);
         this.setDefaultValue("", "header");
@@ -1552,14 +1679,18 @@ var PageHeader = Header.extend({
                 )
       }
 
-    },{
+    },
+    /** @lends PageHeader */
+    {
       klass: "PageHeader"
     });
 /* Sprocket Manifest
 
  */
 
-var Pagination = Panel.extend({
+var Pagination = Panel.extend(
+    /** @lends Pagination# */
+    {
       initialize: function(args) {
         if(this.children && this.pages) {
           throw new SyntaxError("Paginators cannot accept both children and pages");
@@ -1605,16 +1736,22 @@ var Pagination = Panel.extend({
         }
       }
 
-    },{
+    },
+    /** @lends Pagination */
+    {
       klass: "Pagination"
     });
 /* Sprocket Manifest
 
  */
 
-var Paragraph = Panel.extend({
+var Paragraph = Panel.extend(
+    /** @lends Paragraph# */
+    {
       template : strap.generateSimpleTemplate("p")
-    },{
+    },
+    /** @lends Paragraph */
+    {
       klass: "Paragraph"
     }),
     P = Paragraph;
@@ -1623,7 +1760,9 @@ var Paragraph = Panel.extend({
 
  */
 
-var ProgressBar = Panel.extend({
+var ProgressBar = Panel.extend(
+    /** @lends ProgressBar# */
+    {
       initialize: function(args) {
         ProgressBar.__super__.initialize.call(this, args);
         this.setDefaultValue(100, "width");
@@ -1653,7 +1792,9 @@ var ProgressBar = Panel.extend({
           $(this).trigger("progressbar.width-change", newWidth, oldWidth);
         }
       }
-    },{
+    },
+    /** @lends ProgressBar */
+    {
       klass: "ProgressBar",
       types: ["info", "success", "warning", "danger"]
     });
@@ -1688,7 +1829,9 @@ Raw.prototype.render = function() {
 
  */
 
-var SelectOption = Panel.extend({
+var SelectOption = Panel.extend(
+    /** @lends SelectOption# */
+    {
       initialize : function(args) {
         SelectOption.__super__.initialize.call(this, args);
 
@@ -1700,7 +1843,9 @@ var SelectOption = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "value");
       }
-    }, {
+    },
+    /** @lends SelectOption */
+    {
       klass : "SelectOption"
     });
 /* Sprocket Manifest
@@ -1780,16 +1925,22 @@ var Source = Panel.extend(
 
  */
 
-var Span = Panel.extend({
+var Span = Panel.extend(
+    /** @lends Span# */
+    {
       template: strap.generateSimpleTemplate("span")
-    }, {
+    },
+    /** @lends Span */
+    {
       klass: "Span"
     });
 /* Sprocket Manifest
 
  */
 
-var Table = Panel.extend({
+var Table = Panel.extend(
+    /** @lends Table# */
+    {
       initialize: function(args) {
         Table.__super__.initialize.call(this, args);
         this.addClass("table");
@@ -1819,7 +1970,9 @@ var Table = Panel.extend({
       },
 
       template: strap.generateSimpleTemplate("table")
-    },{
+    },
+    /** @lends Table */
+    {
       klass: "Table"
     });
 
@@ -1829,25 +1982,35 @@ Table.prototype.add = Table.prototype.push;
 
  */
 
-var TableCell = Panel.extend({
+var TableCell = Panel.extend(
+    /** @lends TableCell# */
+    {
       template : strap.generateSimpleTemplate("td")
-    },{
+    },
+    /** @lends TableCell */
+    {
       klass: "TableCell"
     });
 /* Sprocket Manifest
 
  */
 
-var TableHeader = Panel.extend({
+var TableHeader = Panel.extend(
+    /** @lends TableHeader# */
+    {
       template : strap.generateSimpleTemplate("th")
-    },{
+    },
+    /** @lends TableHeader */
+    {
       klass: "TableHeader"
     });
 /* Sprocket Manifest
 
  */
 
-var TableRow = Panel.extend({
+var TableRow = Panel.extend(
+    /** @lends TableRow# */
+    {
       initialize: function(args) {
         TableRow.__super__.initialize.call(this, args);
 
@@ -1876,7 +2039,9 @@ var TableRow = Panel.extend({
       },
 
       template: strap.generateSimpleTemplate("tr")
-    },{
+    },
+    /** @lends TableRow */
+    {
       klass: "TableRow"
     });
 
@@ -1886,7 +2051,9 @@ TableRow.prototype.add = TableRow.prototype.push;
 
  */
 
-var Textarea = Panel.extend({
+var Textarea = Panel.extend(
+    /** @lends Textarea# */
+    {
       initialize : function(args) {
         Textarea.__super__.initialize.call(this, args);
 
@@ -1898,14 +2065,18 @@ var Textarea = Panel.extend({
       listAttributes : function() {
         return Textarea.__super__.listAttributes.call(this, "placeholder");
       }
-    }, {
+    },
+    /** @lends Textarea */
+    {
       klass : "Textarea"
     });
 /* Sprocket Manifest
 
  */
 
-var Viewport = Component.extend({
+var Viewport = Component.extend(
+    /** @lends Viewport# */
+    {
       initialize: function(args) {
         Viewport.__super__.initialize.call(this, args);
         this.setDefaultValue("body", "root");
@@ -1923,7 +2094,9 @@ var Viewport = Component.extend({
       render : function() {
         return $(this.root).html(this.renderChildren()).add(this).trigger("after-render", [this]);
       }
-    },{
+    },
+    /** @lends Viewport */
+    {
       klass: "Viewport"
     });
 /* Sprocket Manifest

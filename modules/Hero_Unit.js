@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var HeroUnit = Panel.extend({
+var HeroUnit = Panel.extend(
+    /** @lends HeroUnit */
+    {
       initialize : function(args) {
         HeroUnit.__super__.initialize.call(this, args);
 
@@ -21,6 +23,8 @@ var HeroUnit = Panel.extend({
                 );
       }
 
-    },{
+    },
+    /** @lends HeroUnit */
+    {
       klass: "HeroUnit"
     });
