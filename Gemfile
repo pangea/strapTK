@@ -1,9 +1,9 @@
-source :rubygems
+source "https://rubygems.org"
 
 gem "rake"
 gem "tilt"
 gem "sprockets"
-gem "therubyracer"
+gem "therubyracer", platform: :ruby
 gem "uglifier"
 gem "haml"
 gem "sass"
