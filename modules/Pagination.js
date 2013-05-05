@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Pagination = Panel.extend({
+var Pagination = Panel.extend(
+    /** @lends Pagination# */
+    {
       initialize: function(args) {
         if(this.children && this.pages) {
           throw new SyntaxError("Paginators cannot accept both children and pages");
@@ -47,6 +49,8 @@ var Pagination = Panel.extend({
         }
       }
 
-    },{
+    },
+    /** @lends Pagination */
+    {
       klass: "Pagination"
     });

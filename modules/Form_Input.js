@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var FormInput = Panel.extend({
+var FormInput = Panel.extend(
+    /** @lends FormInput# */
+    {
       initialize : function(args) {
         FormInput.__super__.initialize.call(this, args);
 
@@ -16,7 +18,9 @@ var FormInput = Panel.extend({
       listAttributes : function() {
         return FormSelect.__super__.listAttributes.call(this, "type", "placeholder", "name", "value");
       }
-    },{
+    },
+    /** @lends FormInput */
+    {
       klass: "FormInput",
       types:  [
                 "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "image", "month",

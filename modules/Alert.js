@@ -2,7 +2,9 @@
  *= require Panel
  *= require Typify
  */
-var Alert = Panel.extend({
+var Alert = Panel.extend(
+    /** @lends Alert# */
+    {
       initialize : function(args) {
         Alert.__super__.initialize.call(this, args);
         this.base = "alert";
@@ -54,7 +56,9 @@ var Alert = Panel.extend({
           }
         }
       }
-    },{
+    },
+    /** @lends Alert */
+    {
       klass: "Alert",
       types: ["error", "success", "info"]
     });

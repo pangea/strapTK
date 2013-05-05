@@ -5,6 +5,10 @@ task :configure_sprockets do
   @sprok_env = Sprockets::Environment.new
 end
 
+desc "Compiles, minifies, and constructs the documentation for StrapTK"
+multitask :build => ["assets:compile", "assets:minify"] do
+end
+
 namespace :assets do
   desc "[private] Sets up the correct paths to build the StrapTK source"
   task :set_path => :configure_sprockets do

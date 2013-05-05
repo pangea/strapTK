@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Textarea = Panel.extend({
+var Textarea = Panel.extend(
+    /** @lends Textarea# */
+    {
       initialize : function(args) {
         Textarea.__super__.initialize.call(this, args);
 
@@ -13,6 +15,8 @@ var Textarea = Panel.extend({
       listAttributes : function() {
         return Textarea.__super__.listAttributes.call(this, "placeholder");
       }
-    }, {
+    },
+    /** @lends Textarea */
+    {
       klass : "Textarea"
     });

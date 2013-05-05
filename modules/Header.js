@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Header = Panel.extend({
+var Header = Panel.extend(
+    /** @lends Header# */
+    {
       initialize: function(args) {
         Header.__super__.initialize.call(this, args);
         this.setDefaultValue(1, "level");
@@ -15,6 +17,8 @@ var Header = Panel.extend({
                 );
       }
 
-    },{
+    },
+    /** @lends Header */
+    {
       klass: "Header"
     });

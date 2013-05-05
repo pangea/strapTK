@@ -2,7 +2,9 @@
  *= require Panel
  *= require Typify
  */
-var ProgressBar = Panel.extend({
+var ProgressBar = Panel.extend(
+    /** @lends ProgressBar# */
+    {
       initialize: function(args) {
         ProgressBar.__super__.initialize.call(this, args);
         this.setDefaultValue(100, "width");
@@ -32,7 +34,9 @@ var ProgressBar = Panel.extend({
           $(this).trigger("progressbar.width-change", newWidth, oldWidth);
         }
       }
-    },{
+    },
+    /** @lends ProgressBar */
+    {
       klass: "ProgressBar",
       types: ["info", "success", "warning", "danger"]
     });

@@ -1,7 +1,9 @@
 /* Sprocket Manifest
  *= require Panel
  */
-var Table = Panel.extend({
+var Table = Panel.extend(
+    /** @lends Table# */
+    {
       initialize: function(args) {
         Table.__super__.initialize.call(this, args);
         this.addClass("table");
@@ -31,7 +33,9 @@ var Table = Panel.extend({
       },
 
       template: strap.generateSimpleTemplate("table")
-    },{
+    },
+    /** @lends Table */
+    {
       klass: "Table"
     });
 
