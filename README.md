@@ -39,11 +39,26 @@ new Carousel([
   new Image("http://placehold.it/350x150&text=Placeholder+Image"),
   new Image("http://placehold.it/350x150&text=Placeholder+Image")
 ]);
-````
-Which gives you:
-<div class='carousel slide'><ol class='carousel-indicators'><li data-slide-to='0' data-target='#' classes='active'></li><li data-slide-to='1' data-target='#' ></li><li data-slide-to='2' data-target='#' ></li><li data-slide-to='3' data-target='#' ></li></ol><div class='carousel-inner'><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item active' /><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' /><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' /><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' /></div><a class='carousel-control left' data-slide='prev' href='#'>&lsaquo;</a><a class='carousel-control right' data-slide='next' href='#'>&rsaquo;</a></div>
 
-See, easy!
+/* Renders to:
+ * <div class='carousel slide'>
+ *   <ol class='carousel-indicators'>
+ *     <li data-slide-to='0' data-target='#' classes='active'></li>
+ *     <li data-slide-to='1' data-target='#' ></li>
+ *     <li data-slide-to='2' data-target='#' ></li>
+ *     <li data-slide-to='3' data-target='#' ></li>
+ *   </ol>
+ *   <div class='carousel-inner'>
+ *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item active' />
+ *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
+ *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
+ *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
+ *   </div>
+ *   <a class='carousel-control left' data-slide='prev' href='#'>&lsaquo;</a>
+ *   <a class='carousel-control right' data-slide='next' href='#'>&rsaquo;</a>
+ * </div>
+ */
+````
 
 ## Attributions
 * [Pangea Real Estate](http://www.pangeare.com) for letting me work on Strap'd on their dime and providing an all around great place to work.
