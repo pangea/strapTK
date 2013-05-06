@@ -3,9 +3,47 @@
 Strap'd ToolKit is a JavaScript framework for building sites with Bootstrap.  It handles construction and insertion of HTML as well as providing some easy methods of using Bootstrap's built-in element styling for typed elements (like buttons).  In the future, it will provide the means to attach data sources to objects that will affect the display of the object and will update with the data source.
 
 ## Using StrapTK
-Strap was designed for use by JavaScript developers that are sick of writing HTML (like me).  Strap'd requires some very minimal boilerplate to get set up and you can be up and running with a site using Strap'd in minutes.
+Strap was designed for use by JavaScript developers that are sick of writing HTML (like me).  Strap'd requires some very minimal boilerplate to get set up and you can be up and running with a site using Strap'd in minutes.  <small>If you're a fan of Ruby, you'll find some handy HAML compilation code in the Rakefile that will trim your boilerplate down even farther!</small>
 
-If you're a fan of Ruby, you'll find some handy HAML compilation code in my Rakefile that will trim your boilerplate down even farther!
+So, let's write some code!  We'll start with a simple example:
+````javascript
+new P("Look!  A paragraph with some text in it!");
+
+// Renders to <p>Look! A paragraph with some text in it!</p>
+````
+It can be that simple.
+
+Strap'd supports nesting via the ````children```` attribute.  Allowing you to make more complex objects and markup.
+````javascript
+new Panel({
+  classes: "well",
+  children: [
+    new Header("Look here!"),
+    new P("We could nest this further, but who wants to read that?")
+  ]
+});
+
+/*  Renders to:
+ *    <div class='well'>
+ *      <h1>Look here!</h1>
+ *      <p>We could next this further but who wants to read that?</p>
+ *    </div>
+ */
+````
+
+This is all well and good, but you may have noticed that the last example had a bit more code to it than the resulting markup and didn't really make it that much easier to write.  Which is true, Strap'd isn't meant to make creating HTML shorter, per se, just easier to manage.  A good example of something with complex markup is Bootstrap's Carousel.
+````javascript
+new Carousel([
+  new Image("http://placehold.it/350x150&text=Placeholder+Image"),
+  new Image("http://placehold.it/350x150&text=Placeholder+Image"),
+  new Image("http://placehold.it/350x150&text=Placeholder+Image"),
+  new Image("http://placehold.it/350x150&text=Placeholder+Image")
+]);
+````
+Which gives you:
+<div class='carousel slide'><ol class='carousel-indicators'><li data-slide-to='0' data-target='#' classes='active'></li><li data-slide-to='1' data-target='#' ></li><li data-slide-to='2' data-target='#' ></li><li data-slide-to='3' data-target='#' ></li></ol><div class='carousel-inner'><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item active' /><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' /><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' /><img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' /></div><a class='carousel-control left' data-slide='prev' href='#'>&lsaquo;</a><a class='carousel-control right' data-slide='next' href='#'>&rsaquo;</a></div>
+
+See, easy!
 
 ## Attributions
 * [Pangea Real Estate](http://www.pangeare.com) for letting me work on Strap'd on their dime and providing an all around great place to work.
