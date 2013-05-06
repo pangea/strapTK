@@ -43,6 +43,10 @@ var Panel = Component.extend(
         this.setDefaultValue("", "id", "body");
 
         // Convert a list of space separated classes/attributes into a proper array
+        /*
+         * TODO:  It occurs to me that attribute values could have spaces in them.
+         *        This could lead to problems.  A better solution will probably be needed for them
+         */
         _.each(["classes", "attributes"], function(attr) {
           if(typeof(this[attr]) === "string") {
             this[attr] = _.uniq(this[attr].split(" "));
