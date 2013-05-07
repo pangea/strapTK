@@ -10,7 +10,10 @@ var Pagination = Panel.extend(
         }
         Pagination.__super__.initialize.call(this, args);
 
-        this.setDefaultValue(1, "pages");
+        this.setDefaultValue(1, "pages", "currentPage");
+        this.setDefaultValue(Infinity, "maxPages");
+        this.setDefaultValue(true, "prevNext");
+        this.setDefaultValue(false, "firstLast");
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
@@ -52,14 +55,39 @@ var Pagination = Panel.extend(
       },
 
       buildPages: function() {
+        var dispPages, startPage, pageRange;
+
         this.children = [];
         if(this.pages > 1) {
+          dispPages = Math.min(this.maxPages, this.pages);          // determine the number of pages to display
+          pageRange = Math.floor(dispPages/2);                      // determine the number of pages on each side of current
+          startPage = Math.max(this.currentPage - pageRange, 1);    // ensure the start page isn't less than 1
+          startPage = Math.min(startPage, this.pages - pageRange);  // ensure the start page doesn't chop off pages
+          startPage = Math.floor(startPage);                        // handle dispPages being odd
 
-          this.add(new Link({body: "&laquo;", classes: ["prev"]}));
-          _.times(this.pages, function(i) {
-            this.add(new Link((i+1)+""));
+          _.times(dispPages, function(i) {
+            this.add(new Link((i+startPage)+""));
           }, this);
-          this.add(new Link({body: "&raquo;", classes: ["next"]}));
+
+          if(this.pages > dispPages) {
+            if(this.currentPage - pageRange > 0) {
+              this.unshift(new Raw("..."));
+            }
+
+            if(this.pages - this.currentPage > pageRange) {
+              this.add(new Raw("..."));
+            }
+          }
+
+          if(this.prevNext) {
+            this.unshift(new Link({ classes: "prev", children: [ new Icon({type: "angle-left"}) ] }));
+            this.add(new Link({ classes: "next", children: [ new Icon({type: "angle-right"}) ] }));
+          }
+
+          if(this.firstLast) {
+            this.unshift(new Link({ classes: "first", children: [ new Icon({type: "double-angle-left"}) ] }));
+            this.add(new Link({ classes: "last", children: [ new Icon({type: "double-angle-right"}) ] }));
+          }
 
         } else {
           //paginators with less than 2 pages don't display
