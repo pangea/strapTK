@@ -19,6 +19,27 @@ var Pagination = Panel.extend(
         if(this.children.length === 0) {
           this.buildPages();
         }
+
+        if(this.onPage && this.id) {
+          $("body").on("click", this.id+" a", {paginator: this}, function(e) {
+            if(!$(this).parent().is(".active, .disabled")) {
+              var p = e.data.paginator,
+                  $this = $(this),
+                  curPage = $this.parent().siblings(".active"),
+                  pageNum = $this.text();
+
+              curPage.removeClass(".active");
+              if($this.is(".prev, .next")) {
+                // handle prev/next
+              } else {
+                // handle direct click
+                $this.parent().addClass("active");
+              }
+              p.render(true);
+              p.onPage.call(p, pageNum, this, e);
+            }
+          });
+        }
       },
 
       renderChildren: function() {
@@ -32,11 +53,7 @@ var Pagination = Panel.extend(
 
       buildPages: function() {
         this.children = [];
-        if(this.pages < 1) {
-
-          throw new SyntaxError("You must supply a number of pages greater than 0");
-
-        } else if(this.pages > 1) {
+        if(this.pages > 1) {
 
           this.add(new Link({body: "&laquo;", classes: ["prev"]}));
           _.times(this.pages, function(i) {
@@ -45,7 +62,8 @@ var Pagination = Panel.extend(
           this.add(new Link({body: "&raquo;", classes: ["next"]}));
 
         } else {
-          console.warn("Paginator instantiated with only 1 page."); //paginators with only 1 page don't display
+          //paginators with less than 2 pages don't display
+          console.warn("Paginator set to have less than 2 pages.  Pagination not will not display.");
         }
       }
 
