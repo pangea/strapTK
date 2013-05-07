@@ -23,24 +23,49 @@ var Pagination = Panel.extend(
           this.buildPages();
         }
 
+        // TODO: figure out how to select the current page on render
         if(this.onPage && this.id) {
-          $("body").on("click", this.id+" a", {paginator: this}, function(e) {
-            if(!$(this).parent().is(".active, .disabled")) {
-              var p = e.data.paginator,
-                  $this = $(this),
-                  curPage = $this.parent().siblings(".active"),
-                  pageNum = $this.text();
+          // Add click handlers
+          $(function() {
+            $("body").on("click", this.id+" a", {paginator: this}, function(e) {
+              if(!$(this).parent().is(".active, .disabled")) {
+                var p = e.data.paginator,
+                    pEl = p.el(),
+                    $this = $(this);
 
-              curPage.removeClass(".active");
-              if($this.is(".prev, .next")) {
-                // handle prev/next
-              } else {
-                // handle direct click
-                $this.parent().addClass("active");
+                switch($this.attr("class")) {
+                  case "first": // first page button clicked
+                    p.currentPage = 1;
+                    break;
+
+                  case "prev":  // previous page button clicked
+                    p.currentPage = p.pages;
+                    break;
+
+                  case "next":  // next page button clicked
+                    p.currentPage--;
+                    break;
+
+                  case "last":  // last page button clicked
+                    p.currentPage++;
+                    break;
+
+                  default:      // numbered page button clicked
+                    p.currentPage = parseInt($this.text(), 10);
+                }
+
+                p.render(true);
+                p.onPage.call(p, p.currentPage, this, e);
+
+                pEl.find("li").not(".first, .last, .prev, .next").eq(p.currentPage-1).addClass("active");
+
+                if(p.currentPage === 1) {
+                  pEl.find(".first, .prev").parent().addClass("disabled");
+                } else if(p.currentPage === p.pages) {
+                  pEl.find(".last, .next").parent().addClass("disabled");
+                }
               }
-              p.render(true);
-              p.onPage.call(p, pageNum, this, e);
-            }
+            });
           });
         }
       },

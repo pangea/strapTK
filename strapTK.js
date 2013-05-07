@@ -241,7 +241,7 @@ var Component = Base.extend(
 
       /**
        * Sets the value of a field, if and only if it hasn't been defined on this object.
-       * That is, it defines the value if Object.field was set on this Object and not in this Object's prototype chain.
+       * That is, it defines the value if Object.field is not on this Object.
        *
        * This method accepts a variable number of attibutes.
        * E.G.
@@ -254,12 +254,15 @@ var Component = Base.extend(
        * this.setDefaultValue("", "childPrefix", "childSuffix");
        */
       setDefaultValue: function(value, attribute) {
-        var args = Array.prototype.slice.call(arguments, 1),      // get the list of attributes to apply the value to
-            method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
+        var args    = Array.prototype.slice.call(arguments, 1),   // get the list of attributes to apply the value to
+            method  = _.isArray(value) ? "apply" : "call",        // determine which Function method to call
+            isFunc  = _.isFunction(value);                        // functions won't need to be cloned
 
         _.each(args, function(attr) {
           if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
-            this[attr] = value.constructor[method](this, value);  // clone value by calling its constructor function
+            this[attr] = isFunc ?                                 // check if we have a function before cloning
+                          value :                                 // if this is a function, assign it directly.
+                          value.constructor[method](this, value); // else, clone value by calling its constructor function
           }
         }, this);
       },
@@ -534,13 +537,25 @@ var Panel = Component.extend(
         // Convert a list of space separated classes/attributes into a proper array
         /*
          * TODO:  It occurs to me that attribute values could have spaces in them.
-         *        This could lead to problems.  A better solution will probably be needed for them
+         *        This could lead to problems.  A better solution will probably be needed
          */
         _.each(["classes", "attributes"], function(attr) {
           if(typeof(this[attr]) === "string") {
             this[attr] = _.uniq(this[attr].split(" "));
           }
         }, this);
+      },
+
+      /**
+       * Get the jQuery wrapped DOM element that represents this Panel.
+       * This method only works if this Panel has an id!
+       *
+       * @returns {jQuery|undefined} the DOM element representing this Panel.
+       */
+      el : function() {
+        if(this.id) {
+          return $("#"+this.id);
+        }
       },
 
       /**
@@ -1369,32 +1384,256 @@ var Icon = Panel.extend(
     {
       klass: "Icon",
       types: [
-              "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md",
-              "stethoscope", "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right",
-              "angle-up", "angle-down", "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop",
-              "laptop", "tablet", "mobile-phone", "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk",
-              "ban-circle", "bar-chart", "barcode", "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn",
-              "calendar", "camera", "camera-retro", "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload",
-              "coffee", "cog", "cogs", "comment", "comment-alt", "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt",
-              "edit", "envelope", "envelope-alt", "exchange", "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet",
-              "film", "filter", "fire", "flag", "folder-close", "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group",
-              "hdd", "headphones", "heart", "heart-empty", "home", "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock",
-              "magic", "magnet", "map-marker", "minus", "minus-sign", "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil",
-              "picture", "plane", "plus", "plus-sign", "print", "pushpin", "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove",
-              "remove-circle", "remove-sign", "reorder", "reply", "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search",
-              "share", "share-alt", "shopping-cart", "signal", "signin", "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty",
-              "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down", "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload",
-              "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up", "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt",
-              "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width", "align-left", "align-center", "align-right", "align-justify",
-              "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link", "paper-clip", "columns", "table", "th-large", "th",
-              "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up", "angle-down", "arrow-down", "arrow-left",
-              "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left", "chevron-right", "chevron-up",
-              "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right", "double-angle-up",
-              "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
-              "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small",
-              "phone", "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign",
-              "pinterest", "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit",
-              "plus-sign-alt", "stethoscope", "user-md"
+              "adjust",
+              "asterisk",
+              "ban-circle",
+              "bar-chart",
+              "barcode",
+              "beaker",
+              "beer",
+              "bell",
+              "bell-alt",
+              "bolt",
+              "book",
+              "bookmark",
+              "bookmark-empty",
+              "briefcase",
+              "bullhorn",
+              "calendar",
+              "camera",
+              "camera-retro",
+              "certificate",
+              "check",
+              "check-empty",
+              "circle",
+              "circle-blank",
+              "cloud",
+              "cloud-download",
+              "cloud-upload",
+              "coffee",
+              "cog",
+              "cogs",
+              "comment",
+              "comment-alt",
+              "comments",
+              "comments-alt",
+              "credit-card",
+              "dashboard",
+              "desktop",
+              "download",
+              "download-alt",
+              "edit",
+              "envelope",
+              "envelope-alt",
+              "exchange",
+              "exclamation-sign",
+              "external-link",
+              "eye-close",
+              "eye-open",
+              "facetime-video",
+              "fighter-jet",
+              "film",
+              "filter",
+              "fire",
+              "flag",
+              "folder-close",
+              "folder-open",
+              "folder-close-alt",
+              "folder-open-alt",
+              "food",
+              "gift",
+              "glass",
+              "globe",
+              "group",
+              "hdd",
+              "headphones",
+              "heart",
+              "heart-empty",
+              "home",
+              "inbox",
+              "info-sign",
+              "key",
+              "leaf",
+              "laptop",
+              "legal",
+              "lemon",
+              "lightbulb",
+              "lock",
+              "unlock",
+              "magic",
+              "magnet",
+              "map-marker",
+              "minus",
+              "minus-sign",
+              "mobile-phone",
+              "money",
+              "move",
+              "music",
+              "off",
+              "ok",
+              "ok-circle",
+              "ok-sign",
+              "pencil",
+              "picture",
+              "plane",
+              "plus",
+              "plus-sign",
+              "print",
+              "pushpin",
+              "qrcode",
+              "question-sign",
+              "quote-left",
+              "quote-right",
+              "random",
+              "refresh",
+              "remove","remove-circle",
+              "remove-sign",
+              "reorder",
+              "reply",
+              "resize-horizontal",
+              "resize-vertical",
+              "retweet",
+              "road",
+              "rss",
+              "screenshot",
+              "search",
+              "share",
+              "share-alt",
+              "shopping-cart",
+              "signal",
+              "signin",
+              "signout",
+              "sitemap",
+              "sort",
+              "sort-down",
+              "sort-up",
+              "spinner",
+              "star",
+              "star-empty",
+              "star-half",
+              "tablet",
+              "tag",
+              "tags",
+              "tasks",
+              "thumbs-down",
+              "thumbs-up",
+              "time",
+              "tint",
+              "trash",
+              "trophy",
+              "truck",
+              "umbrella",
+              "upload",
+              "upload-alt",
+              "user",
+              "user-md",
+              "volume-off",
+              "volume-down",
+              "volume-up",
+              "warning-sign",
+              "wrench",
+              "zoom-in",
+              "zoom-out",
+              "file",
+              "file-alt",
+              "cut",
+              "copy",
+              "paste",
+              "save",
+              "undo",
+              "repeat",
+              "text-height",
+              "text-width",
+              "align-left",
+              "align-center",
+              "align-right",
+              "align-justify",
+              "indent-left",
+              "indent-right",
+              "font",
+              "bold",
+              "italic",
+              "strikethrough",
+              "underline",
+              "link",
+              "paper-clip",
+              "columns",
+              "table",
+              "th-large",
+              "th",
+              "th-list",
+              "list",
+              "list-ol",
+              "list-ul",
+              "list-alt",
+              "angle-left",
+              "angle-right",
+              "angle-up",
+              "angle-down",
+              "arrow-down",
+              "arrow-left",
+              "arrow-right",
+              "arrow-up",
+              "caret-down",
+              "caret-left",
+              "caret-right",
+              "caret-up",
+              "chevron-down",
+              "chevron-left",
+              "chevron-right",
+              "chevron-up",
+              "circle-arrow-down",
+              "circle-arrow-left",
+              "circle-arrow-right",
+              "circle-arrow-up",
+              "double-angle-left",
+              "double-angle-right",
+              "double-angle-up",
+              "double-angle-down",
+              "hand-down",
+              "hand-left",
+              "hand-right",
+              "hand-up",
+              "circle",
+              "circle-blank",
+              "play-circle",
+              "play",
+              "pause",
+              "stop",
+              "step-backward",
+              "fast-backward",
+              "backward",
+              "forward",
+              "fast-forward",
+              "step-forward",
+              "eject",
+              "fullscreen",
+              "resize-full",
+              "resize-small",
+              "phone",
+              "phone-sign",
+              "facebook",
+              "facebook-sign",
+              "twitter",
+              "twitter-sign",
+              "github",
+              "github-alt",
+              "github-sign",
+              "linkedin",
+              "linkedin-sign",
+              "pinterest",
+              "pinterest-sign",
+              "google-plus",
+              "google-plus-sign",
+              "sign-blank",
+              "ambulance",
+              "beaker",
+              "h-sign",
+              "hospital",
+              "medkit",
+              "plus-sign-alt",
+              "stethoscope",
+              "user-md"
             ]
     });
 /* Sprocket Manifest
@@ -1702,7 +1941,10 @@ var Pagination = Panel.extend(
         }
         Pagination.__super__.initialize.call(this, args);
 
-        this.setDefaultValue(1, "pages");
+        this.setDefaultValue(1, "pages", "currentPage");
+        this.setDefaultValue(Infinity, "maxPages");
+        this.setDefaultValue(true, "prevNext");
+        this.setDefaultValue(false, "firstLast");
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
@@ -1710,6 +1952,52 @@ var Pagination = Panel.extend(
 
         if(this.children.length === 0) {
           this.buildPages();
+        }
+
+        // TODO: figure out how to select the current page on render
+        if(this.onPage && this.id) {
+          // Add click handlers
+          $(function() {
+            $("body").on("click", this.id+" a", {paginator: this}, function(e) {
+              if(!$(this).parent().is(".active, .disabled")) {
+                var p = e.data.paginator,
+                    pEl = p.el(),
+                    $this = $(this);
+
+                switch($this.attr("class")) {
+                  case "first": // first page button clicked
+                    p.currentPage = 1;
+                    break;
+
+                  case "prev":  // previous page button clicked
+                    p.currentPage = p.pages;
+                    break;
+
+                  case "next":  // next page button clicked
+                    p.currentPage--;
+                    break;
+
+                  case "last":  // last page button clicked
+                    p.currentPage++;
+                    break;
+
+                  default:      // numbered page button clicked
+                    p.currentPage = parseInt($this.text(), 10);
+                }
+
+                p.render(true);
+                p.onPage.call(p, p.currentPage, this, e);
+
+                pEl.find("li").not(".first, .last, .prev, .next").eq(p.currentPage-1).addClass("active");
+
+                if(p.currentPage === 1) {
+                  pEl.find(".first, .prev").parent().addClass("disabled");
+                } else if(p.currentPage === p.pages) {
+                  pEl.find(".last, .next").parent().addClass("disabled");
+                }
+              }
+            });
+          });
         }
       },
 
@@ -1723,21 +2011,43 @@ var Pagination = Panel.extend(
       },
 
       buildPages: function() {
+        var dispPages, startPage, pageRange;
+
         this.children = [];
-        if(this.pages < 1) {
+        if(this.pages > 1) {
+          dispPages = Math.min(this.maxPages, this.pages);          // determine the number of pages to display
+          pageRange = Math.floor(dispPages/2);                      // determine the number of pages on each side of current
+          startPage = Math.max(this.currentPage - pageRange, 1);    // ensure the start page isn't less than 1
+          startPage = Math.min(startPage, this.pages - pageRange);  // ensure the start page doesn't chop off pages
+          startPage = Math.floor(startPage);                        // handle dispPages being odd
 
-          throw new SyntaxError("You must supply a number of pages greater than 0");
-
-        } else if(this.pages > 1) {
-
-          this.add(new Link({body: "&laquo;", classes: ["prev"]}));
-          _.times(this.pages, function(i) {
-            this.add(new Link((i+1)+""));
+          _.times(dispPages, function(i) {
+            this.add(new Link((i+startPage)+""));
           }, this);
-          this.add(new Link({body: "&raquo;", classes: ["next"]}));
+
+          if(this.pages > dispPages) {
+            if(this.currentPage - pageRange > 0) {
+              this.unshift(new Raw("..."));
+            }
+
+            if(this.pages - this.currentPage > pageRange) {
+              this.add(new Raw("..."));
+            }
+          }
+
+          if(this.prevNext) {
+            this.unshift(new Link({ classes: "prev", children: [ new Icon({type: "angle-left"}) ] }));
+            this.add(new Link({ classes: "next", children: [ new Icon({type: "angle-right"}) ] }));
+          }
+
+          if(this.firstLast) {
+            this.unshift(new Link({ classes: "first", children: [ new Icon({type: "double-angle-left"}) ] }));
+            this.add(new Link({ classes: "last", children: [ new Icon({type: "double-angle-right"}) ] }));
+          }
 
         } else {
-          console.warn("Paginator instantiated with only 1 page."); //paginators with only 1 page don't display
+          //paginators with less than 2 pages don't display
+          console.warn("Paginator set to have less than 2 pages.  Pagination not will not display.");
         }
       }
 

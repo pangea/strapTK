@@ -45,13 +45,25 @@ var Panel = Component.extend(
         // Convert a list of space separated classes/attributes into a proper array
         /*
          * TODO:  It occurs to me that attribute values could have spaces in them.
-         *        This could lead to problems.  A better solution will probably be needed for them
+         *        This could lead to problems.  A better solution will probably be needed
          */
         _.each(["classes", "attributes"], function(attr) {
           if(typeof(this[attr]) === "string") {
             this[attr] = _.uniq(this[attr].split(" "));
           }
         }, this);
+      },
+
+      /**
+       * Get the jQuery wrapped DOM element that represents this Panel.
+       * This method only works if this Panel has an id!
+       *
+       * @returns {jQuery|undefined} the DOM element representing this Panel.
+       */
+      el : function() {
+        if(this.id) {
+          return $("#"+this.id);
+        }
       },
 
       /**
