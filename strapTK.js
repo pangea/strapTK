@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.2.3
+ * Strap'd ToolKit v 0.2.5
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -512,7 +512,7 @@ var Panel = Component.extend(
        * @property {String}   id          The CSS ID of this Panel
        * @property {String}   body        The text and/or markup that makes up this Panel
        *
-       * @constructs
+       * @constructs Panel
        *
        * @param {Object|Array|String} [attributes={}]  Values to apply to this Panel.  All values supplied are applied to the created Panel
        * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
@@ -778,8 +778,7 @@ Typify.defaults = {
   types: [""],
   base: "",
   type: ""
-}
-;
+};
 /* Sprocket Manifest
 
 
@@ -1954,11 +1953,11 @@ var Pagination = Panel.extend(
           this.buildPages();
         }
 
-        // TODO: figure out how to select the current page on render
         if(this.onPage && this.id) {
           // Add click handlers
-          $(function() {
-            $("body").on("click", this.id+" a", {paginator: this}, function(e) {
+          $(function(paginator) {
+            $("body").on("click", "#"+this.id+" a", {paginator: paginator}, function(e) {
+              e.preventDefault();
               if(!$(this).parent().is(".active, .disabled")) {
                 var p = e.data.paginator,
                     pEl = p.el(),
@@ -1970,15 +1969,15 @@ var Pagination = Panel.extend(
                     break;
 
                   case "prev":  // previous page button clicked
-                    p.currentPage = p.pages;
-                    break;
-
-                  case "next":  // next page button clicked
                     p.currentPage--;
                     break;
 
-                  case "last":  // last page button clicked
+                  case "next":  // next page button clicked
                     p.currentPage++;
+                    break;
+
+                  case "last":  // last page button clicked
+                    p.currentPage = p.pages;
                     break;
 
                   default:      // numbered page button clicked
@@ -1997,7 +1996,7 @@ var Pagination = Panel.extend(
                 }
               }
             });
-          });
+          }.bind(window, this));
         }
       },
 
