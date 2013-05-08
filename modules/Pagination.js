@@ -23,11 +23,11 @@ var Pagination = Panel.extend(
           this.buildPages();
         }
 
-        // TODO: figure out how to select the current page on render
         if(this.onPage && this.id) {
           // Add click handlers
-          $(function() {
-            $("body").on("click", this.id+" a", {paginator: this}, function(e) {
+          $(function(paginator) {
+            $("body").on("click", "#"+this.id+" a", {paginator: paginator}, function(e) {
+              e.preventDefault();
               if(!$(this).parent().is(".active, .disabled")) {
                 var p = e.data.paginator,
                     pEl = p.el(),
@@ -39,15 +39,15 @@ var Pagination = Panel.extend(
                     break;
 
                   case "prev":  // previous page button clicked
-                    p.currentPage = p.pages;
-                    break;
-
-                  case "next":  // next page button clicked
                     p.currentPage--;
                     break;
 
-                  case "last":  // last page button clicked
+                  case "next":  // next page button clicked
                     p.currentPage++;
+                    break;
+
+                  case "last":  // last page button clicked
+                    p.currentPage = p.pages;
                     break;
 
                   default:      // numbered page button clicked
@@ -66,7 +66,7 @@ var Pagination = Panel.extend(
                 }
               }
             });
-          });
+          }.bind(window, this));
         }
       },
 

@@ -48,4 +48,4 @@ Typify.defaults = {
   types: [""],
   base: "",
   type: ""
-}
+};

@@ -20,7 +20,7 @@ var Panel = Component.extend(
        * @property {String}   id          The CSS ID of this Panel
        * @property {String}   body        The text and/or markup that makes up this Panel
        *
-       * @constructs
+       * @constructs Panel
        *
        * @param {Object|Array|String} [attributes={}]  Values to apply to this Panel.  All values supplied are applied to the created Panel
        * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
