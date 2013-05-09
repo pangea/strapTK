@@ -25,12 +25,14 @@ var Pagination = Panel.extend(
 
         if(this.onPage && this.id) {
           // Add click handlers
-          $(function(paginator) {
-            $("body").on("click", "#"+this.id+" a", {paginator: paginator}, function(e) {
+          var p = this;
+          $(function() {
+            console.log("applying handler");
+            $("body").on("click", "#"+this.id+" a", function(e) {
+              console.log("Handler fired");
               e.preventDefault();
               if(!$(this).parent().is(".active, .disabled")) {
-                var p = e.data.paginator,
-                    pEl = p.el(),
+                var pEl = p.el(),
                     $this = $(this);
 
                 switch($this.attr("class")) {
@@ -66,7 +68,7 @@ var Pagination = Panel.extend(
                 }
               }
             });
-          }.bind(window, this));
+          });
         }
       },
 
