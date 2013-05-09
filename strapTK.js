@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.2.5
+ * Strap'd ToolKit v 0.3.0
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -1646,12 +1646,12 @@ var Icon = Panel.extend(
  * @property {String} src The URI of the source image
  */
 
-var Image = Panel.extend(
-    /** @lends Image# */
+var StrapImage = Panel.extend(
+    /** @lends StrapImage# */
     {
       /** @see Panel#initialize */
       initialize : function(args) {
-        Image.__super__.initialize.call(this, args);
+        StrapImage.__super__.initialize.call(this, args);
 
         this.setDefaultValue(this.body, "src");
       },
@@ -1668,9 +1668,9 @@ var Image = Panel.extend(
         return FormSelect.__super__.listAttributes.call(this, "src");
       }
     },
-    /** @lends Image */
+    /** @lends StrapImage */
     {
-      klass: "Image"
+      klass: "StrapImage"
     })
 ;
 /* Sprocket Manifest
