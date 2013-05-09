@@ -1955,14 +1955,12 @@ var Pagination = Panel.extend(
 
         if(this.onPage && this.id) {
           // Add click handlers
-          var p = this;
-          $(function() {
-            console.log("applying handler");
-            $("body").on("click", "#"+this.id+" a", function(e) {
-              console.log("Handler fired");
+          $(function(paginator) {
+            $("body").on("click", "#"+paginator.id+" a", {paginator: paginator}, function(e) {
               e.preventDefault();
               if(!$(this).parent().is(".active, .disabled")) {
-                var pEl = p.el(),
+                var p = e.data.paginator,
+                    pEl = p.el(),
                     $this = $(this);
 
                 switch($this.attr("class")) {
@@ -1989,7 +1987,7 @@ var Pagination = Panel.extend(
                 p.render(true);
                 p.onPage.call(p, p.currentPage, this, e);
 
-                pEl.find("li").not(".first, .last, .prev, .next").eq(p.currentPage-1).addClass("active");
+                pEl.find("li").not(function() { return $(this).find(".first, .last, .prev, .next").size() > 0 }).eq(p.currentPage-1).addClass("active");
 
                 if(p.currentPage === 1) {
                   pEl.find(".first, .prev").parent().addClass("disabled");
@@ -1998,7 +1996,7 @@ var Pagination = Panel.extend(
                 }
               }
             });
-          });
+          }.bind(window, this));
         }
       },
 
