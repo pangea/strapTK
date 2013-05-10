@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.3.0
+ * Strap'd ToolKit v 0.4.0
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -824,11 +824,16 @@ var Accordion = Panel.extend(
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
-          var childPanelID = this.id + "-" + i;
+          var childPanelID = this.id + "-" + i,
+              heading = child.heading;
+
+          if(heading && heading.render) {
+            heading = heading.render();
+          }
           markup += "<div class='accordion-group'>" +
                       "<div class='accordion-heading'>" +
                         "<a class='accordion-toggle' data-parent='#" + this.id + "' data-toggle='collapse' href='#" + childPanelID +"'>" +
-                          child.heading +
+                          heading +
                         "</a>" +
                       "</div>" +
                       "<div class='accordion-body collapse" + (child.open ? " in" : "") + "' id='" + childPanelID +"'>" +
@@ -1639,6 +1644,43 @@ var Icon = Panel.extend(
 
  */
 
+/**
+ * @class Provides a method of creating images simply
+ * @extends Panel
+ *
+ * @property {String} src The URI of the source image
+ */
+
+var Img = Panel.extend(
+    /** @lends Img# */
+    {
+      /** @see Panel#initialize */
+      initialize : function(args) {
+        Img.__super__.initialize.call(this, args);
+
+        this.setDefaultValue(this.body, "src");
+      },
+
+      /** @see Panel#template */
+      template : _.template("<img <%= rootAttrs %> />"),
+
+      /**
+       * Override of listAttributes to add src to the attributes returned
+       *
+       * @see Panel#listAttributes
+       */
+      listAttributes : function() {
+        return Img.__super__.listAttributes.call(this, "src");
+      }
+    },
+    /** @lends Img */
+    {
+      klass: "Img"
+    });
+/* Sprocket Manifest
+
+ */
+
 var Label = AbstractBadge.extend(
     /** @lends Label# */
     {
@@ -1917,12 +1959,12 @@ var Pagination = Panel.extend(
 
         if(this.onPage && this.id) {
           // Add click handlers
-          $(function(paginator) {
-            $("body").on("click", "#"+paginator.id+" a", {paginator: paginator}, function(e) {
+          var p = this;
+          $(function() {
+            $("body").on("click", "#"+p.id+" a", function(e) {
               e.preventDefault();
               if(!$(this).parent().is(".active, .disabled")) {
-                var p = e.data.paginator,
-                    pEl = p.el(),
+                var pEl = p.el(),
                     $this = $(this);
 
                 switch($this.attr("class")) {
@@ -1949,7 +1991,7 @@ var Pagination = Panel.extend(
                 p.render(true);
                 p.onPage.call(p, p.currentPage, this, e);
 
-                pEl.find("li").not(function() { return $(this).find(".first, .last, .prev, .next").size() > 0 }).eq(p.currentPage-1).addClass("active");
+                pEl.find("li").not(function() { return $(this).find(".first, .last, .prev, .next").size() > 0; }).eq(p.currentPage-1).addClass("active");
 
                 if(p.currentPage === 1) {
                   pEl.find(".first, .prev").parent().addClass("disabled");
@@ -1958,7 +2000,7 @@ var Pagination = Panel.extend(
                 }
               }
             });
-          }.bind(window, this));
+          });
         }
       },
 
@@ -2210,44 +2252,6 @@ var Span = Panel.extend(
     {
       klass: "Span"
     });
-/* Sprocket Manifest
-
- */
-
-/**
- * @class Provides a method of creating images simply
- * @extends Panel
- *
- * @property {String} src The URI of the source image
- */
-
-var StrapImage = Panel.extend(
-    /** @lends StrapImage# */
-    {
-      /** @see Panel#initialize */
-      initialize : function(args) {
-        StrapImage.__super__.initialize.call(this, args);
-
-        this.setDefaultValue(this.body, "src");
-      },
-
-      /** @see Panel#template */
-      template : _.template("<img <%= rootAttrs %> />"),
-
-      /**
-       * Override of listAttributes to add src to the attributes returned
-       *
-       * @see Panel#listAttributes
-       */
-      listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "src");
-      }
-    },
-    /** @lends StrapImage */
-    {
-      klass: "StrapImage"
-    })
-;
 /* Sprocket Manifest
 
  */
