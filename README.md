@@ -33,30 +33,33 @@ new Panel({
 
 This is all well and good, but you may have noticed that the last example had a bit more code to it than the resulting markup and didn't really make it that much easier to write.  Which is true, Strap'd isn't meant to make creating HTML shorter, per se, just easier to manage.  A good example of something with complex markup is Bootstrap's Carousel.
 ````javascript
-new Carousel([
-  new Image("http://placehold.it/350x150&text=Placeholder+Image"),
-  new Image("http://placehold.it/350x150&text=Placeholder+Image"),
-  new Image("http://placehold.it/350x150&text=Placeholder+Image"),
-  new Image("http://placehold.it/350x150&text=Placeholder+Image")
-]);
+new Carousel({
+  id: "carousel",
+  children: [
+    new Img("http://placehold.it/350x150&text=Placeholder+Image"),
+    new Img("http://placehold.it/350x150&text=Placeholder+Image"),
+    new Img("http://placehold.it/350x150&text=Placeholder+Image"),
+    new Img("http://placehold.it/350x150&text=Placeholder+Image")
+  ]
+});
 
 /* Renders to:
- * <div class='carousel slide'>
- *   <ol class='carousel-indicators'>
- *     <li data-slide-to='0' data-target='#' classes='active'></li>
- *     <li data-slide-to='1' data-target='#' ></li>
- *     <li data-slide-to='2' data-target='#' ></li>
- *     <li data-slide-to='3' data-target='#' ></li>
- *   </ol>
- *   <div class='carousel-inner'>
- *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item active' />
- *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
- *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
- *     <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
- *   </div>
- *   <a class='carousel-control left' data-slide='prev' href='#'>&lsaquo;</a>
- *   <a class='carousel-control right' data-slide='next' href='#'>&rsaquo;</a>
- * </div>
+ *  <div id='carousel' class='carousel slide'>
+ *    <ol class='carousel-indicators'>
+ *      <li data-slide-to='0' data-target='#carousel' classes='active'></li>
+ *      <li data-slide-to='1' data-target='#carousel' ></li>
+ *      <li data-slide-to='2' data-target='#carousel' ></li>
+ *      <li data-slide-to='3' data-target='#carousel' ></li>
+ *    </ol>
+ *    <div class='carousel-inner'>
+ *      <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item active' />
+ *      <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
+ *      <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
+ *      <img src='http://placehold.it/350x150&text=Placeholder+Image' class='item' />
+ *    </div>
+ *    <a class='carousel-control left' data-slide='prev' href='#carousel'>&lsaquo;</a>
+ *    <a class='carousel-control right' data-slide='next' href='#carousel'>&rsaquo;</a>
+ *  </div>
  */
 ````
 

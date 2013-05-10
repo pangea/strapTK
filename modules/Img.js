@@ -8,12 +8,12 @@
  *
  * @property {String} src The URI of the source image
  */
-var StrapImage = Panel.extend(
-    /** @lends StrapImage# */
+var Img = Panel.extend(
+    /** @lends Img# */
     {
       /** @see Panel#initialize */
       initialize : function(args) {
-        StrapImage.__super__.initialize.call(this, args);
+        Img.__super__.initialize.call(this, args);
 
         this.setDefaultValue(this.body, "src");
       },
@@ -27,10 +27,10 @@ var StrapImage = Panel.extend(
        * @see Panel#listAttributes
        */
       listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "src");
+        return Img.__super__.listAttributes.call(this, "src");
       }
     },
-    /** @lends StrapImage */
+    /** @lends Img */
     {
-      klass: "StrapImage"
-    })
+      klass: "Img"
+    });
