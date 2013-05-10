@@ -7,8 +7,11 @@ var Button = Link.extend(
     {
       initialize : function(args) {
         Button.__super__.initialize.call(this, args);
-
-        this.attributes.unshift("type='button'");
+        if(_.isArray(this.attributes)) {
+          this.attributes.unshift("type='button'");
+        } else {
+          this.attributes.type = "button";
+        }
 
         this.base = "btn";
 
