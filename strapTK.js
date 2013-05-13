@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.4.1
+ * Strap'd ToolKit v 0.4.2
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -1854,7 +1854,7 @@ var Modal = Panel.extend(
         return  _.extend(
                   Modal.__super__.renderHash.call(this),
                   {
-                    header  : this.header,
+                    header  : this.header.render ? this.header.render() : this.header,
                     actions : this.renderActions(),
                     closable: this.closable
                   }
