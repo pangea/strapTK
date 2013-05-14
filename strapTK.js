@@ -1896,7 +1896,11 @@ var Nav = List.extend(
           if(i && this.divided) {
             markup += "<li class='divider-vertical'></li>";
           }
-          markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+          if(child.tag === "li") { // this allows users to force an override for a specific child
+            markup += child.render();
+          } else {
+            markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+          }
         }, this);
         return markup;
       },
