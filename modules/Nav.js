@@ -6,8 +6,8 @@ var Nav = List.extend(
     /** @lends Nav# */
     {
       initialize: function(args) {
-        this.childPrefix = "<li>";
-        this.childSuffix = "</li>";
+        // this.childPrefix = "<li>";
+        // this.childSuffix = "</li>";
 
         Nav.__super__.initialize.call(this, args);
 
@@ -21,24 +21,27 @@ var Nav = List.extend(
         prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
 
         var markup = "";
-        _.each(this.children, function(child) {
+        _.each(this.children, function(child, i) {
+          if(i && this.divided) {
+            markup += "<li class='divider-vertical'></li>";
+          }
           markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
-        });
+        }, this);
         return markup;
       },
 
-      render : function(intoDOM) {
-        var markup = Nav.__super__.render.call(this);
-        if(this.divided) {
-          markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
-        }
+      // render : function(intoDOM) {
+      //   var markup = Nav.__super__.render.call(this);
+      //   if(this.divided) {
+      //     markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
+      //   }
 
-        if(intoDOM && this.id) {
-          $("#"+this.id).html(markup);
-        }
+      //   if(intoDOM && this.id) {
+      //     $("#"+this.id).html(markup);
+      //   }
 
-        return markup
-      },
+      //   return markup;
+      // },
 
       divide : function(divided) {
         if(divided) {
