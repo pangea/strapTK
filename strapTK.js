@@ -2283,7 +2283,7 @@ var Source = Panel.extend(
       render : function(intoDOM) {
             // if data is a function, use the return from that function, else data
         var markup,
-            _data = (data.call ? data.call(this) : data),
+            _data = (this.data.call ? this.data.call(this) : this.data),
             innerHTML = this.body + this.renderChildren();
 
         // make data an array to make this easier
