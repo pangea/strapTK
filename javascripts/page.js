@@ -33,7 +33,7 @@ var page = new Viewport({
                         new Link({
                           body: "API Docs",
                           id: "api-link",
-                          href: "#api"
+                          href: "/docs/index.html"
                         }),
                         new Link({
                           body: "About",
