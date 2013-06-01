@@ -5,7 +5,6 @@
   },
 
   "opts"    : {
-    "template"    : "default",
     "destination" : "./docs/"
   }
 }

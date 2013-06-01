@@ -49,7 +49,7 @@ var Component = Base.extend(
 
       /**
        * Sets the value of a field, if and only if it hasn't been defined on this object.
-       * That is, it defines the value if Object.field was set on this Object and not in this Object's prototype chain.
+       * That is, it defines the value if Object.field is not on this Object.
        *
        * This method accepts a variable number of attibutes.
        * E.G.
@@ -62,12 +62,15 @@ var Component = Base.extend(
        * this.setDefaultValue("", "childPrefix", "childSuffix");
        */
       setDefaultValue: function(value, attribute) {
-        var args = Array.prototype.slice.call(arguments, 1),      // get the list of attributes to apply the value to
-            method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
+        var args    = Array.prototype.slice.call(arguments, 1),   // get the list of attributes to apply the value to
+            method  = _.isArray(value) ? "apply" : "call",        // determine which Function method to call
+            isFunc  = _.isFunction(value);                        // functions won't need to be cloned
 
         _.each(args, function(attr) {
           if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
-            this[attr] = value.constructor[method](this, value);  // clone value by calling its constructor function
+            this[attr] = isFunc ?                                 // check if we have a function before cloning
+                          value :                                 // if this is a function, assign it directly.
+                          value.constructor[method](this, value); // else, clone value by calling its constructor function
           }
         }, this);
       },

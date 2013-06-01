@@ -13,11 +13,16 @@ var Accordion = Panel.extend(
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
-          var childPanelID = this.id + "-" + i;
+          var childPanelID = this.id + "-" + i,
+              heading = child.heading;
+
+          if(heading && heading.render) {
+            heading = heading.render();
+          }
           markup += "<div class='accordion-group'>" +
                       "<div class='accordion-heading'>" +
                         "<a class='accordion-toggle' data-parent='#" + this.id + "' data-toggle='collapse' href='#" + childPanelID +"'>" +
-                          child.heading +
+                          heading +
                         "</a>" +
                       "</div>" +
                       "<div class='accordion-body collapse" + (child.open ? " in" : "") + "' id='" + childPanelID +"'>" +

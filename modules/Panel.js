@@ -20,7 +20,7 @@ var Panel = Component.extend(
        * @property {String}   id          The CSS ID of this Panel
        * @property {String}   body        The text and/or markup that makes up this Panel
        *
-       * @constructs
+       * @constructs Panel
        *
        * @param {Object|Array|String} [attributes={}]  Values to apply to this Panel.  All values supplied are applied to the created Panel
        * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
@@ -43,11 +43,27 @@ var Panel = Component.extend(
         this.setDefaultValue("", "id", "body");
 
         // Convert a list of space separated classes/attributes into a proper array
+        /*
+         * TODO:  It occurs to me that attribute values could have spaces in them.
+         *        This could lead to problems.  A better solution will probably be needed
+         */
         _.each(["classes", "attributes"], function(attr) {
           if(typeof(this[attr]) === "string") {
             this[attr] = _.uniq(this[attr].split(" "));
           }
         }, this);
+      },
+
+      /**
+       * Get the jQuery wrapped DOM element that represents this Panel.
+       * This method only works if this Panel has an id!
+       *
+       * @returns {jQuery|undefined} the DOM element representing this Panel.
+       */
+      el : function() {
+        if(this.id) {
+          return $("#"+this.id);
+        }
       },
 
       /**
@@ -154,6 +170,7 @@ var Panel = Component.extend(
             _.each(attrs.data, function(val, key) {
               attrs["data-"+key] = val;
             });
+            delete attrs.data;
           }
 
           attrs = _.map(attrs, function(val, key) {

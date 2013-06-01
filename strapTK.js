@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.2.3
+ * Strap'd ToolKit v 0.4.1
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -241,7 +241,7 @@ var Component = Base.extend(
 
       /**
        * Sets the value of a field, if and only if it hasn't been defined on this object.
-       * That is, it defines the value if Object.field was set on this Object and not in this Object's prototype chain.
+       * That is, it defines the value if Object.field is not on this Object.
        *
        * This method accepts a variable number of attibutes.
        * E.G.
@@ -254,12 +254,15 @@ var Component = Base.extend(
        * this.setDefaultValue("", "childPrefix", "childSuffix");
        */
       setDefaultValue: function(value, attribute) {
-        var args = Array.prototype.slice.call(arguments, 1),      // get the list of attributes to apply the value to
-            method = _.isArray(value) ? "apply" : "call";         // determine which Function prototype method to call
+        var args    = Array.prototype.slice.call(arguments, 1),   // get the list of attributes to apply the value to
+            method  = _.isArray(value) ? "apply" : "call",        // determine which Function method to call
+            isFunc  = _.isFunction(value);                        // functions won't need to be cloned
 
         _.each(args, function(attr) {
           if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
-            this[attr] = value.constructor[method](this, value);  // clone value by calling its constructor function
+            this[attr] = isFunc ?                                 // check if we have a function before cloning
+                          value :                                 // if this is a function, assign it directly.
+                          value.constructor[method](this, value); // else, clone value by calling its constructor function
           }
         }, this);
       },
@@ -509,7 +512,7 @@ var Panel = Component.extend(
        * @property {String}   id          The CSS ID of this Panel
        * @property {String}   body        The text and/or markup that makes up this Panel
        *
-       * @constructs
+       * @constructs Panel
        *
        * @param {Object|Array|String} [attributes={}]  Values to apply to this Panel.  All values supplied are applied to the created Panel
        * @param {Object}              [options={}]     Passed to the initialize function (currently unused by any default component)
@@ -532,11 +535,27 @@ var Panel = Component.extend(
         this.setDefaultValue("", "id", "body");
 
         // Convert a list of space separated classes/attributes into a proper array
+        /*
+         * TODO:  It occurs to me that attribute values could have spaces in them.
+         *        This could lead to problems.  A better solution will probably be needed
+         */
         _.each(["classes", "attributes"], function(attr) {
           if(typeof(this[attr]) === "string") {
             this[attr] = _.uniq(this[attr].split(" "));
           }
         }, this);
+      },
+
+      /**
+       * Get the jQuery wrapped DOM element that represents this Panel.
+       * This method only works if this Panel has an id!
+       *
+       * @returns {jQuery|undefined} the DOM element representing this Panel.
+       */
+      el : function() {
+        if(this.id) {
+          return $("#"+this.id);
+        }
       },
 
       /**
@@ -759,8 +778,7 @@ Typify.defaults = {
   types: [""],
   base: "",
   type: ""
-}
-;
+};
 /* Sprocket Manifest
 
 
@@ -806,11 +824,16 @@ var Accordion = Panel.extend(
       renderChildren: function() {
         var markup = "";
         _.each(this.children, function(child, i) {
-          var childPanelID = this.id + "-" + i;
+          var childPanelID = this.id + "-" + i,
+              heading = child.heading;
+
+          if(heading && heading.render) {
+            heading = heading.render();
+          }
           markup += "<div class='accordion-group'>" +
                       "<div class='accordion-heading'>" +
                         "<a class='accordion-toggle' data-parent='#" + this.id + "' data-toggle='collapse' href='#" + childPanelID +"'>" +
-                          child.heading +
+                          heading +
                         "</a>" +
                       "</div>" +
                       "<div class='accordion-body collapse" + (child.open ? " in" : "") + "' id='" + childPanelID +"'>" +
@@ -975,8 +998,11 @@ var Button = Link.extend(
     {
       initialize : function(args) {
         Button.__super__.initialize.call(this, args);
-
-        this.attributes.unshift("type='button'");
+        if(_.isArray(this.attributes)) {
+          this.attributes.unshift("type='button'");
+        } else {
+          this.attributes.type = "button";
+        }
 
         this.base = "btn";
 
@@ -1120,21 +1146,34 @@ var ContentRow = Panel.extend({
         this.ensureChildLimit();
         ContentRow.__super__.insert.call(this, component, index);
       },
-      renderChildren: function(prefix, suffix) {
-        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
-        var rowWidth = this.maxChildren,
-            fluidChildren = this.children.length;
+      renderChildren: function() {
+        var span,
+            prefix        = this.childPrefix,
+            suffix        = this.childSuffix,
+            rowWidth      = this.maxChildren,
+            fluidChildren = this.children.length,
+            markup        = "";
 
         _.each(this.children, function(child) {
           rowWidth -= (child.span || 0);
           fluidChildren -= (isNaN(child.span) ? 0 : 1);
         });
 
-        var span = Math.floor(rowWidth/fluidChildren),
-            markup = "";
+        span = Math.floor(rowWidth/fluidChildren);
         _.each(this.children, function(child) {
           var childMarkup = prefix + child.render() + suffix;
-          if(child.span !== 0) {
+
+          if(child.klass === "Panel" && !child.tag) { // don't double wrap divs, but also don't falsely detected custom strap objects
+            if(child.span !== 0) {
+              child.addClass("span"+(child.span || span));
+            }
+
+            childMarkup = child.render();
+
+            if(child.span !== 0) {  // check if a span class was added and remove it if it was
+              child.removeClass("span"+(child.span || span));
+            }
+          } else if(child.span !== 0) {
             childMarkup = "<div class='span"+(child.span || span)+"'>" + childMarkup + "</div>";
           }
 
@@ -1365,32 +1404,325 @@ var Icon = Panel.extend(
     {
       klass: "Icon",
       types: [
-              "cloud-download", "cloud-upload", "lightbulb", "exchange", "bell-alt", "file-alt", "beer", "coffee", "food", "fighter-jet", "user-md",
-              "stethoscope", "suitcase", "building", "hospital", "ambulance", "medkit", "h-sign", "plus-sign-alt", "spinner", "angle-left", "angle-right",
-              "angle-up", "angle-down", "double-angle-left", "double-angle-right", "double-angle-up", "double-angle-down", "circle-blank", "circle", "desktop",
-              "laptop", "tablet", "mobile-phone", "quote-left", "quote-right", "reply", "github-alt", "folder-close-alt", "folder-open-alt", "adjust", "asterisk",
-              "ban-circle", "bar-chart", "barcode", "beaker", "beer", "bell", "bell-alt", "bolt", "book", "bookmark", "bookmark-empty", "briefcase", "bullhorn",
-              "calendar", "camera", "camera-retro", "certificate", "check", "check-empty", "circle", "circle-blank", "cloud", "cloud-download", "cloud-upload",
-              "coffee", "cog", "cogs", "comment", "comment-alt", "comments", "comments-alt", "credit-card", "dashboard", "desktop", "download", "download-alt",
-              "edit", "envelope", "envelope-alt", "exchange", "exclamation-sign", "external-link", "eye-close", "eye-open", "facetime-video", "fighter-jet",
-              "film", "filter", "fire", "flag", "folder-close", "folder-open", "folder-close-alt", "folder-open-alt", "food", "gift", "glass", "globe", "group",
-              "hdd", "headphones", "heart", "heart-empty", "home", "inbox", "info-sign", "key", "leaf", "laptop", "legal", "lemon", "lightbulb", "lock", "unlock",
-              "magic", "magnet", "map-marker", "minus", "minus-sign", "mobile-phone", "money", "move", "music", "off", "ok", "ok-circle", "ok-sign", "pencil",
-              "picture", "plane", "plus", "plus-sign", "print", "pushpin", "qrcode", "question-sign", "quote-left", "quote-right", "random", "refresh", "remove",
-              "remove-circle", "remove-sign", "reorder", "reply", "resize-horizontal", "resize-vertical", "retweet", "road", "rss", "screenshot", "search",
-              "share", "share-alt", "shopping-cart", "signal", "signin", "signout", "sitemap", "sort", "sort-down", "sort-up", "spinner", "star", "star-empty",
-              "star-half", "tablet", "tag", "tags", "tasks", "thumbs-down", "thumbs-up", "time", "tint", "trash", "trophy", "truck", "umbrella", "upload",
-              "upload-alt", "user", "user-md", "volume-off", "volume-down", "volume-up", "warning-sign", "wrench", "zoom-in", "zoom-out", "file", "file-alt",
-              "cut", "copy", "paste", "save", "undo", "repeat", "text-height", "text-width", "align-left", "align-center", "align-right", "align-justify",
-              "indent-left", "indent-right", "font", "bold", "italic", "strikethrough", "underline", "link", "paper-clip", "columns", "table", "th-large", "th",
-              "th-list", "list", "list-ol", "list-ul", "list-alt", "angle-left", "angle-right", "angle-up", "angle-down", "arrow-down", "arrow-left",
-              "arrow-right", "arrow-up", "caret-down", "caret-left", "caret-right", "caret-up", "chevron-down", "chevron-left", "chevron-right", "chevron-up",
-              "circle-arrow-down", "circle-arrow-left", "circle-arrow-right", "circle-arrow-up", "double-angle-left", "double-angle-right", "double-angle-up",
-              "double-angle-down", "hand-down", "hand-left", "hand-right", "hand-up", "circle", "circle-blank", "play-circle", "play", "pause", "stop",
-              "step-backward", "fast-backward", "backward", "forward", "fast-forward", "step-forward", "eject", "fullscreen", "resize-full", "resize-small",
-              "phone", "phone-sign", "facebook", "facebook-sign", "twitter", "twitter-sign", "github", "github-alt", "github-sign", "linkedin", "linkedin-sign",
-              "pinterest", "pinterest-sign", "google-plus", "google-plus-sign", "sign-blank", "ambulance", "beaker", "h-sign", "hospital", "medkit",
-              "plus-sign-alt", "stethoscope", "user-md"
+              // Web Application Icons
+              "adjust",
+              "anchor",
+              "asterisk",
+              "ban-circle",
+              "bar-chart",
+              "barcode",
+              "beaker",
+              "beer",
+              "bell-alt",
+              "bell",
+              "bolt",
+              "book",
+              "bookmark-empty",
+              "bookmark",
+              "briefcase",
+              "bullhorn",
+              "bullseye",
+              "calendar-empty",
+              "calendar",
+              "camera-retro",
+              "camera",
+              "certificate",
+              "check-empty",
+              "check-minus",
+              "check-sign",
+              "check",
+              "circle-blank",
+              "circle",
+              "cloud-download",
+              "cloud-upload",
+              "cloud",
+              "code-fork",
+              "code",
+              "coffee",
+              "cog",
+              "cogs",
+              "collapse-alt",
+              "comment-alt",
+              "comment",
+              "comments-alt",
+              "comments",
+              "credit-card",
+              "crop",
+              "dashboard",
+              "desktop",
+              "download-alt",
+              "download",
+              "edit-sign",
+              "edit",
+              "ellipsis-horizontal",
+              "ellipsis-vertical",
+              "envelope-alt",
+              "envelope",
+              "eraser",
+              "exchange",
+              "exclamation-sign",
+              "exclamation",
+              "expand-alt",
+              "external-link-sign",
+              "external-link",
+              "eye-close",
+              "eye-open",
+              "facetime-video",
+              "fighter-jet",
+              "film",
+              "filter",
+              "fire-extinguisher",
+              "fire",
+              "flag-alt",
+              "flag-checkered",
+              "flag",
+              "folder-close-alt",
+              "folder-close",
+              "folder-open-alt",
+              "folder-open",
+              "food",
+              "frown",
+              "gamepad",
+              "gift",
+              "glass",
+              "globe",
+              "group",
+              "hdd",
+              "headphones",
+              "heart-empty",
+              "heart",
+              "home",
+              "inbox",
+              "info-sign",
+              "info",
+              "key",
+              "keyboard",
+              "laptop",
+              "leaf",
+              "legal",
+              "lemon",
+              "level-down",
+              "level-up",
+              "lightbulb",
+              "location-arrow",
+              "lock",
+              "magic",
+              "magnet",
+              "mail-forward (alias)",
+              "mail-reply (alias)",
+              "mail-reply-all (alias)",
+              "map-marker",
+              "meh",
+              "microphone-off",
+              "microphone",
+              "minus-sign-alt",
+              "minus-sign",
+              "minus",
+              "mobile-phone",
+              "money",
+              "move",
+              "music",
+              "off",
+              "ok-circle",
+              "ok-sign",
+              "ok",
+              "pencil",
+              "phone-sign",
+              "phone",
+              "picture",
+              "plane",
+              "plus-sign",
+              "plus",
+              "print",
+              "pushpin",
+              "puzzle-piece",
+              "qrcode",
+              "question-sign",
+              "question",
+              "quote-left",
+              "quote-right",
+              "random",
+              "refresh",
+              "remove-circle",
+              "remove-sign",
+              "remove",
+              "reorder",
+              "reply-all",
+              "reply",
+              "resize-horizontal",
+              "resize-vertical",
+              "retweet",
+              "road",
+              "rocket",
+              "rotate-left (alias)",
+              "rotate-right (alias)",
+              "rss-sign",
+              "rss",
+              "screenshot",
+              "search",
+              "share-alt",
+              "share-sign",
+              "share",
+              "shield",
+              "shopping-cart",
+              "sign-blank",
+              "signal",
+              "signin",
+              "signout",
+              "sitemap",
+              "smile",
+              "sort-down",
+              "sort-up",
+              "sort",
+              "spinner",
+              "star-empty",
+              "star-half-full (alias)",
+              "star-half-empty",
+              "star-half",
+              "star",
+              "tablet",
+              "tag",
+              "tags",
+              "tasks",
+              "terminal",
+              "thumbs-down",
+              "thumbs-up",
+              "ticket",
+              "time",
+              "tint",
+              "trash",
+              "trophy",
+              "truck",
+              "umbrella",
+              "unlock-alt",
+              "unlock",
+              "upload-alt",
+              "upload",
+              "user-md",
+              "user",
+              "volume-down",
+              "volume-off",
+              "volume-up",
+              "warning-sign",
+              "wrench",
+              "zoom-in",
+              "zoom-out",
+
+              // Text Editor Icons
+              "file",
+              "file-alt",
+              "cut",
+              "copy",
+              "paste",
+              "save",
+              "undo",
+              "repeat",
+              "text-height",
+              "text-width",
+              "align-left",
+              "align-center",
+              "align-right",
+              "align-justify",
+              "indent-left",
+              "indent-right",
+              "font",
+              "bold",
+              "italic",
+              "strikethrough",
+              "underline",
+              "superscript",
+              "subscript",
+              "link",
+              "unlink",
+              "paper-clip",
+              "eraser",
+              "columns",
+              "table",
+              "th-large",
+              "th",
+              "th-list",
+              "list",
+              "list-ol",
+              "list-ul",
+              "list-alt",
+
+              // Directional Icons
+              "angle-left",
+              "angle-right",
+              "angle-up",
+              "angle-down",
+              "arrow-down",
+              "arrow-left",
+              "arrow-right",
+              "arrow-up",
+              "caret-down",
+              "caret-left",
+              "caret-right",
+              "caret-up",
+              "chevron-down",
+              "chevron-left",
+              "chevron-right",
+              "chevron-up",
+              "chevron-sign-left",
+              "chevron-sign-right",
+              "chevron-sign-up",
+              "chevron-sign-down",
+              "circle-arrow-down",
+              "circle-arrow-left",
+              "circle-arrow-right",
+              "circle-arrow-up",
+              "double-angle-left",
+              "double-angle-right",
+              "double-angle-up",
+              "double-angle-down",
+              "hand-down",
+              "hand-left",
+              "hand-right",
+              "hand-up",
+
+              // Video Player Icons
+              "play-circle",
+              "play-sign",
+              "play",
+              "pause",
+              "stop",
+              "eject",
+              "backward",
+              "forward",
+              "fast-backward",
+              "fast-forward",
+              "step-backward",
+              "step-forward",
+              "fullscreen",
+              "resize-full",
+              "resize-small",
+
+              // Brand Icons
+              "css3",
+              "facebook",
+              "facebook-sign",
+              "twitter",
+              "twitter-sign",
+              "github",
+              "github-sign",
+              "html5",
+              "linkedin",
+              "linkedin-sign",
+              "maxcdn",
+              "pinterest",
+              "pinterest-sign",
+              "google-plus",
+              "google-plus-sign",
+
+              // Medical Icons
+              "ambulance",
+              "beaker",
+              "h-sign",
+              "hospital",
+              "medkit",
+              "plus-sign-alt",
+              "stethoscope",
+              "user-md"
             ]
     });
 /* Sprocket Manifest
@@ -1404,12 +1736,12 @@ var Icon = Panel.extend(
  * @property {String} src The URI of the source image
  */
 
-var Image = Panel.extend(
-    /** @lends Image# */
+var Img = Panel.extend(
+    /** @lends Img# */
     {
       /** @see Panel#initialize */
       initialize : function(args) {
-        Image.__super__.initialize.call(this, args);
+        Img.__super__.initialize.call(this, args);
 
         this.setDefaultValue(this.body, "src");
       },
@@ -1423,14 +1755,13 @@ var Image = Panel.extend(
        * @see Panel#listAttributes
        */
       listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "src");
+        return Img.__super__.listAttributes.call(this, "src");
       }
     },
-    /** @lends Image */
+    /** @lends Img */
     {
-      klass: "Image"
-    })
-;
+      klass: "Img"
+    });
 /* Sprocket Manifest
 
  */
@@ -1559,8 +1890,8 @@ var Nav = List.extend(
     /** @lends Nav# */
     {
       initialize: function(args) {
-        this.childPrefix = "<li>";
-        this.childSuffix = "</li>";
+        // this.childPrefix = "<li>";
+        // this.childSuffix = "</li>";
 
         Nav.__super__.initialize.call(this, args);
 
@@ -1574,24 +1905,31 @@ var Nav = List.extend(
         prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
 
         var markup = "";
-        _.each(this.children, function(child) {
-          markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
-        });
+        _.each(this.children, function(child, i) {
+          if(i && this.divided) {
+            markup += "<li class='divider-vertical'></li>";
+          }
+          if(child.tag === "li") { // this allows users to force an override for a specific child
+            markup += child.render();
+          } else {
+            markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+          }
+        }, this);
         return markup;
       },
 
-      render : function(intoDOM) {
-        var markup = Nav.__super__.render.call(this);
-        if(this.divided) {
-          markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
-        }
+      // render : function(intoDOM) {
+      //   var markup = Nav.__super__.render.call(this);
+      //   if(this.divided) {
+      //     markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
+      //   }
 
-        if(intoDOM && this.id) {
-          $("#"+this.id).html(markup);
-        }
+      //   if(intoDOM && this.id) {
+      //     $("#"+this.id).html(markup);
+      //   }
 
-        return markup
-      },
+      //   return markup;
+      // },
 
       divide : function(divided) {
         if(divided) {
@@ -1698,7 +2036,10 @@ var Pagination = Panel.extend(
         }
         Pagination.__super__.initialize.call(this, args);
 
-        this.setDefaultValue(1, "pages");
+        this.setDefaultValue(1, "pages", "currentPage");
+        this.setDefaultValue(Infinity, "maxPages");
+        this.setDefaultValue(true, "prevNext");
+        this.setDefaultValue(false, "firstLast");
         this.childPrefix = "<li>";
         this.childSuffix = "</li>";
 
@@ -1706,6 +2047,52 @@ var Pagination = Panel.extend(
 
         if(this.children.length === 0) {
           this.buildPages();
+        }
+
+        if(this.onPage && this.id) {
+          // Add click handlers
+          var p = this;
+          $(function() {
+            $("body").on("click", "#"+p.id+" a", function(e) {
+              e.preventDefault();
+              if(!$(this).parent().is(".active, .disabled")) {
+                var pEl = p.el(),
+                    $this = $(this);
+
+                switch($this.attr("class")) {
+                  case "first": // first page button clicked
+                    p.currentPage = 1;
+                    break;
+
+                  case "prev":  // previous page button clicked
+                    p.currentPage--;
+                    break;
+
+                  case "next":  // next page button clicked
+                    p.currentPage++;
+                    break;
+
+                  case "last":  // last page button clicked
+                    p.currentPage = p.pages;
+                    break;
+
+                  default:      // numbered page button clicked
+                    p.currentPage = parseInt($this.text(), 10);
+                }
+
+                p.render(true);
+                p.onPage.call(p, p.currentPage, this, e);
+
+                pEl.find("li").not(function() { return $(this).find(".first, .last, .prev, .next").size() > 0; }).eq(p.currentPage-1).addClass("active");
+
+                if(p.currentPage === 1) {
+                  pEl.find(".first, .prev").parent().addClass("disabled");
+                } else if(p.currentPage === p.pages) {
+                  pEl.find(".last, .next").parent().addClass("disabled");
+                }
+              }
+            });
+          });
         }
       },
 
@@ -1719,21 +2106,43 @@ var Pagination = Panel.extend(
       },
 
       buildPages: function() {
+        var dispPages, startPage, pageRange;
+
         this.children = [];
-        if(this.pages < 1) {
+        if(this.pages > 1) {
+          dispPages = Math.min(this.maxPages, this.pages);          // determine the number of pages to display
+          pageRange = Math.floor(dispPages/2);                      // determine the number of pages on each side of current
+          startPage = Math.max(this.currentPage - pageRange, 1);    // ensure the start page isn't less than 1
+          startPage = Math.min(startPage, this.pages - pageRange);  // ensure the start page doesn't chop off pages
+          startPage = Math.floor(startPage);                        // handle dispPages being odd
 
-          throw new SyntaxError("You must supply a number of pages greater than 0");
-
-        } else if(this.pages > 1) {
-
-          this.add(new Link({body: "&laquo;", classes: ["prev"]}));
-          _.times(this.pages, function(i) {
-            this.add(new Link((i+1)+""));
+          _.times(dispPages, function(i) {
+            this.add(new Link((i+startPage)+""));
           }, this);
-          this.add(new Link({body: "&raquo;", classes: ["next"]}));
+
+          if(this.pages > dispPages) {
+            if(this.currentPage - pageRange > 0) {
+              this.unshift(new Raw("..."));
+            }
+
+            if(this.pages - this.currentPage > pageRange) {
+              this.add(new Raw("..."));
+            }
+          }
+
+          if(this.prevNext) {
+            this.unshift(new Link({ classes: "prev", children: [ new Icon({type: "angle-left"}) ] }));
+            this.add(new Link({ classes: "next", children: [ new Icon({type: "angle-right"}) ] }));
+          }
+
+          if(this.firstLast) {
+            this.unshift(new Link({ classes: "first", children: [ new Icon({type: "double-angle-left"}) ] }));
+            this.add(new Link({ classes: "last", children: [ new Icon({type: "double-angle-right"}) ] }));
+          }
 
         } else {
-          console.warn("Paginator instantiated with only 1 page."); //paginators with only 1 page don't display
+          //paginators with less than 2 pages don't display
+          console.warn("Paginator set to have less than 2 pages.  Pagination not will not display.");
         }
       }
 
@@ -1894,7 +2303,7 @@ var Source = Panel.extend(
       render : function(intoDOM) {
             // if data is a function, use the return from that function, else data
         var markup,
-            _data = (data.call ? data.call(this) : data),
+            _data = (this.data.call ? this.data.call(this) : this.data),
             innerHTML = this.body + this.renderChildren();
 
         // make data an array to make this easier
