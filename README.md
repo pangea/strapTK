@@ -3,7 +3,17 @@
 Strap'd ToolKit is a JavaScript framework for building sites with Bootstrap.  It handles construction and insertion of HTML as well as providing some easy methods of using Bootstrap's built-in element styling for typed elements (like buttons).  In the future, it will provide the means to attach data sources to objects that will affect the display of the object and will update with the data source.
 
 ## Using StrapTK
-Strap was designed for use by JavaScript developers that are sick of writing HTML (like me).  Strap'd requires some very minimal boilerplate to get set up and you can be up and running with a site using Strap'd in minutes.  <small>If you're a fan of Ruby, you'll find some handy HAML compilation code in the Rakefile that will trim your boilerplate down even farther!</small>
+### Requirements
+In order to use StrapTK, you'll need a few other libraries.
+* [Twitter Bootstrap](http://twitter.github.com/bootstrap/index.html) - While Strap'd doesn't directly interact with Bootstrap, it was built entirely for working with Bootstrap.
+* [FontAwesome](https://github.com/FortAwesome/Font-Awesome) - For additional icons.  FontAwesome can be omitted at the expense of a number of icons provided by the Icon class.
+* [jQuery](http://jquery.com/) - If you're not already using jQuery, I strongly recommend it.
+* [Lo-Dash](http://lodash.com/) - This _can_ be substituted for Underscore, but you will encounter a errors when Lo-Dash's chaining syntax is used.
+
+Once you have all those, you're ready to use Strap'd.
+
+### Coding it up
+Strap'd was designed for use by JavaScript developers that are sick of writing HTML (like me).  Strap'd requires some very minimal boilerplate to get set up and you can be up and running with a site using Strap'd in minutes.  <small>If you're a fan of Ruby, you'll find some handy HAML compilation code in the Rakefile that will trim your boilerplate down even farther!</small>
 
 So, let's write some code!  We'll start with a simple example:
 ````javascript
@@ -26,7 +36,7 @@ new Panel({
 /*  Renders to:
  *    <div class='well'>
  *      <h1>Look here!</h1>
- *      <p>We could next this further but who wants to read that?</p>
+ *      <p>We could nest this further but who wants to read that?</p>
  *    </div>
  */
 ````
