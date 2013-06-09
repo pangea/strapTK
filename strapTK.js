@@ -1,9 +1,10 @@
 /*
- * Strap'd ToolKit v 0.4.2
+ * Strap'd ToolKit v 0.4.3
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
+
 ;
 var strap = (function() {
       /**
@@ -205,7 +206,7 @@ var Component = Base.extend(
        * @class Components are generic objects that can add and remove children and render themselves
        * @extends Base
        *
-       * @constructs
+       * @constructs Component
        *
        * @property {String[]} children    This component's children.
        * @property {String}   childPrefix The string to prepend to each child's rendered markup.
@@ -1146,21 +1147,34 @@ var ContentRow = Panel.extend({
         this.ensureChildLimit();
         ContentRow.__super__.insert.call(this, component, index);
       },
-      renderChildren: function(prefix, suffix) {
-        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
-        var rowWidth = this.maxChildren,
-            fluidChildren = this.children.length;
+      renderChildren: function() {
+        var span,
+            prefix        = this.childPrefix,
+            suffix        = this.childSuffix,
+            rowWidth      = this.maxChildren,
+            fluidChildren = this.children.length,
+            markup        = "";
 
         _.each(this.children, function(child) {
           rowWidth -= (child.span || 0);
           fluidChildren -= (isNaN(child.span) ? 0 : 1);
         });
 
-        var span = Math.floor(rowWidth/fluidChildren),
-            markup = "";
+        span = Math.floor(rowWidth/fluidChildren);
         _.each(this.children, function(child) {
           var childMarkup = prefix + child.render() + suffix;
-          if(child.span !== 0) {
+
+          if(child.klass === "Panel" && !child.tag) { // don't double wrap divs, but also don't falsely detected custom strap objects
+            if(child.span !== 0) {
+              child.addClass("span"+(child.span || span));
+            }
+
+            childMarkup = child.render();
+
+            if(child.span !== 0) {  // check if a span class was added and remove it if it was
+              child.removeClass("span"+(child.span || span));
+            }
+          } else if(child.span !== 0) {
             childMarkup = "<div class='span"+(child.span || span)+"'>" + childMarkup + "</div>";
           }
 
@@ -1377,6 +1391,27 @@ var HR = HorizontalRule;
 var Icon = Panel.extend(
     /** @lends Icon# */
     {
+      /**
+       * Extends the Panel constructor to modify the behavior when a string is passed in as attributes.
+       * Instead of applying the string to the body, it will instead be used as the type.
+       * @class
+       * The Icon class provides a simple accessor to the many FontAwesome icons provided.
+       * It is the only Component that does not wrap its body.
+       *
+       * @extends Panel
+       * @constructs Icon
+       *
+       * @param {Object} [attributes={}]  Values to apply to this object.  All values supplied are applied to the created object
+       * @param {Object} [options={}]     Passed to the initialize function (currently unused by any default component)
+       */
+      constructor : function(attributes, options) {
+        if(typeof(attributes) == "string") {
+          attributes = {type: attributes};
+        }
+
+        Icon.__super__.constructor.call(this, attributes, options);
+      },
+
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);
 
@@ -1877,8 +1912,8 @@ var Nav = List.extend(
     /** @lends Nav# */
     {
       initialize: function(args) {
-        this.childPrefix = "<li>";
-        this.childSuffix = "</li>";
+        // this.childPrefix = "<li>";
+        // this.childSuffix = "</li>";
 
         Nav.__super__.initialize.call(this, args);
 
@@ -1892,24 +1927,31 @@ var Nav = List.extend(
         prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
 
         var markup = "";
-        _.each(this.children, function(child) {
-          markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
-        });
+        _.each(this.children, function(child, i) {
+          if(i && this.divided) {
+            markup += "<li class='divider-vertical'></li>";
+          }
+          if(child.tag === "li") { // this allows users to force an override for a specific child
+            markup += child.render();
+          } else {
+            markup += (child.active ? prefix.replace(/>$/," class='active'>") : prefix) + child.render() + suffix;
+          }
+        }, this);
         return markup;
       },
 
-      render : function(intoDOM) {
-        var markup = Nav.__super__.render.call(this);
-        if(this.divided) {
-          markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
-        }
+      // render : function(intoDOM) {
+      //   var markup = Nav.__super__.render.call(this);
+      //   if(this.divided) {
+      //     markup = markup.split("</li><li").join("</li><li class='divider-vertical'></li><li");
+      //   }
 
-        if(intoDOM && this.id) {
-          $("#"+this.id).html(markup);
-        }
+      //   if(intoDOM && this.id) {
+      //     $("#"+this.id).html(markup);
+      //   }
 
-        return markup
-      },
+      //   return markup;
+      // },
 
       divide : function(divided) {
         if(divided) {
@@ -2283,7 +2325,7 @@ var Source = Panel.extend(
       render : function(intoDOM) {
             // if data is a function, use the return from that function, else data
         var markup,
-            _data = (data.call ? data.call(this) : data),
+            _data = (this.data.call ? this.data.call(this) : this.data),
             innerHTML = this.body + this.renderChildren();
 
         // make data an array to make this easier
@@ -2291,8 +2333,9 @@ var Source = Panel.extend(
           _data = [_data];
         }
 
+
         // iterate over the contents of data and produce the templates
-        markup = _.each(_data, function(entry) {
+        markup = _.map(_data, function(entry) {
           return this.template({
             "yield": innerHTML,
             "data" : entry,
@@ -2354,9 +2397,13 @@ var Table = Panel.extend(
       },
 
       throwUnlessRow: function(row) {
-        if(row instanceof TableRow) { return; }
+        if(
+            row instanceof TableRow ||
+            row instanceof Source ||
+            (row.tag && (row.tag == "thead" || row.tag == "tfoot"))
+          ) { return; }
 
-        throw new TypeError("Tables can only have Rows as children");
+        throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
       },
 
       template: strap.generateSimpleTemplate("table")

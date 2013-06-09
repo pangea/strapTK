@@ -27,9 +27,13 @@ var Table = Panel.extend(
       },
 
       throwUnlessRow: function(row) {
-        if(row instanceof TableRow) { return; }
+        if(
+            row instanceof TableRow ||
+            row instanceof Source ||
+            (row.tag && (row.tag == "thead" || row.tag == "tfoot"))
+          ) { return; }
 
-        throw new TypeError("Tables can only have Rows as children");
+        throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
       },
 
       template: strap.generateSimpleTemplate("table")

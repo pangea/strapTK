@@ -20,21 +20,34 @@ var ContentRow = Panel.extend({
         this.ensureChildLimit();
         ContentRow.__super__.insert.call(this, component, index);
       },
-      renderChildren: function(prefix, suffix) {
-        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
-        var rowWidth = this.maxChildren,
-            fluidChildren = this.children.length;
+      renderChildren: function() {
+        var span,
+            prefix        = this.childPrefix,
+            suffix        = this.childSuffix,
+            rowWidth      = this.maxChildren,
+            fluidChildren = this.children.length,
+            markup        = "";
 
         _.each(this.children, function(child) {
           rowWidth -= (child.span || 0);
           fluidChildren -= (isNaN(child.span) ? 0 : 1);
         });
 
-        var span = Math.floor(rowWidth/fluidChildren),
-            markup = "";
+        span = Math.floor(rowWidth/fluidChildren);
         _.each(this.children, function(child) {
           var childMarkup = prefix + child.render() + suffix;
-          if(child.span !== 0) {
+
+          if(child.klass === "Panel" && !child.tag) { // don't double wrap divs, but also don't falsely detected custom strap objects
+            if(child.span !== 0) {
+              child.addClass("span"+(child.span || span));
+            }
+
+            childMarkup = child.render();
+
+            if(child.span !== 0) {  // check if a span class was added and remove it if it was
+              child.removeClass("span"+(child.span || span));
+            }
+          } else if(child.span !== 0) {
             childMarkup = "<div class='span"+(child.span || span)+"'>" + childMarkup + "</div>";
           }
 
