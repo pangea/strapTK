@@ -2164,7 +2164,7 @@ var Pagination = Panel.extend(
 
         } else {
           //paginators with less than 2 pages don't display
-          console.warn("Paginator set to have less than 2 pages.  Pagination not will not display.");
+          console && console.warn("Paginator set to have less than 2 pages.  Pagination not will not display.");
         }
       }
 
