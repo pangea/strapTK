@@ -42,7 +42,7 @@ var Source = Panel.extend(
       render : function(intoDOM) {
             // if data is a function, use the return from that function, else data
         var markup,
-            _data = (data.call ? data.call(this) : data),
+            _data = (this.data.call ? this.data.call(this) : this.data),
             innerHTML = this.body + this.renderChildren();
 
         // make data an array to make this easier
@@ -50,8 +50,9 @@ var Source = Panel.extend(
           _data = [_data];
         }
 
+
         // iterate over the contents of data and produce the templates
-        markup = _.each(_data, function(entry) {
+        markup = _.map(_data, function(entry) {
           return this.template({
             "yield": innerHTML,
             "data" : entry,
