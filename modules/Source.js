@@ -50,8 +50,9 @@ var Source = Panel.extend(
           _data = [_data];
         }
 
+
         // iterate over the contents of data and produce the templates
-        markup = _.each(_data, function(entry) {
+        markup = _.map(_data, function(entry) {
           return this.template({
             "yield": innerHTML,
             "data" : entry,

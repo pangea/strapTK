@@ -5,6 +5,27 @@
 var Icon = Panel.extend(
     /** @lends Icon# */
     {
+      /**
+       * Extends the Panel constructor to modify the behavior when a string is passed in as attributes.
+       * Instead of applying the string to the body, it will instead be used as the type.
+       * @class
+       * The Icon class provides a simple accessor to the many FontAwesome icons provided.
+       * It is the only Component that does not wrap its body.
+       *
+       * @extends Panel
+       * @constructs Icon
+       *
+       * @param {Object} [attributes={}]  Values to apply to this object.  All values supplied are applied to the created object
+       * @param {Object} [options={}]     Passed to the initialize function (currently unused by any default component)
+       */
+      constructor : function(attributes, options) {
+        if(typeof(attributes) == "string") {
+          attributes = {type: attributes};
+        }
+
+        Icon.__super__.constructor.call(this, attributes, options);
+      },
+
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);
 
