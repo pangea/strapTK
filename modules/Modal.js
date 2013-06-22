@@ -56,7 +56,7 @@ var Modal = Panel.extend(
         return  _.extend(
                   Modal.__super__.renderHash.call(this),
                   {
-                    header  : this.header,
+                    header  : this.header.render ? this.header.render() : this.header,
                     actions : this.renderActions(),
                     closable: this.closable
                   }

@@ -1,9 +1,10 @@
 /*
- * Strap'd ToolKit v 0.4.1
+ * Strap'd ToolKit v 0.5.0
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
  */
+
 ;
 var strap = (function() {
       /**
@@ -205,7 +206,7 @@ var Component = Base.extend(
        * @class Components are generic objects that can add and remove children and render themselves
        * @extends Base
        *
-       * @constructs
+       * @constructs Component
        *
        * @property {String[]} children    This component's children.
        * @property {String}   childPrefix The string to prepend to each child's rendered markup.
@@ -1219,8 +1220,8 @@ var DropdownMenu = List.extend(
       initialize : function(args) {
         DropdownMenu.__super__.initialize.call(this, args);
 
-        this.childPrefix = "<li>";
-        this.childSuffix = "</li>";
+        // this.childPrefix = "<li>";
+        // this.childSuffix = "</li>";
 
         this.addClass("dropdown-menu");
       }
@@ -1390,6 +1391,27 @@ var HR = HorizontalRule;
 var Icon = Panel.extend(
     /** @lends Icon# */
     {
+      /**
+       * Extends the Panel constructor to modify the behavior when a string is passed in as attributes.
+       * Instead of applying the string to the body, it will instead be used as the type.
+       * @class
+       * The Icon class provides a simple accessor to the many FontAwesome icons provided.
+       * It is the only Component that does not wrap its body.
+       *
+       * @extends Panel
+       * @constructs Icon
+       *
+       * @param {Object} [attributes={}]  Values to apply to this object.  All values supplied are applied to the created object
+       * @param {Object} [options={}]     Passed to the initialize function (currently unused by any default component)
+       */
+      constructor : function(attributes, options) {
+        if(typeof(attributes) == "string") {
+          attributes = {type: attributes};
+        }
+
+        Icon.__super__.constructor.call(this, attributes, options);
+      },
+
       initialize : function(args) {
         Icon.__super__.initialize.call(this, args);
 
@@ -1867,7 +1889,7 @@ var Modal = Panel.extend(
         return  _.extend(
                   Modal.__super__.renderHash.call(this),
                   {
-                    header  : this.header,
+                    header  : this.header.render ? this.header.render() : this.header,
                     actions : this.renderActions(),
                     closable: this.closable
                   }
@@ -2266,8 +2288,11 @@ var SelectOption = Panel.extend(
  * @class Sources are Components that know how to gather and use data gathered from a 3rd party API
  * @extends Panel
  *
- * @property {String} src   The URL to the data source of this component
- * @property {Object} data  The data for this Source
+ * @property {String} src       The URL to the data source of this component
+ * @property {Object} data      The data for this Source
+ * @property {String} parentID  The ID to insert the content into if doing DOM injection
+ *
+ * @see Source#render
  */
 
 var Source = Panel.extend(
@@ -2277,7 +2302,7 @@ var Source = Panel.extend(
       initialize : function(args) {
         Source.__super__.initialize.call(this, args);
 
-        this.setDefaultValue("", "src");
+        this.setDefaultValue("", "src", "parentID");
         this.setDefaultValue({}, "data");
 
         // convert template from string to function
@@ -2298,10 +2323,16 @@ var Source = Panel.extend(
       /**
        * Overrides render to pass in the Source#data field
        *
+       * If data is a function, the result of calling that function is
+       * passed into the template
+       *
+       * If data is an array, the template is called once for each element
+       * in the array.
+       *
        * @see Panel#render
        */
       render : function(intoDOM) {
-            // if data is a function, use the return from that function, else data
+        // if data is a function, use the return from that function, else data
         var markup,
             _data = (this.data.call ? this.data.call(this) : this.data),
             innerHTML = this.body + this.renderChildren();
@@ -2312,7 +2343,7 @@ var Source = Panel.extend(
         }
 
         // iterate over the contents of data and produce the templates
-        markup = _.each(_data, function(entry) {
+        markup = _.map(_data, function(entry, i) {
           return this.template({
             "yield": innerHTML,
             "data" : entry,
@@ -2320,8 +2351,8 @@ var Source = Panel.extend(
           });
         }, this).join("");
 
-        if(intoDOM && this.id) {
-          $("#"+this.id).html(markup);
+        if(intoDOM && this.parentID) {
+          $("#"+this.parentID).html(markup);
         }
 
         return markup;
@@ -2374,9 +2405,13 @@ var Table = Panel.extend(
       },
 
       throwUnlessRow: function(row) {
-        if(row instanceof TableRow) { return; }
+        if(
+            row instanceof TableRow ||
+            row instanceof Source ||
+            (row.tag && (row.tag == "thead" || row.tag == "tfoot"))
+          ) { return; }
 
-        throw new TypeError("Tables can only have Rows as children");
+        throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
       },
 
       template: strap.generateSimpleTemplate("table")

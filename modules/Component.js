@@ -13,7 +13,7 @@ var Component = Base.extend(
        * @class Components are generic objects that can add and remove children and render themselves
        * @extends Base
        *
-       * @constructs
+       * @constructs Component
        *
        * @property {String[]} children    This component's children.
        * @property {String}   childPrefix The string to prepend to each child's rendered markup.
