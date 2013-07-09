@@ -65,7 +65,7 @@ var Pagination = Panel.extend(
           });
         }
 
-        $(this).on("after-render", function(pag) {
+        $(this).on("after-render", function(e, pag) {
           var el  = pag.el();
 
           el.find("li").filter(function() {
