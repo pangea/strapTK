@@ -2144,11 +2144,11 @@ var Pagination = Panel.extend(
 
           if(this.pages > dispPages) {
             if(this.currentPage - pageRange > 0) {
-              this.unshift(new Raw("..."));
+              this.unshift(new Span("..."));
             }
 
             if(this.pages - this.currentPage > pageRange) {
-              this.add(new Raw("..."));
+              this.add(new Span("..."));
             }
           }
 
@@ -2345,14 +2345,15 @@ var Source = Panel.extend(
         // iterate over the contents of data and produce the templates
         markup = _.map(_data, function(entry, i) {
           return this.template({
-            "yield": innerHTML,
-            "data" : entry,
+            "yield"     : innerHTML,
+            "data"      : entry,
+            "index"     : i,
             "rootAttrs" : this.listAttributes()
           });
         }, this).join("");
 
         if(intoDOM && this.parentID) {
-          $("#"+this.parentID).html(markup);
+          $("#"+this.parentID).html(markup).add(this).trigger("after-render", [this]);
         }
 
         return markup;
@@ -2408,7 +2409,7 @@ var Table = Panel.extend(
         if(
             row instanceof TableRow ||
             row instanceof Source ||
-            (row.tag && (row.tag == "thead" || row.tag == "tfoot"))
+            (row.tag && (row.tag == "thead" || row.tag == "tfoot" || row.tag == "tbody"))
           ) { return; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");

@@ -96,11 +96,11 @@ var Pagination = Panel.extend(
 
           if(this.pages > dispPages) {
             if(this.currentPage - pageRange > 0) {
-              this.unshift(new Raw("..."));
+              this.unshift(new Span("..."));
             }
 
             if(this.pages - this.currentPage > pageRange) {
-              this.add(new Raw("..."));
+              this.add(new Span("..."));
             }
           }
 
