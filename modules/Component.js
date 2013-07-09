@@ -45,6 +45,14 @@ var Component = Base.extend(
         this.setDefaultValue("", "childPrefix", "childSuffix");
 
         this.klass = this.constructor.klass;
+
+        $(this).on("after-render", function(com, parent) {
+          var propagate = parent || com;
+
+          _.each(com.children, function(child) {
+            $(child).trigger("after-render", [child, propagate]);
+          });
+        });
       },
 
       /**
