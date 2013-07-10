@@ -45,6 +45,18 @@ var Component = Base.extend(
         this.setDefaultValue("", "childPrefix", "childSuffix");
 
         this.klass = this.constructor.klass;
+
+        // Base after-render hook
+        // this causes after-render events to propagate down to children
+        $(this).on("after-render", function(e, com, parent) {
+          var propagate = parent || com;
+
+          _.each(com.children, function(child) {
+            // the trigger is done this way to be consistant with the after-render
+            // triggered by calling render(true) on a Panel
+            $(child).trigger(e, [child, propagate]);
+          });
+        });
       },
 
       /**

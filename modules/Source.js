@@ -62,14 +62,15 @@ var Source = Panel.extend(
         // iterate over the contents of data and produce the templates
         markup = _.map(_data, function(entry, i) {
           return this.template({
-            "yield": innerHTML,
-            "data" : entry,
+            "yield"     : innerHTML,
+            "data"      : entry,
+            "index"     : i,
             "rootAttrs" : this.listAttributes()
           });
         }, this).join("");
 
         if(intoDOM && this.parentID) {
-          $("#"+this.parentID).html(markup);
+          $("#"+this.parentID).html(markup).add(this).trigger("after-render", [this]);
         }
 
         return markup;

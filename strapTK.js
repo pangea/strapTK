@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.5.0
+ * Strap'd ToolKit v 0.6.0
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -238,6 +238,18 @@ var Component = Base.extend(
         this.setDefaultValue("", "childPrefix", "childSuffix");
 
         this.klass = this.constructor.klass;
+
+        // Base after-render hook
+        // this causes after-render events to propagate down to children
+        $(this).on("after-render", function(e, com, parent) {
+          var propagate = parent || com;
+
+          _.each(com.children, function(child) {
+            // the trigger is done this way to be consistant with the after-render
+            // triggered by calling render(true) on a Panel
+            $(child).trigger(e, [child, propagate]);
+          });
+        });
       },
 
       /**
@@ -2071,15 +2083,14 @@ var Pagination = Panel.extend(
           this.buildPages();
         }
 
-        if(this.onPage && this.id) {
+        if(this.id) {
           // Add click handlers
           var p = this;
           $(function() {
             $("body").on("click", "#"+p.id+" a", function(e) {
               e.preventDefault();
               if(!$(this).parent().is(".active, .disabled")) {
-                var pEl = p.el(),
-                    $this = $(this);
+                var $this = $(this);
 
                 switch($this.attr("class")) {
                   case "first": // first page button clicked
@@ -2102,20 +2113,31 @@ var Pagination = Panel.extend(
                     p.currentPage = parseInt($this.text(), 10);
                 }
 
+                p.buildPages();
                 p.render(true);
-                p.onPage.call(p, p.currentPage, this, e);
-
-                pEl.find("li").not(function() { return $(this).find(".first, .last, .prev, .next").size() > 0; }).eq(p.currentPage-1).addClass("active");
-
-                if(p.currentPage === 1) {
-                  pEl.find(".first, .prev").parent().addClass("disabled");
-                } else if(p.currentPage === p.pages) {
-                  pEl.find(".last, .next").parent().addClass("disabled");
+                if(p.onPage) {
+                  p.onPage.call(p, e, p.currentPage, this);
                 }
+
+                $(p).trigger('page', [p.currentPage, this]);
               }
             });
           });
         }
+
+        $(this).on("after-render", function(e, pag) {
+          var el  = pag.el();
+
+          el.find("li").filter(function() {
+            return $(this).find("a").text().match(pag.currentPage);
+          }).addClass("active");
+
+          if(pag.currentPage === 1) {
+            el.find(".first, .prev").parent().addClass("disabled");
+          } else if(pag.currentPage === pag.pages) {
+            el.find(".last, .next").parent().addClass("disabled");
+          }
+        });
       },
 
       renderChildren: function() {
@@ -2132,23 +2154,23 @@ var Pagination = Panel.extend(
 
         this.children = [];
         if(this.pages > 1) {
-          dispPages = Math.min(this.maxPages, this.pages);          // determine the number of pages to display
-          pageRange = Math.floor(dispPages/2);                      // determine the number of pages on each side of current
-          startPage = Math.max(this.currentPage - pageRange, 1);    // ensure the start page isn't less than 1
-          startPage = Math.min(startPage, this.pages - pageRange);  // ensure the start page doesn't chop off pages
-          startPage = Math.floor(startPage);                        // handle dispPages being odd
+          dispPages = Math.min(this.maxPages, this.pages);              // determine the number of pages to display
+          pageRange = Math.floor(dispPages/2);                          // determine the number of pages on each side of current
+          startPage = Math.max(this.currentPage - pageRange, 1);        // ensure the start page isn't less than 1
+          startPage = Math.min(startPage, this.pages - dispPages + 1);  // ensure the start page doesn't chop off pages
+          startPage = Math.floor(startPage);                            // handle dispPages being odd
 
           _.times(dispPages, function(i) {
             this.add(new Link((i+startPage)+""));
           }, this);
 
           if(this.pages > dispPages) {
-            if(this.currentPage - pageRange > 0) {
-              this.unshift(new Raw("..."));
+            if(this.currentPage - pageRange > 1) {
+              this.unshift(new Span("..."));
             }
 
             if(this.pages - this.currentPage > pageRange) {
-              this.add(new Raw("..."));
+              this.add(new Span("..."));
             }
           }
 
@@ -2345,14 +2367,15 @@ var Source = Panel.extend(
         // iterate over the contents of data and produce the templates
         markup = _.map(_data, function(entry, i) {
           return this.template({
-            "yield": innerHTML,
-            "data" : entry,
+            "yield"     : innerHTML,
+            "data"      : entry,
+            "index"     : i,
             "rootAttrs" : this.listAttributes()
           });
         }, this).join("");
 
         if(intoDOM && this.parentID) {
-          $("#"+this.parentID).html(markup);
+          $("#"+this.parentID).html(markup).add(this).trigger("after-render", [this]);
         }
 
         return markup;
@@ -2408,7 +2431,7 @@ var Table = Panel.extend(
         if(
             row instanceof TableRow ||
             row instanceof Source ||
-            (row.tag && (row.tag == "thead" || row.tag == "tfoot"))
+            (row.tag && (row.tag == "thead" || row.tag == "tfoot" || row.tag == "tbody"))
           ) { return; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");

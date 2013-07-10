@@ -30,7 +30,7 @@ var Table = Panel.extend(
         if(
             row instanceof TableRow ||
             row instanceof Source ||
-            (row.tag && (row.tag == "thead" || row.tag == "tfoot"))
+            (row.tag && (row.tag == "thead" || row.tag == "tfoot" || row.tag == "tbody"))
           ) { return; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
