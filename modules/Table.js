@@ -5,7 +5,13 @@ var Table = Panel.extend(
     /** @lends Table# */
     {
       initialize: function(args) {
+        // Override devault value of body with an Array
+        // If still set to a string, the render function
+        // will fall back to older style of handling it
+        this.setDefaultValue([], "head", "body", "foot");
+
         Table.__super__.initialize.call(this, args);
+
         this.addClass("table");
         this.attributes.unshift("style='color: inherit'");  //monkey patch for odd behavior in Webkit
         _.each(this.children, this.throwUnlessRow);         //make sure all children are table rows
@@ -34,6 +40,28 @@ var Table = Panel.extend(
           ) { return; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
+      },
+
+      renderChildren: function(prefix, suffix) {
+        if(this.children.length || _.isString(this.body)) { //older style table
+          return Table.__super__.renderChildren();
+        }
+
+        // HTML5 style table
+        return new Component([
+          strap({
+            tag: 'thead',
+            children: this.head
+          }),
+          strap({
+            tag: 'tfoot',
+            children: this.foot
+          }),
+          strap({
+            tag: 'tbody',
+            children: this.body
+          })
+        ]).render();
       },
 
       template: strap.generateSimpleTemplate("table")
