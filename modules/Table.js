@@ -28,24 +28,52 @@ var Table = Panel.extend(
 
       push: function(row) {
         this.throwUnlessRow(row);
-        Table.__super__.push.call(this, row);
+        this.children.push(row);
+        return this;
       },
 
       unshift: function(row) {
         this.throwUnlessRow(row);
-        Table.__super__.unshift.call(this, row);
+        this.children.unshift(row);
+        return this;
       },
 
       insert: function(row, index) {
         this.throwUnlessRow(row);
-        Table.__super__.insert.call(this, row, index);
+        if(_.isNumber(index)) {
+          this.children.splice(index, 0, row);
+        } else {
+          this.children.push(row);
+        }
+        return this;
+      },
+
+      pushTo: function(group, row) {
+        this.throwUnlessRow(row);
+        this[group].push(row);
+        return this;
+      },
+
+      unshiftTo: function(group, row) {
+        this.throwUnlessRow(row);
+        this[group].unshift(row);
+        return this;
+      },
+
+      insertInto: function(group, row, index) {
+        this.throwUnlessRow(row);
+        if(_.isNumber(index)) {
+          this[group].splice(index, 0, row);
+        } else {
+          this[group].push(row);
+        }
       },
 
       throwUnlessRow: function(row) {
         if(
             row instanceof TableRow ||
             row instanceof Source ||
-            (row.tag && (row.tag == "thead" || row.tag == "tfoot" || row.tag == "tbody"))
+            (row.tag && _.include(["thead", "tfoot", "tbody"], row.tag))
           ) { return; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
@@ -60,7 +88,7 @@ var Table = Panel.extend(
 
       renderChildren: function(prefix, suffix) {
         if(this.legacy) { //older style table
-          return Table.__super__.renderChildren();
+          return Table.__super__.renderChildren.call(this);
         }
 
         // HTML5 style table
