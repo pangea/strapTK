@@ -1,20 +1,33 @@
 /* Sprocket Manifest
  *= require Panel
  */
-
-/**
- * @class Sources are Components that know how to gather and use data gathered from a 3rd party API
- * @extends Panel
- *
- * @property {String} src       The URL to the data source of this component
- * @property {Object} data      The data for this Source
- * @property {String} parentID  The ID to insert the content into if doing DOM injection
- *
- * @see Source#render
- */
 var Source = Panel.extend(
     /** @lends Source# */
     {
+      /**
+       * Overrides Panel's constructor to apply strings passed in via attributes
+       * to be applyed as a template instead of the body.
+       *
+       * @class Sources are Components that use data to construct themselves.
+       *        The data can either be provided (via an object) or collected
+       *        (via a function).
+       *
+       * @extends Panel
+       *
+       * @property {String} src       The URL to the data source of this component
+       * @property {Object} data      The data for this Source
+       * @property {String} parentID  The ID to insert the content into if doing DOM injection
+       *
+       * @see Source#render
+       */
+      constructor : function(attributes, options) {
+        if(_.isString(attributes)) {
+          attributes = { template: _.template(attributes) };
+        }
+
+        Source.__super__.constructor.call(this, attributes, options);
+      },
+
       /** @see Component#initialize */
       initialize : function(args) {
         Source.__super__.initialize.call(this, args);

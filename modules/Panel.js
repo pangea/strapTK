@@ -5,8 +5,9 @@ var Panel = Component.extend(
     /** @lends Panel# */
     {
       /**
-       * Extends the functionality of the Base contstructor to also allow a String to be passed as attributes.
-       * If attributes is a String, it's used as the body of the resulting Panel.
+       * Extends the functionality of the Base contstructor to also allow a String
+       * to be passed as attributes. If attributes is a String, it's used as the
+       * body of the resulting Panel.
        *
        * @class
        * Panels are components designed to work with the DOM.
