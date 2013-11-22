@@ -13,7 +13,7 @@ var SelectOption = Panel.extend(
       template : strap.generateSimpleTemplate("option"),
 
       listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "value");
+        return SelectOption.__super__.listAttributes.call(this, "value");
       }
     },
     /** @lends SelectOption */

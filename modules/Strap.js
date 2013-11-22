@@ -19,7 +19,7 @@ var strap = (function() {
         }
 
         return gen;
-      }
+      };
 
       /**
        * Constructs Strap'd objects from JSON.
@@ -43,14 +43,12 @@ var strap = (function() {
          */
         function parse(json) {
           var obj,
-              name = json.klass,
               children = json.children;
 
-          delete json.klass;
-          delete json.children;
+          // delete json.klass;
 
           // Create the base strap'd class
-          obj = new window[name](json);
+          obj = new window[json.klass](json);
 
           // Check if the object was manually typified
           if(obj.type && !obj.setType) {
@@ -58,11 +56,11 @@ var strap = (function() {
           }
 
           // Parse the list of children
-          if(children && _.isArray(children) && children.length) {
-            _(children).each(function(child) {
-              obj.add(parse(child)); // Parse each child and add it to the main object's list of children
-            });
-          }
+          // if(children && _.isArray(children) && children.length) {
+          //   _(children).each(function(child) {
+          //     obj.add(parse(child)); // Parse each child and add it to the main object's list of children
+          //   });
+          // }
 
           return obj;
         }
@@ -81,7 +79,7 @@ var strap = (function() {
           // Otherwise, we just parse what we have
           return parse(json);
         }
-      }
+      };
 
       /**
        * Generates a simple template with the given tag
@@ -92,7 +90,7 @@ var strap = (function() {
        */
       strap.generateSimpleTemplate = function(tag) {
         return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
-      }
+      };
 
       return strap;
     })();

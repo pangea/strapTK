@@ -22,7 +22,7 @@ var Source = Panel.extend(
        */
       constructor : function(attributes, options) {
         if(_.isString(attributes)) {
-          attributes = { template: _.template(attributes) };
+          attributes = { template: attributes };
         }
 
         Source.__super__.constructor.call(this, attributes, options);
@@ -36,8 +36,13 @@ var Source = Panel.extend(
         this.setDefaultValue({}, "data");
 
         // convert template from string to function
-        if(typeof(this.template) === "string") {
+        if(_.isString(this.template)) {
+          var temp = this.template;
           this.template = _.template(this.template);
+          this.template.uncompiled = temp;
+          this.template.toJSON = function() {
+            return this.uncompiled;
+          };
         }
 
         //set up Fetching here, if src is not blank
@@ -48,7 +53,7 @@ var Source = Panel.extend(
        *
        * @throws Not Defined
        */
-      template : function() { throw "Not Defined"; },
+      template : function() { throw "Template Not Defined"; },
 
       /**
        * Overrides render to pass in the Source#data field

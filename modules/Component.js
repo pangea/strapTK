@@ -74,15 +74,26 @@ var Component = Base.extend(
        * this.setDefaultValue("", "childPrefix", "childSuffix");
        */
       setDefaultValue: function(value, attribute) {
-        var args    = Array.prototype.slice.call(arguments, 1),   // get the list of attributes to apply the value to
-            method  = _.isArray(value) ? "apply" : "call",        // determine which Function method to call
-            isFunc  = _.isFunction(value);                        // functions won't need to be cloned
+            // get the list of attributes to apply the value to
+        var attributes = Array.prototype.slice.call(arguments, 1),
 
-        _.each(args, function(attr) {
-          if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
-            this[attr] = isFunc ?                                 // check if we have a function before cloning
-                          value :                                 // if this is a function, assign it directly.
-                          value.constructor[method](this, value); // else, clone value by calling its constructor function
+            // determine which Function method to call
+            // Arrays have to be applied because it's constructor takes a list
+            // of parameters and creates an array.  Calling Array.constructor([])
+            // yeilds [[]], which is not what we want.
+            method = _.isArray(value) ? "apply" : "call",
+
+            // functions won't need to be cloned
+            isFunc = _.isFunction(value);
+
+        _.each(attributes, function(attr) {
+          if(!this.hasOwnProperty(attr)) {
+            // check if we have a function before cloning
+            this[attr] = isFunc ?
+                          // if this is a function, assign it directly.
+                          value :
+                          // else, clone value by calling its constructor function
+                          value.constructor[method](this, value);
           }
         }, this);
       },
@@ -113,7 +124,7 @@ var Component = Base.extend(
        * @throws {TypeError} if the supplied component doesn't respond to #render
        */
       push : function(component) {
-        this.checkIfRenderable(component);
+        component = this.checkIfRenderable(component);
         this.children.push(component);
         return this;
       },
@@ -138,7 +149,7 @@ var Component = Base.extend(
        * @throws {TypeError} If the supplied component doesn't respond to #render
        */
       unshift : function(component) {
-        this.checkIfRenderable(component);
+        component = this.checkIfRenderable(component);
         this.children.unshift(component);
         return this;
       },
@@ -161,7 +172,7 @@ var Component = Base.extend(
        * @param {Integer}   [index]   The index at which to add the child
        */
       insert : function(component, index) {
-        this.checkIfRenderable(component);
+        component = this.checkIfRenderable(component);
         if(index) {
           this.children.splice(index, 0, component);
         } else {
@@ -233,10 +244,10 @@ var Component = Base.extend(
         }
 
         if(typeof(renderable.render) === "function") {
-          return;
+          return renderable;
         }
 
-        throw TypeError("Object does not respond to render.")
+        throw new TypeError("Object does not respond to render.");
       },
 
       /**
@@ -248,7 +259,8 @@ var Component = Base.extend(
        * @returns {String} The compiled markup of this Component's children
        */
       renderChildren : function(prefix, suffix) {
-        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+        if(!prefix) { prefix = this.childPrefix; }
+        if(!suffix) { suffix = this.childSuffix; }
 
         var markup = "";
         _.each(this.children, function(child) {

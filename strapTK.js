@@ -1,5 +1,5 @@
 /*
- * Strap'd ToolKit v 0.7.0
+ * Strap'd ToolKit v 0.7.1
  * Authored by Chris Hall
  * Copyright 2013 to Pangea Real Estate
  * Under a Creative Commons Attribution-ShareAlike 3.0 Unported License
@@ -27,7 +27,7 @@ var strap = (function() {
         }
 
         return gen;
-      }
+      };
 
       /**
        * Constructs Strap'd objects from JSON.
@@ -51,14 +51,12 @@ var strap = (function() {
          */
         function parse(json) {
           var obj,
-              name = json.klass,
               children = json.children;
 
-          delete json.klass;
-          delete json.children;
+          // delete json.klass;
 
           // Create the base strap'd class
-          obj = new window[name](json);
+          obj = new window[json.klass](json);
 
           // Check if the object was manually typified
           if(obj.type && !obj.setType) {
@@ -66,11 +64,11 @@ var strap = (function() {
           }
 
           // Parse the list of children
-          if(children && _.isArray(children) && children.length) {
-            _(children).each(function(child) {
-              obj.add(parse(child)); // Parse each child and add it to the main object's list of children
-            });
-          }
+          // if(children && _.isArray(children) && children.length) {
+          //   _(children).each(function(child) {
+          //     obj.add(parse(child)); // Parse each child and add it to the main object's list of children
+          //   });
+          // }
 
           return obj;
         }
@@ -89,7 +87,7 @@ var strap = (function() {
           // Otherwise, we just parse what we have
           return parse(json);
         }
-      }
+      };
 
       /**
        * Generates a simple template with the given tag
@@ -100,7 +98,7 @@ var strap = (function() {
        */
       strap.generateSimpleTemplate = function(tag) {
         return _.template("<"+tag+" <%= rootAttrs %>><%= yield %></"+tag+">");
-      }
+      };
 
       return strap;
     })();
@@ -267,15 +265,26 @@ var Component = Base.extend(
        * this.setDefaultValue("", "childPrefix", "childSuffix");
        */
       setDefaultValue: function(value, attribute) {
-        var args    = Array.prototype.slice.call(arguments, 1),   // get the list of attributes to apply the value to
-            method  = _.isArray(value) ? "apply" : "call",        // determine which Function method to call
-            isFunc  = _.isFunction(value);                        // functions won't need to be cloned
+            // get the list of attributes to apply the value to
+        var attributes = Array.prototype.slice.call(arguments, 1),
 
-        _.each(args, function(attr) {
-          if(!this.hasOwnProperty(attr)) {                        // set value only if it's not already set
-            this[attr] = isFunc ?                                 // check if we have a function before cloning
-                          value :                                 // if this is a function, assign it directly.
-                          value.constructor[method](this, value); // else, clone value by calling its constructor function
+            // determine which Function method to call
+            // Arrays have to be applied because it's constructor takes a list
+            // of parameters and creates an array.  Calling Array.constructor([])
+            // yeilds [[]], which is not what we want.
+            method = _.isArray(value) ? "apply" : "call",
+
+            // functions won't need to be cloned
+            isFunc = _.isFunction(value);
+
+        _.each(attributes, function(attr) {
+          if(!this.hasOwnProperty(attr)) {
+            // check if we have a function before cloning
+            this[attr] = isFunc ?
+                          // if this is a function, assign it directly.
+                          value :
+                          // else, clone value by calling its constructor function
+                          value.constructor[method](this, value);
           }
         }, this);
       },
@@ -306,7 +315,7 @@ var Component = Base.extend(
        * @throws {TypeError} if the supplied component doesn't respond to #render
        */
       push : function(component) {
-        this.checkIfRenderable(component);
+        component = this.checkIfRenderable(component);
         this.children.push(component);
         return this;
       },
@@ -331,7 +340,7 @@ var Component = Base.extend(
        * @throws {TypeError} If the supplied component doesn't respond to #render
        */
       unshift : function(component) {
-        this.checkIfRenderable(component);
+        component = this.checkIfRenderable(component);
         this.children.unshift(component);
         return this;
       },
@@ -354,7 +363,7 @@ var Component = Base.extend(
        * @param {Integer}   [index]   The index at which to add the child
        */
       insert : function(component, index) {
-        this.checkIfRenderable(component);
+        component = this.checkIfRenderable(component);
         if(index) {
           this.children.splice(index, 0, component);
         } else {
@@ -426,10 +435,10 @@ var Component = Base.extend(
         }
 
         if(typeof(renderable.render) === "function") {
-          return;
+          return renderable;
         }
 
-        throw TypeError("Object does not respond to render.")
+        throw new TypeError("Object does not respond to render.");
       },
 
       /**
@@ -441,7 +450,8 @@ var Component = Base.extend(
        * @returns {String} The compiled markup of this Component's children
        */
       renderChildren : function(prefix, suffix) {
-        prefix || (prefix = this.childPrefix); suffix || (suffix = this.childSuffix);
+        if(!prefix) { prefix = this.childPrefix; }
+        if(!suffix) { suffix = this.childSuffix; }
 
         var markup = "";
         _.each(this.children, function(child) {
@@ -2365,7 +2375,7 @@ var SelectOption = Panel.extend(
       template : strap.generateSimpleTemplate("option"),
 
       listAttributes : function() {
-        return FormSelect.__super__.listAttributes.call(this, "value");
+        return SelectOption.__super__.listAttributes.call(this, "value");
       }
     },
     /** @lends SelectOption */
@@ -2397,7 +2407,7 @@ var Source = Panel.extend(
        */
       constructor : function(attributes, options) {
         if(_.isString(attributes)) {
-          attributes = { template: _.template(attributes) };
+          attributes = { template: attributes };
         }
 
         Source.__super__.constructor.call(this, attributes, options);
@@ -2411,8 +2421,13 @@ var Source = Panel.extend(
         this.setDefaultValue({}, "data");
 
         // convert template from string to function
-        if(typeof(this.template) === "string") {
+        if(_.isString(this.template)) {
+          var temp = this.template;
           this.template = _.template(this.template);
+          this.template.uncompiled = temp;
+          this.template.toJSON = function() {
+            return this.uncompiled;
+          };
         }
 
         //set up Fetching here, if src is not blank
@@ -2423,7 +2438,7 @@ var Source = Panel.extend(
        *
        * @throws Not Defined
        */
-      template : function() { throw "Not Defined"; },
+      template : function() { throw "Template Not Defined"; },
 
       /**
        * Overrides render to pass in the Source#data field
@@ -2502,35 +2517,65 @@ var Table = Panel.extend(
         // make sure all children are table rows
         if(this.children.length || _.isString(this.body)) {
           this.legacy = true;
-          _.each(this.children, this.throwUnlessRow);
+          this.children = _.map(this.children, this.throwUnlessRow, this);
         } else {
-          _.each(this.head, this.throwUnlessRow);
-          _.each(this.body, this.throwUnlessRow);
-          _.each(this.foot, this.throwUnlessRow);
+          this.head = _.map(this.head, this.throwUnlessRow, this);
+          this.body = _.map(this.body, this.throwUnlessRow, this);
+          this.foot = _.map(this.foot, this.throwUnlessRow, this);
         }
       },
 
       push: function(row) {
-        this.throwUnlessRow(row);
-        Table.__super__.push.call(this, row);
+        row = this.throwUnlessRow(row);
+        this.children.push(row);
+        return this;
       },
 
       unshift: function(row) {
-        this.throwUnlessRow(row);
-        Table.__super__.unshift.call(this, row);
+        row = this.throwUnlessRow(row);
+        this.children.unshift(row);
+        return this;
       },
 
       insert: function(row, index) {
-        this.throwUnlessRow(row);
-        Table.__super__.insert.call(this, row, index);
+        row = this.throwUnlessRow(row);
+        if(_.isNumber(index)) {
+          this.children.splice(index, 0, row);
+        } else {
+          this.children.push(row);
+        }
+        return this;
+      },
+
+      pushTo: function(group, row) {
+        row = this.throwUnlessRow(row);
+        this[group].push(row);
+        return this;
+      },
+
+      unshiftTo: function(group, row) {
+        row = this.throwUnlessRow(row);
+        this[group].unshift(row);
+        return this;
+      },
+
+      insertInto: function(group, row, index) {
+        row = this.throwUnlessRow(row);
+        if(_.isNumber(index)) {
+          this[group].splice(index, 0, row);
+        } else {
+          this[group].push(row);
+        }
       },
 
       throwUnlessRow: function(row) {
+        // this has the side effect of also building the renderable, if need be
+        row = this.checkIfRenderable(row);
         if(
-            row instanceof TableRow ||
-            row instanceof Source ||
-            (row.tag && (row.tag == "thead" || row.tag == "tfoot" || row.tag == "tbody"))
-          ) { return; }
+            row instanceof TableRow     ||
+            row instanceof Source       ||
+            (row.tag && _.include(["thead", "tfoot", "tbody"], row.tag))
+          ) { return row; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
       },
@@ -2544,7 +2589,7 @@ var Table = Panel.extend(
 
       renderChildren: function(prefix, suffix) {
         if(this.legacy) { //older style table
-          return Table.__super__.renderChildren();
+          return Table.__super__.renderChildren.call(this);
         }
 
         // HTML5 style table
@@ -2609,26 +2654,27 @@ var TableRow = Panel.extend(
       initialize: function(args) {
         TableRow.__super__.initialize.call(this, args);
 
-        _.each(this.children, this.throwUnlessCell); //make sure all children are table cells
+        this.children = _.map(this.children, this.throwUnlessCell, this); //make sure all children are table cells
       },
 
       push: function(component) {
-        this.throwUnlessCell(component);
+        component = this.throwUnlessCell(component);
         TableRow.__super__.push.call(this, component);
       },
 
       unshift: function(component) {
-        this.throwUnlessCell(component);
+        component = this.throwUnlessCell(component);
         TableRow.__super__.unshift.call(this, component);
       },
 
       insert: function(component, index) {
-        this.throwUnlessCell(component);
+        component = this.throwUnlessCell(component);
         TableRow.__super__.insert.apply(this, arguments);
       },
 
       throwUnlessCell: function(cell) {
-        if(cell instanceof TableCell || cell instanceof TableHeader) { return; }
+        cell = this.checkIfRenderable(cell);
+        if(cell instanceof TableCell || cell instanceof TableHeader) { return cell; }
 
         throw new TypeError("Rows can only have Cells as children");
       },

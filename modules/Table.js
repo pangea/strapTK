@@ -18,28 +18,28 @@ var Table = Panel.extend(
         // make sure all children are table rows
         if(this.children.length || _.isString(this.body)) {
           this.legacy = true;
-          _.each(this.children, this.throwUnlessRow);
+          this.children = _.map(this.children, this.throwUnlessRow, this);
         } else {
-          _.each(this.head, this.throwUnlessRow);
-          _.each(this.body, this.throwUnlessRow);
-          _.each(this.foot, this.throwUnlessRow);
+          this.head = _.map(this.head, this.throwUnlessRow, this);
+          this.body = _.map(this.body, this.throwUnlessRow, this);
+          this.foot = _.map(this.foot, this.throwUnlessRow, this);
         }
       },
 
       push: function(row) {
-        this.throwUnlessRow(row);
+        row = this.throwUnlessRow(row);
         this.children.push(row);
         return this;
       },
 
       unshift: function(row) {
-        this.throwUnlessRow(row);
+        row = this.throwUnlessRow(row);
         this.children.unshift(row);
         return this;
       },
 
       insert: function(row, index) {
-        this.throwUnlessRow(row);
+        row = this.throwUnlessRow(row);
         if(_.isNumber(index)) {
           this.children.splice(index, 0, row);
         } else {
@@ -49,19 +49,19 @@ var Table = Panel.extend(
       },
 
       pushTo: function(group, row) {
-        this.throwUnlessRow(row);
+        row = this.throwUnlessRow(row);
         this[group].push(row);
         return this;
       },
 
       unshiftTo: function(group, row) {
-        this.throwUnlessRow(row);
+        row = this.throwUnlessRow(row);
         this[group].unshift(row);
         return this;
       },
 
       insertInto: function(group, row, index) {
-        this.throwUnlessRow(row);
+        row = this.throwUnlessRow(row);
         if(_.isNumber(index)) {
           this[group].splice(index, 0, row);
         } else {
@@ -70,11 +70,13 @@ var Table = Panel.extend(
       },
 
       throwUnlessRow: function(row) {
+        // this has the side effect of also building the renderable, if need be
+        row = this.checkIfRenderable(row);
         if(
-            row instanceof TableRow ||
-            row instanceof Source ||
+            row instanceof TableRow     ||
+            row instanceof Source       ||
             (row.tag && _.include(["thead", "tfoot", "tbody"], row.tag))
-          ) { return; }
+          ) { return row; }
 
         throw new TypeError("Invalid child type: " + row.klass + ".  Must be either TableRow or Source.");
       },

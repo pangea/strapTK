@@ -1,2 +1,3 @@
-use klass to do instance checking
-  We cna use this in ContentRow to apply span styles directly to instanciated Panels
+Add serialization for Source templates
+  Auto-convert template strings to function
+  Save string before prossessing
