@@ -12,9 +12,6 @@ var Table = Panel.extend(
 
         Table.__super__.initialize.call(this, args);
 
-        this.addClass("table");
-        this.attributes.unshift("style='color: inherit'");  //monkey patch for odd behavior in Webkit
-
         // make sure all children are table rows
         if(this.children.length || _.isString(this.body)) {
           this.legacy = true;
