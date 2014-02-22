@@ -38,7 +38,7 @@ var Source = Panel.extend(
         // convert template from string to function
         if(_.isString(this.template)) {
           var temp = this.template;
-          this.template = _.template(this.template);
+          this.template = _.template(temp);
           this.template.uncompiled = temp;
           this.template.toJSON = function() {
             return this.uncompiled;
